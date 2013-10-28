@@ -1,0 +1,77 @@
+From mrc@CAC.Washington.EDU Mon Feb  8 02:53:47 PST 1993
+Date: Mon, 6 Feb 1993 02:53:47 -0800 (PST)
+From: Mark Crispin <mrc@CAC.Washington.EDU>
+Subject: Multi-media mail demonstration 
+To: MRC@CAC.Washington.EDU
+Mime-Version: 1.0 
+Content-Type: MULTIPART/MIXED;boundary=owatagusiam 
+Message-Id: <CMM.0.88.687168092.mrc@akbar.cac.washington.edu> 
+Status: RO
+X-Status: 
+X-Keywords:
+X-UID: 1
+
+--owatagusiam
+Content-Type: TEXT/PLAIN
+Content-Description: Explanation
+
+This is a demonstration of multi-part mail with encapsulated messages.  This
+is a very complex message whose purpose it is to exercise software using the
+new multi-part message standard.
+
+--owatagusiam
+Content-Type: MESSAGE/RFC822
+Content-Description: Rich Text demo
+
+Received: from dimacs.rutgers.edu by akbar.cac.washington.edu
+	(5.65/UW-NDC Revision: 2.23 ) id AA21889; Tue, 24 Dec 91 05:52:04 -0800
+Received: by dimacs.rutgers.edu (5.59/SMI4.0/RU1.4/3.08) 
+	id AA09350; Tue, 24 Dec 91 08:14:38 EST
+Received: from thumper.bellcore.com by dimacs.rutgers.edu (5.59/SMI4.0/RU1.4/3.08) 
+	id AA09346; Tue, 24 Dec 91 08:14:33 EST
+Received: from greenbush.bellcore.com by thumper.bellcore.com (4.1/4.7)
+	id <AA28328> for ietf-822@dimacs.rutgers.edu; Tue, 24 Dec 91 08:14:30 EST
+Received: by greenbush.bellcore.com (4.1/4.7)
+	id <AA22222> for ietf-822@dimacs.rutgers.edu; Tue, 24 Dec 91 08:14:29 EST
+Received: from Messages.8.0.N.CUILIB.3.45.SNAP.NOT.LINKED.greenbush.galaxy.sun4.41
+          via MS.5.6.greenbush.galaxy.sun4_41;
+          Tue, 24 Dec 1991 08:14:27 -0500 (EST)
+Message-Id: <sdJn_nq0M2YtNKaFtO@thumper.bellcore.com>
+Date: Tue, 24 Dec 1991 08:14:27 -0500 (EST)
+From: Nathaniel Borenstein <nsb@thumper.bellcore.com>
+X-Andrew-Message-Size: 747+0
+Mime-Version: 1.0
+Content-Type: multipart/alternative; 
+	boundary="Interpart_Boundary_AdJn:mu0M2YtJKaFh9AdJn:mu0M2YtJKaFk="
+To: ietf-822@dimacs.rutgers.edu
+Subject: Re: a MIME-Version misfeature
+
+This message has been composed in the 'multipart' format for extended
+mail bodies.  If you are reading this prefix, your mail reader probably has
+not yet been modified to understand the new format, and some of what follows
+may look strange.  You may wish to look into upgrading your mail reader.
+
+However, the first part of this message (immediately after the funny-looking
+boundary line) is the text-only version of the message.  If you read that part
+and skip the rest, you will probably understand the gist of the message.
+--Interpart_Boundary_AdJn:mu0M2YtJKaFh9AdJn:mu0M2YtJKaFk=
+
+I have no problem with changing the BNF to permit the period, as Mark
+suggests.   However, I disagree violently with the following comment:
+
+Excerpts from internet.ietf-822: 23-Dec-91 a MIME-Version misfeature
+Mark Crispin@cac.washing (429*)
+
+> All in all, it's starting to look like MIME-Version is not really all that
+> well thought out and is in danger of being superfluous baggage.
+
+Some kind of version number is, in my opinion, totally vital -- getting
+rid of MIME-Version without some similar versioning mechanism to replace
+it would be, for me, a real show-stopper.
+
+By the way, this message is being sent by an experimental version of
+Andrew I'm playing with.  I'd be interested in any comments you have on
+its formatting, etc.  -- Nathaniel
+
+--Interpart_Boundary_AdJn:mu0M2YtJKaFh9AdJn:mu0M2YtJKaFk=--
+--owatagusiam--

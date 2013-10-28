@@ -1,0 +1,118 @@
+Content-Type: multipart/report; report-type="delivery-status";
+ boundary="===============0781640326549549006=="
+MIME-Version: 1.0
+X-Envelope-From: <>
+Received: from omr-d22.mx.aol.com (omr-d22.mx.aol.com [205.188.249.66])	by
+ core1.definbox.com (Postfix) with ESMTP id 5C0C82D12E3	for
+ <bounce+8c8b98.c-user=aol.com@example.com>;
+ Fri, 29 Jul 2011 08:09:01 +0000 (UTC)
+Received: from mtain-db01.r1000.mx.aol.com (mtain-db01.r1000.mx.aol.com
+ [172.29.64.85]) by omr-d22.mx.aol.com (v117.7) with ESMTP id
+ MAILOMRD224-7d654e326a981a; Fri, 29 Jul 2011 04:08:56 -0400
+Received: by mtain-db01.r1000.mx.aol.com (Internet Inbound)	id AAB7C3800008A;
+ Fri, 29 Jul 2011 04:08:56 -0400 (EDT)
+Date: Fri, 29 Jul 2011 04:08:56 -0400 (EDT)
+From: MAILER-DAEMON@AOL.com (Mail Delivery System)
+Subject: Undelivered Mail Returned to Sender
+To: bounce+8c8b98.c-user=aol.com@example.com
+Auto-Submitted: auto-replied
+Message-Id: <20110729080856.AAB7C3800008A@mtain-db01.r1000.mx.aol.com>
+X-Aol-Ip: 172.29.64.85
+
+--===============0781640326549549006==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Description: Notification
+Content-Transfer-Encoding: 7bit
+
+*** ATTENTION ***
+
+Your e-mail is being returned to you because there was a problem with its
+delivery. The reason your mail is being returned to you is listed in the
+section labeled: "----- The delivery status notification errors -----".
+
+The line beginning with "Diagnostic-Code:" describes the specific reason
+your e-mail could not be delivered.  The following lines contains the
+RFC822 header of the original email message.
+
+Please direct further questions regarding this message to your e-mail
+administrator.
+
+--AOL Postmaster
+
+----- The delivery status notification errors -----
+
+
+<user@aol.com>: host air-dc.gair-dc.mail.aol.com[172.19.136.29] said: 552
+    5.2.2 E4.12 user MAILBOX FULL (in reply to RCPT TO command)
+
+--===============0781640326549549006==
+Content-Type: message/delivery-status
+MIME-Version: 1.0
+Content-Description: Delivery report
+
+MIME-Version: 1.0
+Reporting-Mta: dns; mtain-db01.r1000.mx.aol.com
+X-Internet-Inbound-Queue-Id: 344973800008C
+X-Internet-Inbound-Sender: rfc822; bounce+8c8b98.c-user=aol.com@example.com
+Arrival-Date: Fri, 29 Jul 2011 04:08:56 -0400 (EDT)
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+
+MIME-Version: 1.0
+Final-Recipient: rfc822; user@aol.com
+Original-Recipient: rfc822;user@aol.com
+Action: failed
+Status: 5.2.2
+Remote-Mta: dns; air-dc.gair-dc.mail.aol.com
+Diagnostic-Code: smtp; 552 5.2.2 E4.12 user MAILBOX FULL
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+
+--===============0781640326549549006==
+MIME-Version: 1.0
+Content-Description: Undelivered Message Headers
+Content-Type: text/rfc822-headers; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+
+Return-Path: <bounce+8c8b98.c-user=aol.com@example.com>
+Received: from example.com (unknown [184.106.70.46])
+	by mtain-db01.r1000.mx.aol.com (Internet Inbound) with ESMTP id 344973800008C
+	for <user@aol.com>; Fri, 29 Jul 2011 04:08:56 -0400 (EDT)
+DKIM-Signature: a=rsa-sha256; v=1; c=relaxed/relaxed; d=example.com; q=dns/txt;
+ s=smtp; t=1311926934; h=MIME-Version: Message-Id: Date: From: To:
+ Subject: List-Unsubscribe: Sender: Content-Type:
+ Content-Transfer-Encoding;
+ bh=qCtFPin6JBVvH8xJzCQFe3eF/zfEAys7ihNj9bFqg8I=; b=rQNkgYndR0uKLdkSKrEJs6DyXIUGy/BxjRQaJEJkitkn7XWgsTjEhwuWcylHc6NJmL2yzHbc
+ tlwZMgmcHdcbeYhla8GX/aaCWT5p3WU9uFyOQT5GvrsBa1MDZXVNzOiS6CD8KEFOJeL59GXv
+ mSmyQIUDNWnrqV6JVUnwHzwJuHY=
+DomainKey-Signature: a=rsa-sha1; c=nofws; d=example.com; s=smtp;
+ q=dns; h=MIME-Version: Message-Id: Date: From: To: Subject:
+ List-Unsubscribe: Sender: Content-Type: Content-Transfer-Encoding;
+ b=Urt3ToqYl3BWeXxJnUBJ3CzVTTIDByKt0DxBVrDecZ5FP4AHSh6zgxDiddAc99Si+3KFKq
+ dp7UQtQpsiXtXL5n4u6eSERR26vc04hmifZJFssw1SxgG0/jjSdUYGquRK7YA35pWpM8RqO7
+ Cke5jIFvWkYap0Ck4ZskAY4QW5ki4=
+MIME-Version: 1.0
+X-Envelope-From: <bob@example.com>
+Received: from [192.168.1.177] (unknown [83.149.42.178])	by core1.definbox.com
+ (Postfix) with ESMTPA id 1E0A92D12E3	for <user@aol.com>;
+ Fri, 29 Jul 2011 08:08:53 +0000 (UTC)
+Message-Id: <4E326A95.3010907@example.com>
+Date: Fri, 29 Jul 2011 12:08:53 +0400
+From: Alex <bob@example.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US;
+ rv:1.9.2.17) Gecko/20110516 Thunderbird/3.1.10
+To: user@aol.com
+Subject: Incoming delivery request status report
+Sender: bob@example.com
+Content-Type: text/plain; charset="us-ascii"; format="flowed"
+Content-Transfer-Encoding: 7bit
+x-aol-global-disposition: G
+X-AOL-SCOLL-SCORE: 0:2:253366864:93952408  
+X-AOL-SCOLL-URL_COUNT: 0  
+X-AOL-SCOLL-AUTHENTICATION: mail_rly_antispam_dkim-m018.1 ; domain : example.com DKIM : pass  
+x-aol-sid: 3039ac1d40554e326a98131e
+X-AOL-IP: 184.106.70.46
+X-AOL-SPF: domain : example.com SPF : pass
+
+--===============0781640326549549006==--

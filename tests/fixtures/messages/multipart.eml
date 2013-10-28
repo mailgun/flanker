@@ -1,0 +1,23 @@
+From: "Administrator" <administrator@example.com>
+To: "Bob Sample" <bob@example.com>
+Subject: Welcome
+MIME-Version: 1.0
+Content-Type: multipart/alternative; boundary="bd1"
+
+--bd1
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
+
+Sasha
+
+--bd1
+Content-Type: multipart/related; boundary="bd2"
+
+--bd2
+Content-Type: text/html; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
+
+Hi
+
+--bd2--
+--bd1--

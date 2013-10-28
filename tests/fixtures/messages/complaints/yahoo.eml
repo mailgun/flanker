@@ -1,0 +1,71 @@
+Mime-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Type: multipart/report; boundary="_----------=_13420034143457833";
+ report-type="feedback-report"
+X-Mailer: MIME::Lite 3.021 (F2.6; T1.27; A2.04; B3.05; Q3.03)
+Date: Wed, 11 Jul 2012 03:43:34 -0700
+From: Yahoo! Mail AntiSpam Feedback <feedback@arf.mail.yahoo.com>
+To: abuse@example.org
+Subject: FW:Some subject
+X-Yahoo-Newman-Property: cfl
+Message-Id: <20120711104336.819.40318@returns.bulk.yahoo.com>
+
+This is a multi-part message in MIME format.
+
+--_----------=_13420034143457833
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="US-ASCII"
+X-Mailer: MIME::Lite 3.021 (F2.6; T1.27; A2.04; B3.05; Q3.03)
+Date: Wed, 11 Jul 2012 03:43:34 -0700
+
+This is an email abuse report for an email message received from example.com  on Tue, 10 Jul 2012 18:50:18 PDT
+
+--_----------=_13420034143457833
+Content-Disposition: inline
+Content-Transfer-Encoding: 7bit
+Content-Type: message/feedback-report
+
+Feedback-Type: abuse
+User-Agent: Yahoo!-Mail-Feedback/1.0
+Version: 0.1
+Original-Mail-From: <bounce+705f77.d4a-user=yahoo.com@example.com>
+Original-Rcpt-To: user@yahoo.com
+Received-Date: Tue, 10 Jul 2012 18:50:18 PDT
+Reported-Domain: example.com
+Authentication-Results: mta1247.mail.bf1.yahoo.com  from=example.com; domainkeys=pass (ok);  from=example.com; dkim=pass (ok)
+
+--_----------=_13420034143457833
+Content-Disposition: inline
+Content-Transfer-Encoding: 7bit
+Content-Type: message/rfc822
+
+From Hello Support Tue Jul 10 18:50:15 2012
+X-Apparently-To: user@yahoo.com via 68.180.197.179; Tue, 10 Jul 2012 18:50:18 -0700
+Received-SPF: pass (domain of example.com designates 184.173.105.149 as permitted sender)
+X-Originating-IP: [184.173.105.149]
+MIME-Version: 1.0
+Received: by luna.example.net with SMTP mgrt 6071405;
+ Wed, 11 Jul 2012 01:50:15 +0000
+Received: from www.example.com (Unknown [207.200.36.196]) by
+ mxa.example.org with ESMTP id 4ffcdbd7.55e5fb8-luna3;
+ Wed, 11 Jul 2012 01:50:15 -0000 (UTC)
+Received: by www.example.com (Postfix, from userid 48)	id 4A8BE2E088E;
+ Tue, 10 Jul 2012 21:50:15 -0400 (EDT)
+To: user@yahoo.com
+Subject: Some subject
+From: Hello Support <support@example.com>
+Reply-To: Hello Support <support@example.com>
+X-Example-Campaign-Id: match_mail_auto
+X-Example-Tag: match_mail_auto
+Message-Id: <20120711015015.4A8BE2E088E@www.example.com>
+Date: Tue, 10 Jul 2012 21:50:15 -0400 (EDT)
+X-Example-Sid: WyI3ZWFmNiIsICJzd2VldHJpY2FuNHVAeWFob28uY29tIiwgImQ0YSJd
+Sender: support@example.com
+Content-Type: text/html; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+
+<html><body>Hi</body></html>
+
+--_----------=_13420034143457833--

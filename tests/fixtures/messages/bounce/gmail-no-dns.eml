@@ -1,0 +1,26 @@
+Mime-Version: 1.0
+Return-Path: <>
+From: Mail Delivery Subsystem <mailer-daemon@googlemail.com>
+To: hello@otherone.com
+X-Failed-Recipients: user@example.comm
+Subject: Delivery Status Notification (Failure)
+Date: Tue, 10 Jul 2012 06:06:08 +0000
+Content-Type: text/plain; charset=ISO-8859-1
+
+Delivery to the following recipient failed permanently:
+
+     user@example.comm
+
+Technical details of permanent failure: 
+DNS Error: Domain name not found
+
+----- Original message -----
+
+MIME-Version: 1.0
+Date: Mon, 9 Jul 2012 23:06:08 -0700
+Subject: Hi
+From: hello@otherone.com
+To: user@example.comm
+Content-Type: multipart/alternative; boundary=bcaec550ace6c9376b04c47386fe
+
+Hello

@@ -1,0 +1,15 @@
+MIME-Version: 1.0
+Received: by 10.68.60.193 with HTTP; Thu, 29 Dec 2011 02:06:53 -0800 (PST)
+X-Originating-IP: [95.37.185.143]
+Date: Thu, 29 Dec 2011 14:06:53 +0400
+Delivered-To: bob@marley.com
+Message-ID: <CAEAsyCbSF1Bk7CBuu6zp3Qs8=j2iUkNi3dPkGe6z40q4dmaogQ@mail.gmail.com>
+Subject: Testing message parsing
+From: Bob Marley <bob@marley.com>
+To: hello@there.com
+
+Hello,
+I'm just testing message parsing
+
+BR,
+Bob

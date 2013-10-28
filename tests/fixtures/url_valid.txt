@@ -1,0 +1,20 @@
+# Valid Dataset
+# ==============
+#
+# Valid dataset from Mailgun interal tests for urls.
+#
+http://foo.com/blah_blah
+http://foo.com/blah_blah/
+http://foo.com/blah_blah_(wikipedia)
+http://foo.com/blah_blah.
+http://foo.com/blah_blah/.
+http://foo.com/blah_blah
+https://foo.com/blah_blah/
+http://www.example.com/wpstyle/?p=364.
+http://✪df.ws/123
+http://userid:password@example.com:8080
+https://userid@example.com
+http://userid@example.com:8080
+http://userid:password@example.com
+http://example.com:8080%20x-yojimbo-item://6303E4C1-xxxx-45A6-AB9D-3A908F59AE0E
+http://www.foo.com

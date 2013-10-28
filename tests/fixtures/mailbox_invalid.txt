@@ -1,0 +1,149 @@
+# Invalid Dataset
+# ==============
+#
+# Invalid dataset from Mailgun interal tests, the Wikipedia entry titled "Email
+# address", and the webpage "Comparing E-mail Address Validating Regular
+# Expressions" [1][2].
+#
+# [1] http://en.wikipedia.org/wiki/Email_address
+# [2] http://fightingforalostcause.net/misc/2006/compare-email-regex.php
+#
+@missing-local.org
+! #$%(),:;<>@[]\`|@-characters-in-local.org
+partially."quoted"@sld.com
+missing-at-sign.net
+Abc.example.com
+A@b@c@example.com
+a"b(c)d,e:f;g<h>i[j\k]l@example.com
+just"not"right@example.com
+this is"not\allowed@example.com
+this\ still\"not\\allowed@example.com
+first.last@sub.do,com
+first\@last@iana.org
+first.last
+123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789@iana.org
+.first.last@iana.org
+first.last.@iana.org
+first..last@iana.org
+"first"last"@iana.org
+"""@iana.org
+"\"@iana.org
+# ""@iana.org                                                                           # This is actually valid, because the RFC states:
+                                                                                        # local-part = dot-atom / quoted-string / obs-local-part
+                                                                                        # quoted-string = [CFWS] DQUOTE
+                                                                                        #       *([FWS] qcontent) [FWS]  DQUOTE [CFWS]
+                                                                                        # Which allows "" as a local-part for a addr-spec
+first\@last@iana.org
+first.last@
+first.last@[.12.34.56.78]
+first.last@[12.34.56.789]
+first.last@[::12.34.56.78]
+first.last@[IPv5:::12.34.56.78]
+first.last@[IPv6:1111:2222:3333:4444:5555:12.34.56.78]
+first.last@[IPv6:1111:2222:3333:4444:5555:6666:7777:12.34.56.78]
+first.last@[IPv6:1111:2222:3333:4444:5555:6666:7777]
+first.last@[IPv6:1111:2222:3333:4444:5555:6666:7777:8888:9999]
+first.last@[IPv6:1111:2222::3333::4444:5555:6666]
+first.last@[IPv6:1111:2222:333x::4444:5555]
+first.last@[IPv6:1111:2222:33333::4444:5555]
+first.last@-xample.com
+first.last@exampl-.com
+first.last@x234567890123456789012345678901234567890123456789012345678901234.iana.org
+abc\@def@iana.org
+abc\@iana.org
+Doug\ \"Ace\"\ Lovell@iana.org
+abc@def@iana.org
+abc\@def@iana.org
+abc\@iana.org
+@iana.org
+doug@
+"qu@iana.org
+ote"@iana.org
+.dot@iana.org
+dot.@iana.org
+two..dot@iana.org
+"Doug "Ace" L."@iana.org
+Doug\ \"Ace\"\ L\.@iana.org
+hello world@iana.org                                                                    # lax parser picks up "hello" as display-name
+gatsby@f.sc.ot.t.f.i.tzg.era.l.d.
+test.iana.org
+test.@iana.org
+test..test@iana.org
+.test@iana.org
+test@test@iana.org
+test@@iana.org
+-- test --@iana.org                                                                     # lax parser picks up "-- test" as display-name
+[test]@iana.org
+"test"test"@iana.org
+()[]\;:,><@iana.org
+test@.
+test@example.
+test@.org
+test@[123.123.123.123
+test@123.123.123.123]
+NotAnEmail
+@NotAnEmail
+"test"blah"@iana.org
+.wooly@iana.org
+wo..oly@iana.org
+pootietang.@iana.org
+.@iana.org
+Ima Fool@iana.org                                                                       # lax parser picks up "Ima" as display-name
+phil.h\@\@ck@haacked.com
+foo@[\1.2.3.4]
+first."".last@iana.org
+first\last@iana.org
+Abc\@def@iana.org
+Fred\ Bloggs@iana.org
+Joe.\Blow@iana.org
+first.last@[IPv6:1111:2222:3333:4444:5555:6666:12.34.567.89]
+{^c\@**Dog^}@cartoon.com
+"foo"(yay)@(hoopla)[1.2.3.4]
+cal(foo(bar)@iamcal.com
+cal(foo)bar)@iamcal.com
+cal(foo\)@iamcal.com
+first(middle)last@iana.org
+a(a(b(c)d(e(f))g)(h(i)j)@iana.org
+.@
+@bar.com
+@@bar.com
+aaa.com
+aaa@.com
+aaa@.123
+aaa@[123.123.123.123]a
+aaa@[123.123.123.333]
+a@bar.com.
+a@-b.com
+a@b-.com
+-@..com
+-@a..com
+invalid@about.museum-
+test@...........com
+# first.last@[IPv6::]                                                                   # domain literal
+# first.last@[IPv6::::]                                                                 # domain literal
+# first.last@[IPv6::b4]                                                                 # domain literal
+# first.last@[IPv6::::b4]                                                               # domain literal
+# first.last@[IPv6::b3:b4]                                                              # domain literal
+# first.last@[IPv6::::b3:b4]                                                            # domain literal
+# first.last@[IPv6:a1:::b4]                                                             # domain literal
+# first.last@[IPv6:a1:]                                                                 # domain literal
+# first.last@[IPv6:a1:::]                                                               # domain literal
+# first.last@[IPv6:a1:a2:]                                                              # domain literal
+# first.last@[IPv6:a1:a2:::]                                                            # domain literal
+# first.last@[IPv6::11.22.33.44]                                                        # domain literal
+# first.last@[IPv6::::11.22.33.44]                                                      # domain literal
+# first.last@[IPv6:a1:11.22.33.44]                                                      # domain literal
+# first.last@[IPv6:a1:::11.22.33.44]                                                    # domain literal
+# first.last@[IPv6:a1:a2:::11.22.33.44]                                                 # domain literal
+# first.last@[IPv6:0123:4567:89ab:cdef::11.22.33.xx]                                    # domain literal
+# first.last@[IPv6:0123:4567:89ab:CDEFF::11.22.33.44]                                   # domain literal
+# first.last@[IPv6:a1::a4:b1::b4:11.22.33.44]                                           # domain literal
+# first.last@[IPv6:a1::11.22.33]                                                        # domain literal
+# first.last@[IPv6:a1::11.22.33.44.55]                                                  # domain literal
+# first.last@[IPv6:a1::b211.22.33.44]                                                   # domain literal
+# first.last@[IPv6:a1::b2::11.22.33.44]                                                 # domain literal
+# first.last@[IPv6:a1::b3:]                                                             # domain literal
+# first.last@[IPv6::a2::b4]                                                             # domain literal
+# first.last@[IPv6:a1:a2:a3:a4:b1:b2:b3:]                                               # domain literal
+# first.last@[IPv6::a2:a3:a4:b1:b2:b3:b4]                                               # domain literal
+# first.last@[IPv6:a1:a2:a3:a4::b1:b2:b3:b4]                                            # domain literal

@@ -1,0 +1,52 @@
+# Abridged Invalid Dataset
+# ==============
+#
+# Invalid dataset from Mailgun interal tests, the Wikipedia entry titled "Email
+# address", and the webpage "Comparing E-mail Address Validating Regular
+# Expressions" [1][2].
+#
+# [1] http://en.wikipedia.org/wiki/Email_address
+# [2] http://fightingforalostcause.net/misc/2006/compare-email-regex.php
+#
+abc@def
+test@test
+test@
+A@b@c
+first\@last
+first\@last
+abc\@def
+abc\@def
+phil.h\@\@ck
+Abc\@def
+ote"
+"qu
+{^c\@**Dog^}
+@
+a"bcd,e:f;g<h>i[j\k]l
+a"bcde:fg<h>i[j\k]l
+just"not"right
+this is"not\allowed
+this\ still\"not\\allowed
+partially."quoted"
+just"not"right
+this is"not\allowed
+this\ still\"not\\allowed
+.first.last
+first.last.
+first..last
+"first"last"
+"""
+"\"
+abc\
+Doug\ \"Ace\"\ Lovell
+"Doug "Ace" L."
+Doug\ \"Ace\"\ L\.
+abc\
+[test]
+"test"test"
+()[]\;:,><
+.
+first."".last
+first\last
+Fred\ Bloggs
+Joe.\Blow

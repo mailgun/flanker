@@ -1,0 +1,22 @@
+Date: Wed, 25 Jul 2012 18:28:05 +0400
+Subject: Html and text message
+From: Bob Simple <example@example.com>
+To: Bob Simple <bob@example.com>
+Content-Type: multipart/alternative; boundary="90e6ba614a6e896d6c04c5a849ba"
+
+--90e6ba614a6e896d6c04c5a849ba
+Content-Type: text/plain; charset=ISO-8859-1
+
+This is html and text message, thanks
+
+-- 
+Regards,
+Bob
+
+--90e6ba614a6e896d6c04c5a849ba
+Content-Type: text/html; charset=ISO-8859-1
+
+<div><br></div>This is html and text message, thanks<br clear="all"><div><br></div>-- <br>Regards,<br>Bob<br>
+<div><br></div><div><br></div>
+
+--90e6ba614a6e896d6c04c5a849ba--

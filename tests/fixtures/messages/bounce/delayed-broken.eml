@@ -1,0 +1,17 @@
+Content-Type: message/delivery-status
+MIME-Version: 1.0
+
+MIME-Version: 1.0
+Reporting-Mta: dns; a92.example.com
+Arrival-Date: Mon, 25 Jul 2011 08:14:55 +0000
+Received-From-Mta: dns; mx.example.com (10.1.2.1)
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+
+MIME-Version: 1.0
+Final-Recipient: RFC822; <demo@example.com>
+Action: failed
+Status: 4.2.2
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+

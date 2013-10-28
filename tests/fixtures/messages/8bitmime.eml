@@ -1,0 +1,36 @@
+Subject: 2 RCPT MIME
+From: bob <bob@example.com>
+To: xxx@example.net, yyy@example.net
+Content-Type: multipart/alternative; boundary="=-omjqkVTVbwdgCWFRgIkx"
+Date: Wed, 02 Jun 2010 11:06:27 +0800
+Message-ID: <1275447987.2063.842.camel@pony>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.28.3 
+
+
+--=-omjqkVTVbwdgCWFRgIkx
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
+
+Превел
+
+123
+
+--=-omjqkVTVbwdgCWFRgIkx
+Content-Type: text/html; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 TRANSITIONAL//EN">
+<HTML>
+<HEAD>
+  <META HTTP-EQUIV="Content-Type" CONTENT="text/html; CHARSET=UTF-8">
+  <META NAME="GENERATOR" CONTENT="GtkHTML/3.28.3">
+</HEAD>
+<BODY>
+<B>&#1055;&#1088;&#1077;&#1074;&#1077;&#1083;</B><BR>
+<BR>
+123
+</BODY>
+</HTML>
+
+--=-omjqkVTVbwdgCWFRgIkx--

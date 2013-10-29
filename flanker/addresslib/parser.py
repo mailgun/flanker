@@ -423,7 +423,6 @@ class _AddressParser(object):
         Grammar: display-name-lax ->
             [ whitespace ] word { whitespace word } whitespace"
         '''
-        #from pudb import set_trace; set_trace()
 
         start_pos = self.stream.position
         wrds = []
@@ -558,12 +557,12 @@ class _AddressParser(object):
 
         # unicode atom
         uwrd = self.stream.get_token(UNI_ATOM)
-        if uwrd and not is_pure_ascii(uwrd):
+        if uwrd and isinstance(uwrd, unicode) and not is_pure_ascii(uwrd):
             return uwrd
 
         # unicode qstr
         uwrd = self.stream.get_token(UNI_QSTR, 'qstr')
-        if uwrd and not is_pure_ascii(uwrd):
+        if uwrd and isinstance(uwrd, unicode) and not is_pure_ascii(uwrd):
             return u'"{}"'.format(encode_string(None, uwrd))
 
         return None

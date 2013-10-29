@@ -68,7 +68,8 @@ UNI_QSTR   = re.compile(ur'''
                         "
                             (?P<qstr>
                                 (
-                                    \w\s*|                                  # word or space
+                                    \w|                                     # word
+                                    \s|                                     # space
                                     [\u0080-\u00FF]|                        # latin-1 supplement
                                     [\u0100-\u017F]|                        # latin extended-a
                                     [\u0180-\u024F]|                        # latin extended-b

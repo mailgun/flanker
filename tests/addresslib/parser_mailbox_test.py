@@ -9,7 +9,7 @@ from flanker.addresslib.parser import ParserException
 
 VALID_QTEXT         = [chr(x) for x in [0x21] + range(0x23, 0x5b) + range(0x5d, 0x7e)]
 VALID_QUOTED_PAIR   = [chr(x) for x in range(0x20, 0x7e)]
-INVALID_QTEXT       = [chr(x) for x in range(0x0, 0x8) + range(0xe, 0x1f) + [0x22, 0x5c, 0x7f]]
+INVALID_QTEXT       = [chr(x) for x in range(0x0, 0x8) + range(0xe, 0x1c) + [0x22, 0x5c, 0x7f]]
 INVALID_QUOTED_PAIR = [chr(x) for x in range(0x0, 0x8) + range(0xe, 0x1f) + [0x7f]]
 
 FULL_QTEXT = ''.join(VALID_QTEXT)
@@ -247,6 +247,7 @@ def test_unicode_display_name():
 
 
 def test_unicode_special_chars():
+    # unicode, special chars, no quotes
     run_full_mailbox_test(u'foo © bar <foo@example.com>',
         EmailAddress(u'foo © bar', 'foo@example.com'),
         '=?utf-8?q?foo_=C2=A9_bar?= <foo@example.com>')
@@ -295,6 +296,53 @@ def test_unicode_special_chars():
     run_full_mailbox_test(u'foo 💩 bar <foo@example.com>',
         EmailAddress(u'foo 💩 bar', 'foo@example.com'),
         '=?utf-8?b?Zm9vIPCfkqkgYmFy?= <foo@example.com>')
+
+    # unicode, special chars, quotes
+    run_full_mailbox_test(u'"foo © bar" <foo@example.com>',
+        EmailAddress(u'"foo © bar"', u'foo@example.com'),
+        '"=?utf-8?q?foo_=C2=A9_bar?=" <foo@example.com>')
+    run_full_mailbox_test(u'"foo œ bar" <foo@example.com>',
+        EmailAddress(u'"foo œ bar"', u'foo@example.com'),
+        '"=?utf-8?q?foo_=C5=93_bar?=" <foo@example.com>')
+    run_full_mailbox_test(u'"foo Ǽ bar" <foo@example.com>',
+        EmailAddress(u'"foo Ǽ bar"', u'foo@example.com'),
+        '"=?utf-8?q?foo_=C7=BC_bar?=" <foo@example.com>')
+    run_full_mailbox_test(u'"foo Ω bar" <foo@example.com>',
+        EmailAddress(u'"foo Ω bar"', u'foo@example.com'),
+        '"=?utf-8?b?Zm9vIOKEpiBiYXI=?=" <foo@example.com>')
+    run_full_mailbox_test(u'"foo ↵ bar" <foo@example.com>',
+        EmailAddress(u'"foo ↵ bar"', u'foo@example.com'),
+        '"=?utf-8?b?Zm9vIOKGtSBiYXI=?=" <foo@example.com>')
+    run_full_mailbox_test(u'"foo ∑ bar" <foo@example.com>',
+        EmailAddress(u'"foo ∑ bar"', u'foo@example.com'),
+        '"=?utf-8?b?Zm9vIOKIkSBiYXI=?=" <foo@example.com>')
+    run_full_mailbox_test(u'"foo ⏲ bar" <foo@example.com>',
+        EmailAddress(u'"foo ⏲ bar"', u'foo@example.com'),
+        '"=?utf-8?b?Zm9vIOKPsiBiYXI=?=" <foo@example.com>')
+    run_full_mailbox_test(u'"foo Ⓐ bar" <foo@example.com>',
+        EmailAddress(u'"foo Ⓐ bar"', u'foo@example.com'),
+        '"=?utf-8?b?Zm9vIOKStiBiYXI=?=" <foo@example.com>')
+    run_full_mailbox_test(u'"foo ▒ bar" <foo@example.com>',
+        EmailAddress(u'"foo ▒ bar"', u'foo@example.com'),
+        '"=?utf-8?b?Zm9vIOKWkiBiYXI=?=" <foo@example.com>')
+    run_full_mailbox_test(u'"foo ▲ bar" <foo@example.com>',
+        EmailAddress(u'"foo ▲ bar"', u'foo@example.com'),
+        '"=?utf-8?b?Zm9vIOKWsiBiYXI=?=" <foo@example.com>')
+    run_full_mailbox_test(u'"foo ⚔ bar" <foo@example.com>',
+        EmailAddress(u'"foo ⚔ bar"', u'foo@example.com'),
+        '"=?utf-8?b?Zm9vIOKalCBiYXI=?=" <foo@example.com>')
+    run_full_mailbox_test(u'"foo ✎ bar" <foo@example.com>',
+        EmailAddress(u'"foo ✎ bar"', u'foo@example.com'),
+        '"=?utf-8?b?Zm9vIOKcjiBiYXI=?=" <foo@example.com>')
+    run_full_mailbox_test(u'"foo ⠂ bar" <foo@example.com>',
+        EmailAddress(u'"foo ⠂ bar"', u'foo@example.com'),
+        '"=?utf-8?b?Zm9vIOKggiBiYXI=?=" <foo@example.com>')
+    run_full_mailbox_test(u'"foo ⬀ bar" <foo@example.com>',
+        EmailAddress(u'"foo ⬀ bar"', u'foo@example.com'),
+        '"=?utf-8?b?Zm9vIOKsgCBiYXI=?=" <foo@example.com>')
+    run_full_mailbox_test(u'"foo 💩 bar" <foo@example.com>',
+        EmailAddress(u'"foo 💩 bar"', u'foo@example.com'),
+        '"=?utf-8?b?Zm9vIPCfkqkgYmFy?=" <foo@example.com>')
 
 
 def test_angle_addr():

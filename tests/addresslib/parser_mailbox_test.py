@@ -254,6 +254,9 @@ def test_unicode_special_chars():
     run_full_mailbox_test(u'foo œ bar <foo@example.com>',
         EmailAddress(u'foo œ bar', 'foo@example.com'),
         '=?utf-8?q?foo_=C5=93_bar?= <foo@example.com>')
+    run_full_mailbox_test(u'foo – bar <foo@example.com>',
+        EmailAddress(u'foo – bar', 'foo@example.com'),
+        '=?utf-8?b?Zm9vIOKAkyBiYXI=?= <foo@example.com>')
     run_full_mailbox_test(u'foo Ǽ bar <foo@example.com>',
         EmailAddress(u'foo Ǽ bar', 'foo@example.com'),
         '=?utf-8?q?foo_=C7=BC_bar?= <foo@example.com>')
@@ -304,6 +307,9 @@ def test_unicode_special_chars():
     run_full_mailbox_test(u'"foo œ bar" <foo@example.com>',
         EmailAddress(u'"foo œ bar"', u'foo@example.com'),
         '"=?utf-8?q?foo_=C5=93_bar?=" <foo@example.com>')
+    run_full_mailbox_test(u'"foo – bar" <foo@example.com>',
+        EmailAddress(u'"foo – bar"', 'foo@example.com'),
+        '"=?utf-8?b?Zm9vIOKAkyBiYXI=?=" <foo@example.com>')
     run_full_mailbox_test(u'"foo Ǽ bar" <foo@example.com>',
         EmailAddress(u'"foo Ǽ bar"', u'foo@example.com'),
         '"=?utf-8?q?foo_=C7=BC_bar?=" <foo@example.com>')

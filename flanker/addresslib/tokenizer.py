@@ -44,6 +44,7 @@ UNI_ATOM   = re.compile(ur'''
                         [\u0080-\u00FF]|                        # latin-1 supplement
                         [\u0100-\u017F]|                        # latin extended-a
                         [\u0180-\u024F]|                        # latin extended-b
+                        [\u2000-\u2064]|                        # general punctuation
                         [\u20a0-\u20ba]|                        # currency symbols
                         [\u2100-\u214f]|                        # letterlike symbols
                         [\u2190-\u21ff]|                        # arrows
@@ -73,6 +74,7 @@ UNI_QSTR   = re.compile(ur'''
                                     [\u0080-\u00FF]|                        # latin-1 supplement
                                     [\u0100-\u017F]|                        # latin extended-a
                                     [\u0180-\u024F]|                        # latin extended-b
+                                    [\u2000-\u2064]|                        # general punctuation
                                     [\u20a0-\u20ba]|                        # currency symbols
                                     [\u2100-\u214f]|                        # letterlike symbols
                                     [\u2190-\u21ff]|                        # arrows

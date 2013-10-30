@@ -245,6 +245,16 @@ def test_unicode_display_name():
         EmailAddress(u'ξεσκεπάζω την', 'foo@example.com'),
         '=?utf-8?b?zr7Otc+DzrrOtc+AzqzOts+JIM+EzrfOvQ==?= <foo@example.com>')
 
+    # unicode, no quotes, punctuation
+    for i in u'''.!#$%&*+-/=?^_`{|}~''':
+        run_full_mailbox_test(u'ö {} <foo@example.com>'.format(i),
+            EmailAddress(u'ö {}'.format(i), 'foo@example.com'))
+
+    # unicode, quotes, punctuation
+    for i in u'''.!#$%&*+-/=?^_`{|}~''':
+        run_full_mailbox_test(u'"ö {}" <foo@example.com>'.format(i),
+            EmailAddress(u'"ö {}"'.format(i), 'foo@example.com'))
+
 
 def test_unicode_special_chars():
     # unicode, special chars, no quotes

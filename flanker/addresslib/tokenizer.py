@@ -49,6 +49,10 @@ DOT_ATOM   = re.compile(r'''
 UNI_ATOM   = re.compile(ur'''
                         (
                         \w|                                     # word
+                        [\u0021\u0023-\u0026\u002a-\u002b]|     # basic latin punctuation
+                        [\u002d-\u002f\u003d]|
+                        [\u003f\u005e-\u005f]|
+                        [\u0060\u007b-\u007e]|
                         [\u0080-\u00FF]|                        # latin-1 supplement
                         [\u0100-\u017F]|                        # latin extended-a
                         [\u0180-\u024F]|                        # latin extended-b
@@ -79,6 +83,10 @@ UNI_QSTR   = re.compile(ur'''
                                 (
                                     \w|                                     # word
                                     \s|                                     # space
+                                    [\u0021\u0023-\u0026\u002a-\u002b]|     # basic latin punctuation
+                                    [\u002d-\u002f\u003d]|
+                                    [\u003f\u005e-\u005f]|
+                                    [\u0060\u007b-\u007e]|
                                     [\u0080-\u00FF]|                        # latin-1 supplement
                                     [\u0100-\u017F]|                        # latin extended-a
                                     [\u0180-\u024F]|                        # latin extended-b

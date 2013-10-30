@@ -46,70 +46,13 @@ DOT_ATOM   = re.compile(r'''
                         (\.[A-Za-z0-9!#$%&'*+\-/=?^_`{|}~]+)*   # (dot atext)*
                         ''', re.MULTILINE | re.VERBOSE)
 
-UNI_ATOM   = re.compile(ur'''
-                        (
-                        \w|                                     # word
-                        [\u0021\u0023-\u0026\u002a-\u002b]|     # basic latin punctuation
-                        [\u002d-\u002f\u003d]|
-                        [\u003f\u005e-\u005f]|
-                        [\u0060\u007b-\u007e]|
-                        [\u0080-\u00FF]|                        # latin-1 supplement
-                        [\u0100-\u017F]|                        # latin extended-a
-                        [\u0180-\u024F]|                        # latin extended-b
-                        [\u2000-\u2064]|                        # general punctuation
-                        [\u20a0-\u20ba]|                        # currency symbols
-                        [\u2100-\u214f]|                        # letterlike symbols
-                        [\u2190-\u21ff]|                        # arrows
-                        [\u2200-\u22ff]|                        # mathematic operators
-                        [\u2300-\u23f4]|                        # miscellaneous technical
-                        [\u2460-\u24ff]|                        # enclosed alphanumerics
-                        [\u2580-\u259f]|                        # block elements
-                        [\u25a0-\u25ff]|                        # geometric shapes
-                        [\u2600-\u26ff]|                        # miscellaneous symbols
-                        [\u2701-\u27BF]|                        # dingbats
-                        [\u2800-\u28ff]|                        # braille patterns
-                        [\u2b00-\u2b59]|                        # misc symbols and arrows
-                                                                # ancient symbols
-                                                                # musical symbols
-                        [\ud800-\udbff\udc00-\udfff]|           # emoji
-                                                                # emoticons
-                                                                # transport and map symbols
-                        )+
+UNI_ATOM = re.compile(ur'''
+                        ([^\s()<>[\]:;@\\,"]+)
                         ''', re.MULTILINE | re.VERBOSE | re.UNICODE)
 
 UNI_QSTR   = re.compile(ur'''
                         "
-                            (?P<qstr>
-                                (
-                                    \w|                                     # word
-                                    \s|                                     # space
-                                    [\u0021\u0023-\u0026\u002a-\u002b]|     # basic latin punctuation
-                                    [\u002d-\u002f\u003d]|
-                                    [\u003f\u005e-\u005f]|
-                                    [\u0060\u007b-\u007e]|
-                                    [\u0080-\u00FF]|                        # latin-1 supplement
-                                    [\u0100-\u017F]|                        # latin extended-a
-                                    [\u0180-\u024F]|                        # latin extended-b
-                                    [\u2000-\u2064]|                        # general punctuation
-                                    [\u20a0-\u20ba]|                        # currency symbols
-                                    [\u2100-\u214f]|                        # letterlike symbols
-                                    [\u2190-\u21ff]|                        # arrows
-                                    [\u2200-\u22ff]|                        # mathematic operators
-                                    [\u2300-\u23f4]|                        # miscellaneous technical
-                                    [\u2460-\u24ff]|                        # enclosed alphanumerics
-                                    [\u2580-\u259f]|                        # block elements
-                                    [\u25a0-\u25ff]|                        # geometric shapes
-                                    [\u2600-\u26ff]|                        # miscellaneous symbols
-                                    [\u2701-\u27BF]|                        # dingbats
-                                    [\u2800-\u28ff]|                        # braille patterns
-                                    [\u2b00-\u2b59]|                        # misc symbols and arrows
-                                                                            # ancient symbols
-                                                                            # musical symbols
-                                    [\ud800-\udbff\udc00-\udfff]|           # emoji
-                                                                            # emoticons
-                                                                            # transport and map symbols
-                                )+
-                            )
+                        (?P<qstr>([^"]+))
                         "
                         ''', re.MULTILINE | re.VERBOSE | re.UNICODE)
 

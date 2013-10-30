@@ -1,4 +1,5 @@
 # coding:utf-8
+import re
 
 '''
 Utility functions and classes used by flanker.
@@ -46,3 +47,14 @@ def cleanup_display_name(name):
 
 def cleanup_email(email):
     return email.strip("<>;, ")
+
+
+def contains_control_chars(s):
+    if CONTROL_CHAR_RE.match(s):
+        return True
+    return False
+
+
+# allows, \t\n\v\f\r (0x09-0x0d)
+CONTROL_CHARS = ''.join(map(unichr, range(0, 9) + range(14, 32) + range(127, 160)))
+CONTROL_CHAR_RE = re.compile('[%s]' % re.escape(CONTROL_CHARS))

@@ -66,7 +66,7 @@ def parse(address, addr_spec_only=False):
         >>> print address.parse('foo')
         None
     '''
-    parser = flanker.addresslib.parser._AddressParser(True)
+    parser = flanker.addresslib.parser._AddressParser(False)
 
     try:
         # try to parse the address

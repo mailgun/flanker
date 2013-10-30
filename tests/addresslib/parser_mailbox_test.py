@@ -9,11 +9,11 @@ from flanker.addresslib.parser import ParserException
 
 VALID_QTEXT         = [chr(x) for x in [0x21] + range(0x23, 0x5b) + range(0x5d, 0x7e)]
 VALID_QUOTED_PAIR   = [chr(x) for x in range(0x20, 0x7e)]
-INVALID_QTEXT       = [chr(x) for x in range(0x0, 0x8) + range(0xe, 0x1c) + [0x22, 0x5c, 0x7f]]
-INVALID_QUOTED_PAIR = [chr(x) for x in range(0x0, 0x8) + range(0xe, 0x1f) + [0x7f]]
 
 FULL_QTEXT = ''.join(VALID_QTEXT)
 FULL_QUOTED_PAIR = '\\' + '\\'.join(VALID_QUOTED_PAIR)
+
+CONTROL_CHARS = ''.join(map(unichr, range(0, 9) + range(14, 32) + range(127, 160)))
 
 @nottest
 def chunks(l, n):
@@ -123,13 +123,11 @@ def test_display_name():
     run_mailbox_test('"{} <a@b>'.format(FULL_QTEXT), None)
     run_mailbox_test('{}" <a@b>'.format(FULL_QUOTED_PAIR), None)
     run_mailbox_test('{} <a@b>'.format(FULL_QUOTED_PAIR), None)
-    run_mailbox_test('"{}" <a@b>'.format(''.join(INVALID_QTEXT)), None)
-    run_mailbox_test('"{}" <a@b>'.format('\\' + '\\'.join(INVALID_QUOTED_PAIR)), None)
-    for invalid_char in INVALID_QTEXT:
-        run_mailbox_test('"{}" <a@b>'.format(invalid_char), None)
-    for invalid_char in INVALID_QUOTED_PAIR:
-        run_mailbox_test('"{}" <a@b>'.format('\\' + invalid_char), None)
-
+    run_mailbox_test(u'{} <a@b>'.format(''.join(CONTROL_CHARS)), None)
+    run_mailbox_test(u'"{}" <a@b>'.format(''.join(CONTROL_CHARS)), None)
+    for cc in CONTROL_CHARS:
+        run_mailbox_test(u'"{}" <a@b>'.format(cc), None)
+        run_mailbox_test(u'{} <a@b>'.format(cc), None)
 
     # pass display-name quoted-string lax
     run_full_mailbox_test('"{}" a@b'.format(FULL_QTEXT), EmailAddress('"' + FULL_QTEXT + '"', 'a@b'))
@@ -147,12 +145,11 @@ def test_display_name():
     run_mailbox_test('"{} a@b'.format(FULL_QTEXT), None)
     run_mailbox_test('{}" a@b'.format(FULL_QUOTED_PAIR), None)
     run_mailbox_test('{} a@b'.format(FULL_QUOTED_PAIR), None)
-    run_mailbox_test('"{}" a@b'.format(''.join(INVALID_QTEXT)), None)
-    run_mailbox_test('"{}" a@b'.format('\\' + '\\'.join(INVALID_QUOTED_PAIR)), None)
-    for invalid_char in INVALID_QTEXT:
-        run_mailbox_test('"{}" a@b'.format(invalid_char), None)
-    for invalid_char in INVALID_QUOTED_PAIR:
-        run_mailbox_test('"{}" a@b'.format('\\' + invalid_char), None)
+    run_mailbox_test(u'{} a@b'.format(''.join(CONTROL_CHARS)), None)
+    run_mailbox_test(u'"{}" a@b'.format(''.join(CONTROL_CHARS)), None)
+    for cc in CONTROL_CHARS:
+        run_mailbox_test(u'{} a@b'.format(cc), None)
+        run_mailbox_test(u'"{}" a@b'.format(cc), None)
 
     # pass unicode display-name sanity
     run_full_mailbox_test(u'Bill <bill@microsoft.com>', EmailAddress(u'Bill', 'bill@microsoft.com'))
@@ -360,6 +357,59 @@ def test_unicode_special_chars():
         EmailAddress(u'"foo 💩 bar"', u'foo@example.com'),
         '"=?utf-8?b?Zm9vIPCfkqkgYmFy?=" <foo@example.com>')
 
+    # unicode, language specific punctuation, just test with !
+    run_full_mailbox_test(u'fooǃ foo@example.com',
+        EmailAddress(u'fooǃ', u'foo@example.com'),
+        '=?utf-8?b?Zm9vx4M=?= <foo@example.com>')
+    run_full_mailbox_test(u'foo‼ foo@example.com',
+        EmailAddress(u'foo‼', u'foo@example.com'),
+        '=?utf-8?b?Zm9v4oC8?= <foo@example.com>')
+    run_full_mailbox_test(u'foo⁈ foo@example.com',
+        EmailAddress(u'foo⁈', u'foo@example.com'),
+        '=?utf-8?b?Zm9v4oGI?= <foo@example.com>')
+    run_full_mailbox_test(u'foo⁉ foo@example.com',
+        EmailAddress(u'foo⁉', u'foo@example.com'),
+        '=?utf-8?b?Zm9v4oGJ?= <foo@example.com>')
+    run_full_mailbox_test(u'foo❕ foo@example.com',
+        EmailAddress(u'foo❕', u'foo@example.com'),
+        '=?utf-8?b?Zm9v4p2V?= <foo@example.com>')
+    run_full_mailbox_test(u'foo❗ foo@example.com',
+        EmailAddress(u'foo❗', u'foo@example.com'),
+        '=?utf-8?b?Zm9v4p2X?= <foo@example.com>')
+    run_full_mailbox_test(u'foo❢ foo@example.com',
+        EmailAddress(u'foo❢', u'foo@example.com'),
+        '=?utf-8?b?Zm9v4p2i?= <foo@example.com>')
+    run_full_mailbox_test(u'foo❣ foo@example.com',
+        EmailAddress(u'foo❣', u'foo@example.com'),
+        '=?utf-8?b?Zm9v4p2j?= <foo@example.com>')
+    run_full_mailbox_test(u'fooꜝ foo@example.com',
+        EmailAddress(u'fooꜝ', u'foo@example.com'),
+        '=?utf-8?b?Zm9v6pyd?= <foo@example.com>')
+    run_full_mailbox_test(u'fooꜞ foo@example.com',
+        EmailAddress(u'fooꜞ', u'foo@example.com'),
+        '=?utf-8?b?Zm9v6pye?= <foo@example.com>')
+    run_full_mailbox_test(u'fooꜟ foo@example.com',
+        EmailAddress(u'fooꜟ', u'foo@example.com'),
+        '=?utf-8?b?Zm9v6pyf?= <foo@example.com>')
+    run_full_mailbox_test(u'foo﹗ foo@example.com',
+        EmailAddress(u'foo﹗', u'foo@example.com'),
+        '=?utf-8?b?Zm9v77mX?= <foo@example.com>')
+    run_full_mailbox_test(u'foo！ foo@example.com',
+        EmailAddress(u'foo！', u'foo@example.com'),
+        '=?utf-8?b?Zm9v77yB?= <foo@example.com>')
+    run_full_mailbox_test(u'foo՜ foo@example.com',
+        EmailAddress(u'foo՜', u'foo@example.com'),
+        '=?utf-8?b?Zm9v1Zw=?= <foo@example.com>')
+    run_full_mailbox_test(u'foo߹ foo@example.com',
+        EmailAddress(u'foo߹', u'foo@example.com'),
+        '=?utf-8?b?Zm9v37k=?= <foo@example.com>')
+    run_full_mailbox_test(u'foo႟ foo@example.com',
+        EmailAddress(u'foo႟', u'foo@example.com'),
+        '=?utf-8?b?Zm9v4YKf?= <foo@example.com>')
+    run_full_mailbox_test(u'foo᥄ foo@example.com',
+        EmailAddress(u'foo᥄', u'foo@example.com'),
+        '=?utf-8?b?Zm9v4aWE?= <foo@example.com>')
+
 
 def test_angle_addr():
     "Grammar: angle-addr -> [ whitespace ] < addr-spec > [ whitespace ]"
@@ -460,9 +510,6 @@ def test_local_part():
     run_mailbox_test('{}"@b'.format(sample_qtext), None)
     run_mailbox_test('{}@b'.format(sample_qtext), None)
     run_mailbox_test('"{}@b"'.format(sample_qtext), None)
-    run_mailbox_test('"{}"@b'.format(''.join(INVALID_QTEXT)), None)
-    for invalid_char in INVALID_QTEXT:
-        run_mailbox_test('"{}"@b'.format(invalid_char), None)
 
     # pass quoted-pair
     for cnk in chunks(FULL_QUOTED_PAIR, len(FULL_QUOTED_PAIR)/3):
@@ -482,9 +529,6 @@ def test_local_part():
     run_mailbox_test('{}"@b'.format(sample_qpair), None)
     run_mailbox_test('{}@b'.format(sample_qpair), None)
     run_mailbox_test('"{}@b"'.format(sample_qpair), None)
-    run_mailbox_test('"{}"@b'.format(''.join(INVALID_QUOTED_PAIR)), None)
-    for invalid_char in INVALID_QUOTED_PAIR:
-        run_mailbox_test('"{}"@b'.format(invalid_char), None)
 
 
 def test_domain():

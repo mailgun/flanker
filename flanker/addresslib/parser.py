@@ -78,6 +78,7 @@ from flanker.addresslib.tokenizer import URL
 from flanker.mime.message.headers.encoding import encode_string
 
 from flanker.utils import is_pure_ascii
+from flanker.utils import contains_control_chars
 from flanker.utils import cleanup_display_name
 from flanker.utils import cleanup_email
 from flanker.utils import to_utf8
@@ -557,14 +558,18 @@ class _AddressParser(object):
 
         # unicode atom
         uwrd = self.stream.get_token(UNI_ATOM)
-        if uwrd and isinstance(uwrd, unicode) and not is_pure_ascii(uwrd):
+        if uwrd and isinstance(uwrd, unicode) and \
+            not contains_control_chars(uwrd) and not is_pure_ascii(uwrd):
             return uwrd
 
         # unicode qstr
         uwrd = self.stream.get_token(UNI_QSTR, 'qstr')
-        if uwrd and isinstance(uwrd, unicode) and not is_pure_ascii(uwrd):
+        if uwrd and isinstance(uwrd, unicode) and \
+            not contains_control_chars(uwrd) and not is_pure_ascii(uwrd):
             return u'"{}"'.format(encode_string(None, uwrd))
 
+        # rollback
+        self.stream.position = start_pos
         return None
 
 

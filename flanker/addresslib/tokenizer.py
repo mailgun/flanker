@@ -34,8 +34,16 @@ UNI_WHITE  = re.compile(ur'''
                         ]*
                         ''', re.MULTILINE | re.VERBOSE | re.UNICODE)
 
+# because we only use an atom in display-names, we've included a dot (.) which
+# is normally not part of an atom. this allows us to be a little more relaxed
+# in display-name parsing.
 ATOM       = re.compile(r'''
+                        [A-Za-z0-9\.!#$%&'*+\-/=?^_`{|}~]+        # atext
+                        ''', re.MULTILINE | re.VERBOSE)
+
+DOT_ATOM   = re.compile(r'''
                         [A-Za-z0-9!#$%&'*+\-/=?^_`{|}~]+        # atext
+                        (\.[A-Za-z0-9!#$%&'*+\-/=?^_`{|}~]+)*   # (dot atext)*
                         ''', re.MULTILINE | re.VERBOSE)
 
 UNI_ATOM   = re.compile(ur'''
@@ -96,11 +104,6 @@ UNI_QSTR   = re.compile(ur'''
                             )
                         "
                         ''', re.MULTILINE | re.VERBOSE | re.UNICODE)
-
-DOT_ATOM   = re.compile(r'''
-                        [A-Za-z0-9!#$%&'*+\-/=?^_`{|}~]+        # atext
-                        (\.[A-Za-z0-9!#$%&'*+\-/=?^_`{|}~]+)*   # (dot atext)*
-                        ''', re.MULTILINE | re.VERBOSE)
 
 QSTRING    = re.compile(r'''
                         "                                       # dquote

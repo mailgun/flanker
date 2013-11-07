@@ -1,4 +1,6 @@
-flanker
+[![Build Status](https://drone.io/github.com/mailgun/flanker/status.png)](https://drone.io/github.com/mailgun/flanker/latest)
+
+Flanker
 =======
 
 Flanker is an open source parsing library written in Python by the Mailgun Team.

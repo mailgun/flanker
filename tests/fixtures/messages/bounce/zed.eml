@@ -1,0 +1,86 @@
+From MAILER-DAEMON  Tue Jul  7 22:47:39 2009
+Return-Path: <>
+X-Original-To: foo@example.com
+Delivered-To: foo@example.com
+Received: by mail.example.com (Postfix)
+	id 270231E8B13; Tue,  7 Jul 2009 22:47:39 -0700 (PDT)
+Date: Tue,  7 Jul 2009 22:47:39 -0700 (PDT)
+From: MAILER-DAEMON@example.com.com (Mail Delivery System)
+Subject: Undelivered Mail Returned to Sender
+To: foo@example.com
+Auto-Submitted: auto-replied
+MIME-Version: 1.0
+Content-Type: multipart/report; report-type=delivery-status;
+	boundary="C99B61E8B12.1247032059/mail.example.com"
+Message-Id: <20090708054739.270231E8B13@mail.example.com>
+Status: RO
+
+This is a MIME-encapsulated message.
+
+--C99B61E8B12.1247032059/mail.example.com
+Content-Description: Notification
+Content-Type: text/plain; charset=us-ascii
+
+This is the mail system at host mail.example.com.
+
+I'm sorry to have to inform you that your message could not
+be delivered to one or more recipients. It's attached below.
+
+For further assistance, please send mail to postmaster.
+
+If you do so, please include this problem report. You can
+delete your own text from the attached returned message.
+
+                   The mail system
+
+<asdfasdfasdfasdfasdfasdfewrqertrtyrthsfgdfgadfqeadvxzvz@gmail.com>: host
+    gmail-smtp-in.l.google.com[209.85.210.17] said: 550-5.1.1 The email account
+    that you tried to reach does not exist. Please try 550-5.1.1
+    double-checking the recipient's email address for typos or 550-5.1.1
+    unnecessary spaces. Learn more at                              550 5.1.1
+    http://mail.google.com/support/bin/answer.py?answer=6596 17si20661415yxe.22
+    (in reply to RCPT TO command)
+
+--C99B61E8B12.1247032059/mail.example.com
+Content-Description: Delivery report
+Content-Type: message/delivery-status
+
+Reporting-MTA: dns; mail.example.com
+X-Postfix-Queue-ID: C99B61E8B12
+X-Postfix-Sender: rfc822; foo@example.com
+Arrival-Date: Tue,  7 Jul 2009 22:47:35 -0700 (PDT)
+
+Final-Recipient: rfc822; asdfasdfasdfasdfasdfasdfewrqertrtyrthsfgdfgadfqeadvxzvz@gmail.com
+Action: failed
+Status: 5.1.1
+Remote-MTA: dns; gmail-smtp-in.l.google.com
+Diagnostic-Code: smtp; 550-5.1.1 The email account that you tried to reach does
+    not exist. Please try 550-5.1.1 double-checking the recipient's email
+    address for typos or 550-5.1.1 unnecessary spaces. Learn more at
+    550 5.1.1 http://mail.google.com/support/bin/answer.py?answer=6596
+    17si20661415yxe.22
+
+--C99B61E8B12.1247032059/mail.example.com
+Content-Description: Undelivered Message
+Content-Type: message/rfc822
+
+Return-Path: <foo@example.com>
+Received: by mail.example.com (Postfix, from userid 1000)
+	id C99B61E8B12; Tue,  7 Jul 2009 22:47:35 -0700 (PDT)
+Date: Tue, 7 Jul 2009 22:47:35 -0700
+From: "Foo B. Baz" <foo@example.com>
+To: asdfasdfasdfasdfasdfasdfewrqertrtyrthsfgdfgadfqeadvxzvz@gmail.com
+Subject: test bounce
+Message-ID: <20090708054735.GC7578@example.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.18 (2008-05-17)
+
+If this is a real address, then sorry.  I'm trying to get some bounces.
+
+-- 
+Foo B. Baz
+http://foobbaz.com/
+
+--C99B61E8B12.1247032059/mail.example.com--

@@ -1,0 +1,200 @@
+# Valid Dataset
+# ==============
+#
+# Valid dataset from Mailgun interal tests, the Wikipedia entry titled "Email
+# address", and the webpage "Comparing E-mail Address Validating Regular
+# Expressions" [1][2].
+#
+# [1] http://en.wikipedia.org/wiki/Email_address
+# [2] http://fightingforalostcause.net/misc/2006/compare-email-regex.php
+#
+niceandsimple@example.com
+very.common@example.com
+a.little.lengthy.but.fine@dept.example.com
+disposable.style.email.with+symbol@example.com
+"much.more unusual"@example.com
+"very.unusual.@.unusual.com"@example.com
+"very.(),:;<>[]\".VERY.\"very@\\ \"very\".unusual"@strange.example.com
+postbox@com
+admin@mailserver1
+!#$%&'*+-/=?^_`{}|~@example.org
+"()<>[]:,;@\\\"!#$%&'*+-/=?^_`{}| ~.a"@example.org
+" "@example.org
+abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ@letters-in-local.org
+01234567890@numbers-in-local.net
+&'*+-./=?^_{}~@other-valid-characters-in-local.net
+mixed-1234-in-{+^}-local@sld.net
+a@single-character-in-local.org
+single-character-in-sld@x.org
+local@dash-in-sld.com
+letters-in-sld@123.com
+uncommon-tld@sld.museum
+uncommon-tld@sld.travel
+uncommon-tld@sld.mobi
+country-code-tld@sld.uk
+country-code-tld@sld.rw
+local@sld.newTLD
+punycode-numbers-in-tld@sld.xn--3e0b707e
+local@sub.domains.com
+"quoted"@sld.com
+"\e\s\c\a\p\e\d"@sld.com
+"quoted-at-sign@sld.org"@sld.com
+"escaped\"quote"@sld.com
+"back\slash"@sld.com
+"tom+[a]"@s.com
+OnlineDoctorateraJZPjKgUGVRRRLYCH`@pinkchocolates.net
+Government.Grants@homeearnings2010.com
+addr_12+3@host.com
+addr_123@host.com
+addr@host.com
+my|'`!#_~%$&{}?^+-*@host.com
+bc=some@server.com
+bc=some+more@server.com
+bob@mi-nus
+bc=some+more-and.more@ser-ver.com
+bob@under_scope
+$A12345@example.com
+user+mailbox@example.com
+Joe@example.com
+user+mailbox@example.com
+customer/department=shipping@example.com
+!def!xyz%abc@example.com
+"Abc@def"@example.com
+"Fred\ Bloggs"@example.com
+"Fred\@Bloggs"@example.com
+unsub+ba5df.24d-no_reply-alex=gmail.com@senderhost.com
+bounce+e4f6b7.187-auth-verifier=posrt25.com@senderhost.com
+Bill Gates <"billy"@retired.Micr!osoft99.com>
+Steve Jobs <steve@apple.com>
+Matt "The Matt" Mickiewicz <matt.Mickiewicz@99designs.com>
+"<john@smith.com>" <john@smith.com>
+first.last@iana.org
+1234567890123456789012345678901234567890123456789012345678901234@iana.org
+"first\"last"@iana.org
+"first@last"@iana.org
+"first\last"@iana.org
+# first.last@[12.34.56.78]                                                              # domain literal
+# first.last@[IPv6:::12.34.56.78]                                                       # domain literal
+# first.last@[IPv6:1111:2222:3333::4444:12.34.56.78]                                    # domain literal
+# first.last@[IPv6:1111:2222:3333:4444:5555:6666:12.34.56.78]                           # domain literal
+# first.last@[IPv6:::1111:2222:3333:4444:5555:6666]                                     # domain literal
+# first.last@[IPv6:1111:2222:3333::4444:5555:6666]                                      # domain literal
+# first.last@[IPv6:1111:2222:3333:4444:5555:6666::]                                     # domain literal
+# first.last@[IPv6:1111:2222:3333:4444:5555:6666:7777:8888]                             # domain literal
+first.last@x23456789012345678901234567890123456789012345678901234567890123.iana.org
+first.last@3com.com
+first.last@123.iana.org
+"first\last"@iana.org
+# first.last@[IPv6:1111:2222:3333::4444:5555:12.34.56.78]                               # domain literal
+# first.last@[IPv6:1111:2222:3333::4444:5555:6666:7777]                                 # domain literal
+first.last@example.123
+first.last@com
+"Abc\@def"@iana.org
+"Fred\ Bloggs"@iana.org
+"Joe.\Blow"@iana.org
+"Abc@def"@iana.org
+"Fred Bloggs"@iana.org
+user+mailbox@iana.org
+customer/department=shipping@iana.org
+$A12345@iana.org
+!def!xyz%abc@iana.org
+_somename@iana.org
+dclo@us.ibm.com
+peter.piper@iana.org
+"Doug \"Ace\" L."@iana.org
+test@iana.org
+TEST@iana.org
+1234567890@iana.org
+test+test@iana.org
+test-test@iana.org
+t*est@iana.org
++1~1+@iana.org
+{_test_}@iana.org
+"[[ test ]]"@iana.org
+test.test@iana.org
+"test.test"@iana.org
+# test."test"@iana.org                                                                  # obsolete local-part
+"test@test"@iana.org
+test@123.123.123.x123
+test@123.123.123.123
+# test@[123.123.123.123]                                                                # domain literal
+test@example.iana.org
+test@example.example.iana.org
+"test\test"@iana.org
+test@example
+"test\blah"@iana.org
+"test\blah"@iana.org
+"test\"blah"@iana.org
+customer/department@iana.org
+_Yosemite.Sam@iana.org
+~@iana.org
+"Austin@Powers"@iana.org
+Ima.Fool@iana.org
+"Ima.Fool"@iana.org
+"Ima Fool"@iana.org
+# "first"."last"@iana.org                                                               # obsolete local-part
+# "first".middle."last"@iana.org                                                        # obsolete local-part
+# "first".last@iana.org                                                                 # obsolete local-part
+# first."last"@iana.org                                                                 # obsolete local-part
+# "first"."middle"."last"@iana.org                                                      # obsolete local-part
+# "first.middle"."last"@iana.org                                                        # obsolete local-part
+"first.middle.last"@iana.org
+"first..last"@iana.org
+"first\\\"last"@iana.org
+# first."mid\dle"."last"@iana.org                                                       # obsolete local-part
+"test blah"@iana.org
+# (foo)cal(bar)@(baz)iamcal.com(quux)                                                   # comments
+# cal@iamcal(woo).(yay)com                                                              # comments
+# cal(woo(yay)hoopla)@iamcal.com                                                        # comments
+# cal(foo\@bar)@iamcal.com                                                              # comments
+# cal(foo\)bar)@iamcal.com                                                              # comments
+# first().last@iana.org                                                                 # comments
+# pete(his account)@silly.test(his host)                                                # comments
+# c@(Chris's host.)public.example                                                       # comments
+# jdoe@machine(comment). example                                                        # comments
+# 1234 @ local(blah) .machine .example                                                  # comments
+# first(abc.def).last@iana.org                                                          # comments
+# first(a"bc.def).last@iana.org                                                         # comments
+# first.(")middle.last(")@iana.org                                                      # comments
+# first(abc\(def)@iana.org                                                              # comments
+# a(a(b(c)d(e(f))g)h(i)j)@iana.org                                                      # comments
+name.lastname@domain.com
+a@b
+a@bar.com
+# aaa@[123.123.123.123]                                                                 # domain literal
+a@bar
+a-b@bar.com
++@b.c
++@b.com
+a@b.co-foo.uk
+"hello my name is"@stutter.com
+"Test \"Fail\" Ing"@iana.org
+valid@about.museum
+shaitan@my-domain.thisisminekthx
+foobar@192.168.0.1
+"Joe\Blow"@iana.org
+user%uucp!path@berkeley.edu
+# first.last @iana.org                                                                  # obsolete local-part
+cdburgess+!#$%&'*-/=?+_{}|~test@mail.com
+# first.last@[IPv6:::a2:a3:a4:b1:b2:b3:b4]                                              # domain literal
+# first.last@[IPv6:a1:a2:a3:a4:b1:b2:b3::]                                              # domain literal
+# first.last@[IPv6:::]                                                                  # domain literal
+# first.last@[IPv6:::b4]                                                                # domain literal
+# first.last@[IPv6:::b3:b4]                                                             # domain literal
+# first.last@[IPv6:a1::b4]                                                              # domain literal
+# first.last@[IPv6:a1::]                                                                # domain literal
+# first.last@[IPv6:a1:a2::]                                                             # domain literal
+# first.last@[IPv6:0123:4567:89ab:cdef::]                                               # domain literal
+# first.last@[IPv6:0123:4567:89ab:CDEF::]                                               # domain literal
+# first.last@[IPv6:::a3:a4:b1:ffff:11.22.33.44]                                         # domain literal
+# first.last@[IPv6:::a2:a3:a4:b1:ffff:11.22.33.44]                                      # domain literal
+# first.last@[IPv6:a1:a2:a3:a4::11.22.33.44]                                            # domain literal
+# first.last@[IPv6:a1:a2:a3:a4:b1::11.22.33.44]                                         # domain literal
+# first.last@[IPv6:a1::11.22.33.44]                                                     # domain literal
+# first.last@[IPv6:a1:a2::11.22.33.44]                                                  # domain literal
+# first.last@[IPv6:0123:4567:89ab:cdef::11.22.33.44]                                    # domain literal
+# first.last@[IPv6:0123:4567:89ab:CDEF::11.22.33.44]                                    # domain literal
+# first.last@[IPv6:a1::b2:11.22.33.44]                                                  # domain literal
+test@test.com
+test@xn--example.com
+test@example.com

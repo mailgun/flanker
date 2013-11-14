@@ -1,0 +1,15 @@
+From: me@example.com
+To: you@example.com
+Content-Type: text/plain
+
+Hi This is a broken message
+
+Content-Type: text/html;
+Subject: This part misses boundaries
+
+Body
+
+Content-Type: text/html
+Subject: Messy part
+
+Hey

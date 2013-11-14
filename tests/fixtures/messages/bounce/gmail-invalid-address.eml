@@ -1,0 +1,46 @@
+MIME-Version: 1.0
+Return-Path: <>
+Received: by 10.180.12.11 with SMTP id u11mr8106663wib.61; Fri, 05 Jul 2013
+ 16:24:28 -0700 (PDT)
+From: Mail Delivery Subsystem <mailer-daemon@googlemail.com>
+To: awfawdadfawkofawooowowow@gmail.com
+X-Failed-Recipients: awfawfawfawfawfaw@someserverhere.com
+Subject: Delivery Status Notification (Failure)
+Message-ID: <001a11c2449205704f04e0cbff5b@google.com>
+Date: Fri, 05 Jul 2013 23:24:28 +0000
+Content-Type: text/plain; charset=ISO-8859-1
+
+Delivery to the following recipient failed permanently:
+
+     awfawfawfawfawfaw@someserverhere.com
+
+Technical details of permanent failure: 
+Google tried to deliver your message, but it was rejected by the server for the recipient domain someserverhere.com by mxa.example.org. [198.61.253.48].
+
+The error that the other server returned was:
+550 5.1.0 Recipient rejected: <awfawfawfawfawfaw@someserverhere.com>
+
+----- Original message -----
+
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20120113;
+        h=mime-version:date:message-id:subject:from:to:content-type;
+        bh=NX9cjGUC6yNpMFe0ozioiXu4Ya6NDAXHzbKl3eiE6uU=;
+        b=gB/aiAQHsLpiq9JJ9S5L6x9cRWUjHoskP1D5D/k4vjl7xd0asMiI5RnX2sYoHT5NEb
+         NP04fJss2xMCLteuxZSWrDulOybNldo7ESd4di9q0ws9QeUh4vOyaA1/nkpso+5rN4Vt
+         JezELzSKK2jMeeK9Snvbr/W5JmE2vzwLYPGEWdV3TzSMFlPcabzWg3JBYFVCdL0AkhvQ
+         BYq3yczBiUGXAWQkig/UONv/WjqcmvGUA6gGM50YDQFFqTkyG89wAVpp+AuBs0pzu9a5
+         Tzsggr4hZeg8h8+MySfkpUFY70BeojQAfotMG0y+J53B++1doYt+vmy/bWjjpz71rnOh
+         KHdA==
+MIME-Version: 1.0
+X-Received: by 10.180.12.11 with SMTP id u11mr6890158wib.61.1373066667407;
+ Fri, 05 Jul 2013 16:24:27 -0700 (PDT)
+Received: by 10.194.236.201 with HTTP; Fri, 5 Jul 2013 16:24:27 -0700 (PDT)
+Date: Fri, 5 Jul 2013 16:24:27 -0700
+Message-ID: <CAKsfaBUUGqVZiaMrmH3TRPfq1odQPtM7Ey5YW1SgyJJRHtAjgw@mail.gmail.com>
+Subject: Hi
+From: Megan One <awfawdadfawkofawooowowow@gmail.com>
+To: awfawfawfawfawfaw@someserverhere.com
+Content-Type: multipart/alternative; boundary=001a11c24492f6bebf04e0cbfeec
+
+Hi

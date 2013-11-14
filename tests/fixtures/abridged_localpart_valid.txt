@@ -1,0 +1,107 @@
+# Abridged Valid Dataset
+# ==============
+#
+# Valid dataset from Mailgun interal tests, the Wikipedia entry titled "Email
+# address", and the webpage "Comparing E-mail Address Validating Regular
+# Expressions" [1][2].
+#
+# [1] http://en.wikipedia.org/wiki/Email_address
+# [2] http://fightingforalostcause.net/misc/2006/compare-email-regex.php
+#
+niceandsimple
+very.common
+a.little.lengthy.but.fine
+disposable.style.email.with+symbol
+"much.more unusual"
+"very.unusual.@.unusual.com"
+"very.(),:;<>[]\".VERY.\"very@\\ \"very\".unusual"
+!#$%&'*+-/=?^_`{}|~
+"()<>[]:,;@\\\"!#$%&'*+-/=?^_`{}| ~.a"
+" "
+##########
+abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ
+01234567890
+&'*+-./=?^_{}~
+mixed-1234-in-{+^}-local
+single-character-in-sld
+letters-in-sld
+punycode-numbers-in-tld
+"quoted"
+"\e\s\c\a\p\e\d"
+"escaped\"quote"
+"back\slash"
+"tom+[a]"
+OnlineDoctorateraJZPjKgUGVRRRLYCH`
+Government.Grants
+addr_12+3
+addr_123
+addr
+my|'`!#_~%$&{}?^+-*
+bc=some
+bc=some+more
+bc=some+more-and.more
+Joe
+unsub+ba5df.24d-no_reply-alex=gmail.com
+bounce+e4f6b7.187-auth-verifier=posrt25.com
+1234567890123456789012345678901234567890123456789012345678901234
+"first\"last"
+"test\blah"
+a
+test
+"first\last"
+first.last
+"Fred\ Bloggs"
+bob
+user+mailbox
+uncommon-tld
+country-code-tld
+local
+customer/department=shipping
+$A12345
+!def!xyz%abc
+"Joe.\Blow"
+"Fred Bloggs"
+_somename
+dclo
+peter.piper
+"Doug \"Ace\" L."
+TEST
+1234567890
+test+test
+test-test
+t*est
++1~1+
+{_test_}
+"[[ test ]]"
+test.test
+"test.test"
+"test\test"
+"test\"blah"
+customer/department
+_Yosemite.Sam
+~
+Ima.Fool
+"Ima.Fool"
+"Ima Fool"
+"first.middle.last"
+"first..last"
+"first\\\"last"
+"test blah"
+name.lastname
+a-b
+"hello my name is"
+"Test \"Fail\" Ing"
+valid
+shaitan
+foobar
+"Joe\Blow"
+user%uucp!path
+cdburgess+!#$%&'*-/=?+_{}|~test
+"Abc@def"
+"Abc\@def"
+"test@test"
+"Austin@Powers"
+"Abc@def"
+"quoted-at-sign@sld.org"
+"Fred\@Bloggs"
+"first@last"

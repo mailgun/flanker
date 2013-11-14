@@ -1,0 +1,55 @@
+MIME-Version: 1.0
+Received: by 10.194.236.201 with HTTP; Fri, 5 Jul 2013 10:47:34 -0700 (PDT)
+Date: Fri, 5 Jul 2013 10:47:34 -0700
+Delivered-To: bob@example.com
+Message-ID: <CAKsfaBUx-V4rGeteUi3mDc_OLv2-2tSp_RGdJ5NtQOpb59dVAg@mail.gmail.com>
+Subject: This message contains very long links in html
+From: Bob <bob@example.com>
+To: roman@mailgunhq.com
+Content-Type: multipart/alternative; boundary=047d7ba9836035d11304e0c74aca
+
+--047d7ba9836035d11304e0c74aca
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+
+Hello Bob,
+
+Please note that this email contains extremely long links:
+
+http://translate.google.com/translate?sl=3Dde&tl=3Den&u=3Dhttp%3A%2F%2Fwww.=
+horizont.at%2Fhome%2Fdetail%2Fgoogle-ist-geldgeber-von-adblock-plus.html&ac=
+t=3Durl
+
+
+https://mailgun.com/signup?plan=3Dpriority&__utma=3D193350514.1157084692.13=
+72904658.1372904658.1373046418.2&__utmb=3D193350514.1.10.1373046418&__utmc=
+=3D193350514&__utmx=3D-&__utmz=3D193350514.1372904658.1.1.utmcsr=3D(direct)=
+|utmccn=3D(direct)|utmcmd=3D(none)&__utmv=3D-&__utmk=3D216038998
+
+Thanks,
+Bob
+
+--047d7ba9836035d11304e0c74aca
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+
+<div dir=3D"ltr"><div>Hello Bob,</div><div><br></div><div>Please note tha=
+t this email contains extremely long links:</div><div><br></div><div><a hre=
+f=3D"http://translate.google.com/translate?sl=3Dde&amp;tl=3Den&amp;u=3Dhttp=
+%3A%2F%2Fwww.horizont.at%2Fhome%2Fdetail%2Fgoogle-ist-geldgeber-von-adblock=
+-plus.html&amp;act=3Durl">http://translate.google.com/translate?sl=3Dde&amp=
+;tl=3Den&amp;u=3Dhttp%3A%2F%2Fwww.horizont.at%2Fhome%2Fdetail%2Fgoogle-ist-=
+geldgeber-von-adblock-plus.html&amp;act=3Durl</a><br>
+</div><div><br></div><div><br></div><div><a href=3D"https://mailgun.com/sig=
+nup?plan=3Dpriority&amp;__utma=3D193350514.1157084692.1372904658.1372904658=
+.1373046418.2&amp;__utmb=3D193350514.1.10.1373046418&amp;__utmc=3D193350514=
+&amp;__utmx=3D-&amp;__utmz=3D193350514.1372904658.1.1.utmcsr=3D(direct)|utm=
+ccn=3D(direct)|utmcmd=3D(none)&amp;__utmv=3D-&amp;__utmk=3D216038998">https=
+://mailgun.com/signup?plan=3Dpriority&amp;__utma=3D193350514.1157084692.137=
+2904658.1372904658.1373046418.2&amp;__utmb=3D193350514.1.10.1373046418&amp;=
+__utmc=3D193350514&amp;__utmx=3D-&amp;__utmz=3D193350514.1372904658.1.1.utm=
+csr=3D(direct)|utmccn=3D(direct)|utmcmd=3D(none)&amp;__utmv=3D-&amp;__utmk=
+=3D216038998</a><br>
+</div><div><br></div><div>Thanks,</div><div>Bob</div></div>
+
+--047d7ba9836035d11304e0c74aca--

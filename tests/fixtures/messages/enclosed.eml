@@ -1,0 +1,99 @@
+                                                                                                                                                                                                                                                               
+Delivered-To: bob@example.com
+Received: by 10.231.77.161 with SMTP id g33csp198901ibk;
+        Sat, 30 Jun 2012 06:06:01 -0700 (PDT)
+Received: by 10.224.70.144 with SMTP id d16mr10884157qaj.45.1341061559897;
+        Sat, 30 Jun 2012 06:05:59 -0700 (PDT)
+Return-Path: <bob@example.net>
+Received: from mail-p1.example.net (mail-p1.example.net. [173.193.210.44])
+        by mx.google.com with ESMTP id o4si2503040qct.204.2012.06.30.06.05.59;
+        Sat, 30 Jun 2012 06:05:59 -0700 (PDT)
+Received-SPF: pass (google.com: domain of bob@example.net designates 173.193.210.44 as permitted sender) client-ip=173.193.210.44;
+Authentication-Results: mx.google.com; spf=pass (google.com: domain of bob@example.net designates 173.193.210.44 as permitted sender) smtp.mail=bob@example.net; dkim=pass header.i=@example.net
+DKIM-Signature: a=rsa-sha256; v=1; c=relaxed/relaxed; d=example.net; q=dns/txt; s=mg;
+ t=1341061559; h=Content-Type: MIME-Version: Message-Id: Date: From: To:
+ Subject; bh=Ukt6EhQREBbLuCk1QdiXVN/+bRJDy1dNWXTIMnC6wJY=; b=k8md2tTxJcL3RUS+nJ2VDLepI7vmQ+myXSTmt7lZ3B0FywfJtSwqfxOtjzybij6Od5ZMDQDB
+ x4GCvgas2t35FERlYDqUpJ2P6Me/uym5UC9779Y3YgqmKAsNyVsxwEkEG/hBmZ6KbkDtrQyP
+ oTwyx05rp1a7N8XxZPH7PiJqevk=
+DomainKey-Signature: a=rsa-sha1; c=nofws; d=example.net; s=mg; q=dns;
+ h=Content-Type: MIME-Version: Message-Id: Date: From: To: Subject;
+ b=IC6Vz0XP40oeA2RCrrwwma9G76F9P9KsJPP7m81Kx3mJeNdj724/kYaFX+6TShpl0sgSHp
+ 9v8DJmudnhJP05YZgr2RIcB5oE8JphkknpbSybB6Kx+IdHQqLVAi+G65BoF/3iAo1e4eBovN
+ yuBbhhO+OBGLuCRlpu3kP2BVtNyxE=
+Content-Type: multipart/mixed; boundary="===============6195527458677812340=="
+MIME-Version: 1.0
+Received: by luna.example.net with SMTP mgrt 8979437;
+ Sat, 30 Jun 2012 13:05:59 +0000
+Received: from [192.168.1.75] (95x79x59x37.static-business.nn.ertelecom.ru
+ [95.79.59.37]) by mxa.example.org with ESMTP id 4feef9b5.5cf5c00-luna2;
+ Sat, 30 Jun 2012 13:05:57 -0000 (UTC)
+Message-Id: <4FEEF9B3.7060508@example.net>
+Date: Sat, 30 Jun 2012 17:05:55 +0400
+From: Bob Marley <bob@example.net>
+User-Agent: Mozilla/5.0 (X11; Linux x86_64;
+ rv:13.0) Gecko/20120615 Thunderbird/13.0.1
+To: "=?utf-8?b?0JDQu9C10LrRgdCw0L3QtNGAINCa0LvQuNC20LXQvdGC0LDRgeKYrw==?="
+ <bob@example.com>
+Subject: Wow
+X-Example-Sid: WyJlYzgyNiIsICJrbGl6aGVudGFzQGdtYWlsLmNvbSIsICIxNyJd
+
+--===============6195527458677812340==
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format="flowed"
+Content-Transfer-Encoding: 7bit
+
+Hello
+
+--===============6195527458677812340==
+Content-Type: message/rfc822; name="thanks.eml"
+MIME-Version: 1.0
+
+Content-Type: multipart/alternative;
+ boundary="===============4360815924781479146=="
+MIME-Version: 1.0
+Received: by 127.0.1.1 with SMTP; Fri, 22 Apr 2011 18:21:06 +0000
+Received: from mail-vw0-f51.google.com (mail-vw0-f51.google.com
+ [209.85.212.51])	by mxa.example.org (Postfix) with ESMTPS id 9F1E6F01FAC	for
+ <bob@example.net>; Fri, 22 Apr 2011 18:21:06 +0000 (UTC)
+Received: by vws20 with SMTP id 20so857812vws.24 for <bob@example.net>;
+ Fri, 22 Apr 2011 11:21:06 -0700 (PDT)
+Received: by 10.52.66.82 with SMTP id d18mr2018166vdt.260.1303496466294;
+ Fri, 22 Apr 2011 11:21:06 -0700 (PDT)
+Received: by 10.52.168.1 with HTTP; Fri, 22 Apr 2011 11:21:06 -0700 (PDT)
+X-Originating-Ip: [69.181.248.175]
+Date: Fri, 22 Apr 2011 11:21:06 -0700
+Message-Id: <BANLkTinHZL1QMDHOv7Ewp+Z5u6SPvYcc+Q@mail.gmail.com>
+Subject: Thanks!
+From: Kirk Douglas <dan@example.com>
+To: Bob Marley <bob@example.net>, Jimmy Hendrix <jimmy@examplehq.com>
+
+--===============4360815924781479146==
+Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: base64
+
+ZHVkZXMuLi4geW91J3JlIGtpY2tpbmcgYXNzLgrRh9GC0L7QsdGLINGPINCx0LXQtyDQstCw0YEg
+0LTQtdC70LDQuywg0LTQvtGA0L7Qs9C40LUg0LzQvtC4ISEhCgotLSAKRXYgS29udHNldm95LApD
+by1mb3VuZGVyIGFuZCBDRU8gb2YgTWFpbGd1bi5uZXQgLSB0aGUgZW1haWwgcGxhdGZvcm0gZm9y
+IGRldmVsb3BlcnMuCk1haWxndW46IHNlbmQsIHJlY2VpdmUsIHN0b3JlIGFuZCBzZWFyY2ggZW1h
+aWxzIQpwOiA1MTItNDE3LTE3NjIgIHwgIHQ6IEBtYWlsX2d1biAgfCAgdzogbWFpbGd1bi5uZXQK
+
+--===============4360815924781479146==
+Content-Type: text/html; charset="utf-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: base64
+
+ZHVkZXMuLi4geW91JiMzOTtyZSBraWNraW5nIGFzcy48ZGl2PtGH0YLQvtCx0Ysg0Y8g0LHQtdC3
+INCy0LDRgSDQtNC10LvQsNC7LCDQtNC+0YDQvtCz0LjQtSDQvNC+0LghISE8YnIgY2xlYXI9ImFs
+bCI+PGJyPi0tIDxicj5FdiBLb250c2V2b3ksJm5ic3A7PGRpdj48Zm9udCBjb2xvcj0iIzY2NjY2
+NiI+Q28tZm91bmRlciBhbmQgQ0VPIG9mJm5ic3A7PGEgaHJlZj0iaHR0cDovL01haWxndW4ubmV0
+IiB0YXJnZXQ9Il9ibGFuayI+TWFpbGd1bi5uZXQ8L2E+IC0gdGhlIGVtYWlsIHBsYXRmb3JtIGZv
+ciBkZXZlbG9wZXJzLjwvZm9udD48ZGl2Pgo8Zm9udCBjb2xvcj0iI0NDMDAwMCI+TWFpbGd1bjo8
+L2ZvbnQ+Jm5ic3A7PGZvbnQgY29sb3I9IiM2NjY2NjYiPnNlbmQsIHJlY2VpdmUsIHN0b3JlIGFu
+ZCBzZWFyY2ggZW1haWxzITwvZm9udD48YnI+PGZvbnQgY29sb3I9IiM2NjY2NjYiPnA6IDUxMi00
+MTctMTc2MiAmbmJzcDt8ICZuYnNwO3Q6IEBtYWlsX2d1biAmbmJzcDt8ICZuYnNwO3c6IDxhIGhy
+ZWY9Imh0dHA6Ly9tYWlsZ3VuLm5ldCIgdGFyZ2V0PSJfYmxhbmsiPm1haWxndW4ubmV0PC9hPjwv
+Zm9udD48L2Rpdj4KPC9kaXY+PGRpdj48YnI+PC9kaXY+PGJyPgo8L2Rpdj4K
+
+--===============4360815924781479146==--
+--===============6195527458677812340==--

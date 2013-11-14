@@ -1,0 +1,22 @@
+From: me@example.com
+To: user@example.com
+Subject: Hi
+Content-Type: multipart/alternative;
+ boundary="--120710081418BV.24190.Texte--"
+Mime-Version: 1.0
+Date: Tue, 10 Jul 2012 08:14:18 +0200
+
+
+----120710081418BV.24190.Texte--
+Content-Type: text/plain;
+  charset="UTF-8"
+
+Hi
+
+----120710081418BV.24190.Texte--
+Content-Type: text/html;
+  charset="UTF-8"
+
+<html><body>Hi</body></html>
+
+----120710081418BV.24190.Texte----

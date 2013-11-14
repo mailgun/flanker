@@ -1,0 +1,65 @@
+X-Envelope-From: <>
+From: Mail Delivery System <Mailer-Daemon@example.com>
+To: <support@example.net>
+Subject: Delayed Mail (still being retried)
+Date: Tue, 10 Jul 2012 00:09:18 -0600
+Mime-Version: 1.0
+Content-Type: multipart/report; report-type=delivery-status;
+ boundary="CZz3eIzDbSJYu8fvbSlLFdH+/NwoCMV866Y+Iw=="
+Message-Id: <b1c8f711-0d9d-43e1-8f83-eb3084e2587e@VANILLA.corp.example.net>
+Return-Path: <>
+
+--CZz3eIzDbSJYu8fvbSlLFdH+/NwoCMV866Y+Iw==
+Content-Description: Notification
+Content-Type: text/plain
+
+####################################################################
+# THIS IS A WARNING ONLY.  YOU DO NOT NEED TO RESEND YOUR MESSAGE. #
+####################################################################
+
+Your message could not be delivered for 3 days, 20 hours, 0 minutes.
+It will be retried until it is 5 days, 0 hours, 0 minutes old.
+
+For further assistance, please send mail to <postmaster>
+
+If you do so, please include this problem report. You can
+delete your own text from the attached returned message.
+
+<user@example.com>: 454 4.4.4 [internal] no MX or A for domain
+
+
+--CZz3eIzDbSJYu8fvbSlLFdH+/NwoCMV866Y+Iw==
+Content-Description: Delivery report
+Content-Type: message/delivery-status
+
+Reporting-MTA: dns; example.com
+Arrival-Date: Tue, 10 Jul 2012 00:09:18 -0600
+
+Final-Recipient: rfc822; user@example.com
+Status: 4.4.4
+Action: delayed
+Last-Attempt-Date: Tue, 10 Jul 2012 00:09:18 -0600
+Diagnostic-Code: smtp; 454 4.4.4 [internal] no MX or A for domain
+
+--CZz3eIzDbSJYu8fvbSlLFdH+/NwoCMV866Y+Iw==
+Content-Description: Undelivered Message Headers
+Content-Type: text/rfc822-headers
+
+X-AuditID: ac11311d-b7f6f6d000002466-22-4ff6b94e1bef
+From: <support@example.net>
+To: <user@example.com>
+Cc: 
+Bcc: 
+Subject: Notification
+Date: Fri, 6 Jul 2012 04:17:30 -0600
+Message-ID: <19E44CA63F984902B7D654F8FF40F89D@bo>
+MIME-Version: 1.0
+Content-Type: multipart/alternative;
+	boundary="----=_NextPart_000_0000_01CD5B2E.428C0BF0"
+Content-Class: urn:content-classes:message
+Importance: normal
+Priority: normal
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.3790.4325
+
+
+--CZz3eIzDbSJYu8fvbSlLFdH+/NwoCMV866Y+Iw==--

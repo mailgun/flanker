@@ -1,0 +1,10 @@
+To: bob@example.com, hithere@example.com
+Subject: Test
+Mime-Version: 1.0
+From: me@example.com
+Content-Type: multipart/alternative; boundary = nextPart
+
+--nextPart
+Content-type: text/plain; charset=iso-8859-1
+
+Some body

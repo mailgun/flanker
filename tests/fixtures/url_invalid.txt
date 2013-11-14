@@ -1,0 +1,9 @@
+# Invalid Dataset
+# ==============
+#
+# Invalid dataset from Mailgun interal tests for urls.
+#
+httd://foo.com/blah_blah
+mailto://foo.com/blah_blah/
+smtp://foo.com/blah_blah_(wikipedia)
+ftp://foo.com/blah_blah.

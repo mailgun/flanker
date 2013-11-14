@@ -1,0 +1,44 @@
+Date: Thu, 7 Jul 1994 17:16:05 -0400
+From: Mail Delivery Subsystem <MAILER-DAEMON@CS.EXAMPLE.COM>
+Message-Id: <199407072116.RAA14128@CS.EXAMPLE.COM>
+Subject: Returned mail: Cannot send message for 5 days
+To: <owner-info-mime@cs.example.com>
+MIME-Version: 1.0
+Content-Type: multipart/report; report-type=delivery-status;
+  boundary="RAA14128.773615765/CS.EXAMPLE.COM"
+
+--RAA14128.773615765/CS.EXAMPLE.COM
+
+The original message was received at Sat, 2 Jul 1994 17:10:28 -0400
+from root@localhost
+
+    ----- The following addresses had delivery problems -----
+<foo@example.com>  (unrecoverable error)
+
+----- Transcript of session follows -----
+<foo@example.com>... Deferred: Connection timed out
+            with example.com.
+Message could not be delivered for 5 days
+Message will be deleted from queue
+
+--RAA14128.773615765/CS.EXAMPLE.COM
+content-type: message/delivery-status
+
+Reporting-MTA: dns; cs.example.com
+
+Original-Recipient: rfc822;foo@example.com
+Final-Recipient: rfc822;foo@example.com
+Action: failed
+Status: 4.0.0
+Diagnostic-Code: smtp; 426 connection timed out
+Last-Attempt-Date: Thu, 7 Jul 1994 17:15:49 -0400
+
+--RAA14128.773615765/CS.EXAMPLE.COM
+content-type: message/rfc822
+
+Content-Type: text/plain
+Subject: Hello, how are you
+
+[message body goes here]
+
+--RAA14128.773615765/CS.EXAMPLE.COM--

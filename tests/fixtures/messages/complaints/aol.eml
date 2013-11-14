@@ -1,0 +1,118 @@
+Content-Type: multipart/report; report-type="feedback-report";
+	boundary="===============8110170601564424224=="
+MIME-Version: 1.0
+Authentication-Results: mx.google.com;
+	spf=neutral (google.com: 209.85.160.174 is neither
+	permitted nor denied by best guess record for domain of
+	mike+caf_=bob=gmail.com@example.com)
+	smtp.mail=mike+caf_=bob=gmail.com@example.com
+Date: Wed, 17 Nov 2010 15:02:19 EST
+Delivered-To: bob@example.com
+From: scomp@aol.net
+Message-Id: <201011171502.fa984ce434cc97@omr-m11.mx.aol.com>
+Precedence: list
+Received: from mail-iw0-f179.google.com (mail-iw0-f179.google.com
+	[209.85.214.179])
+	by mxa.example.com (Postfix) with ESMTP id 4730DF01123
+	for <bob@example.net>; Wed, 17 Nov 2010 20:02:42 +0000 (UTC)
+Received-Spf: neutral (google.com: 209.85.160.174 is neither permitted nor
+	denied by best guess record for domain of
+	mike+caf_=bob=gmail.com@example.com)
+	client-ip=209.85.160.174; 
+Sender: SRS0=zFhZ=SS=aol.net=scomp@example.com
+Subject: Email Feedback Report for IP 173.193.210.34
+To: spam.abuse@example.com
+X-Aol-Inrly: mars-34.example.com [173.193.210.34] scmp-d48
+X-Aol-Ip: 172.19.132.211
+X-Beenthere: admin@example.com
+X-Forwarded-For: bob@example.com bob@example.net
+X-Forwarded-To: bob@example.net
+X-Loop: scomp
+X-Original-Authentication-Results: mx.google.com; spf=pass (google.com: domain
+	of bc=scomp+aol.net=@example.com designates
+	174.37.214.195 as permitted
+	sender) smtp.mail=bc=scomp+aol.net=@example.com;
+	dkim=pass header.i=@example.com
+X-Original-Sender: scomp@aol.net
+X-X-Forwarded-For: mike@example.com bob@example.com
+
+--===============8110170601564424224==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+
+This is an email abuse report for an email message with the message-id of 20101117174130.28884.55421@luna received from IP address 173.193.210.34 on Wed, 17 Nov 2010 12:41:30 -0500 (EST)
+
+For information, please review the top portion of the following page:
+http://postmaster.aol.com/tools/fbl.html
+
+For information about AOL E-mail guidelines, please see
+http://postmaster.aol.com/guidelines/
+
+If you would like to cancel or change the configuration for your FBL please use the tool located at: 
+http://postmaster.aol.com/waters/fbl_change_form.html
+
+
+--===============8110170601564424224==
+Content-Type: message/feedback-report
+MIME-Version: 1.0
+
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Feedback-Type: abuse
+Received-Date: Wed, 17 Nov 2010 12:41:30 -0500 (EST)
+Redacted-Address: redacted
+Reported-Domain: mars-34.example.com
+Source-Ip: 173.193.210.34
+User-Agent: AOL SComp
+Version: 0.1
+Content-Transfer-Encoding: 7bit
+
+
+--===============8110170601564424224==
+Content-Type: message/rfc822
+MIME-Version: 1.0
+
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Date: Wed, 17 Nov 2010 17:41:30 +0000
+Dkim-Signature: a=rsa-sha256; v=1; c=relaxed/relaxed; d=example.com; q=dns/txt;
+	s=mg; 
+	t=1290015690; h=Content-Type: MIME-Version: Content-Transfer-Encoding:
+	To: From: Date: Subject: Message-ID: MIME-Version;
+	bh=nxbn1zWL9sK6KsPWON+E7/RL1hjKmMs7ob7EC3BfTYQ=;
+	b=Uh281hr4hRrfANPsK2KNUWrKzz5h22EWSMcmE51qm00AR1cbtjHMU/exHhkEQ1VcCxl4FnVn
+	ZPWMq8OSBtKhycMa4sSxoMOS7cjxKMN23F4KG/cw/G8UUD6kYWTu8u+g9AX539uNuO1ohPZk
+	OLGQFkwKgxbQGmNWu9dsxKv43Ms=
+Domainkey-Signature: a=rsa-sha1; c=nofws; d=example.com; s=mg;
+	h=Content-Type: MIME-Version: Content-Transfer-Encoding: To: From:
+	Date: Subject: Message-ID: MIME-Version;
+	b=gWffI33O+PS/Sti8uxIAqNP3SHzc5uPBPJB/R3dZdQ+Uu2n/CmfWJTPfYTO0u83MdkbLD6
+	/SYeFYEnQl26vto/nE7GWpPuwtPeuxm8B11S1eUE178I3As3a2V0QKxC8T9CCX0PmfOLuoKc
+	ErBo/lweMX6ZFVzutgNIQrEn5qHJk=
+From: Bob <bob@example.com>
+Message-Id: <20101117174130.28884.55421@luna>
+Received: from mars-34.example.com (mars-34.example.com [173.193.210.34])
+	by mtain-mb01.r1000.mx.aol.com (Internet Inbound) with ESMTP id
+	6C40F380000A4
+	for <redacted@aol.com>; Wed, 17 Nov 2010 12:41:30 -0500 (EST)
+Subject: exciting Repair the transmittion
+To: redacted@aol.com
+X-Aol-Global-Disposition: G
+X-Aol-Ip: 173.193.210.34
+X-Aol-Scoll-Authentication: mail_rly_antispam_dkim-d309.2 ;
+	domain : example.com DKIM : pass
+X-Aol-Scoll-Score: 0:2:344886368:93952408
+X-Aol-Scoll-Url_count: 0
+X-Aol-Sid: 3039ac1d60154ce413ca6e64
+Content-Transfer-Encoding: 7bit
+
+Dude
+
+Hello
+--
+Best,
+Bob
+
+
+--===============8110170601564424224==--

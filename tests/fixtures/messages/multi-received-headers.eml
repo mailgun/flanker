@@ -1,0 +1,88 @@
+Delivered-To: example@example.com
+Received: by 10.103.199.11 with SMTP id b11cs119577muq;
+        Wed, 9 Feb 2011 00:55:38 -0800 (PST)
+Return-Path: <rtkachen@gmail.com>
+Received-SPF: pass (google.com: domain of hello@example.com designates 10.231.10.138 as permitted sender) client-ip=10.231.10.138;
+Authentication-Results: mr.google.com; spf=pass (google.com: domain of hello@example.com designates 10.231.10.138 as permitted sender) smtp.mail=hello@example.com; dkim=pass header.i=hello@example.com
+Received: from mr.google.com ([10.231.10.138])
+        by 10.231.10.138 with SMTP id p10mr6874993ibp.177.1297241738002 (num_hops = 1);
+        Wed, 09 Feb 2011 00:55:38 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=gamma;
+        h=domainkey-signature:mime-version:in-reply-to:references:date
+         :message-id:subject:from:to:content-type;
+        bh=IsMe+35DpJDsnmMMllZ7cvqpPZqojzM/X/MWU6RTr6A=;
+        b=ZuoPnzHtAJ/EjqjhE5o72Iyu84UadQGEdRqKNbnw0SoU0EHD3ADknjwZ6pC1nrZKV+
+         tX/Bz4ExVqXW9P1n5RlbUQgkiwgztvTz1TShm47UAVmyNynp1/GeGxiBgB359px9cwy9
+         UlfbevPOZDBXRQlaqzlXa9YFFyP2WNkrrVzWY=
+DomainKey-Signature: a=rsa-sha1; c=nofws;
+        d=gmail.com; s=gamma;
+        h=mime-version:in-reply-to:references:date:message-id:subject:from:to
+         :content-type;
+        b=u5Xk19Eord/Q7Z2bLTowXNc6mQ4vQxYkXhj9FiHjo9W6ym/DoX+YZDSv7X0aL24ai7
+         oRRnGCNt6brL0GsNZnSwjGDzacTHSwNxKlX1xk2QT2B5PjzX5mqN3KyUItOj1fC3X6+m
+         WCHdMvsbTDxQqp/uDRfvThzWGSX3LPX2SDh4E=
+MIME-Version: 1.0
+Received: by 10.231.10.138 with SMTP id p10mr6874993ibp.177.1297241737993;
+ Wed, 09 Feb 2011 00:55:37 -0800 (PST)
+Received: by 10.231.195.131 with HTTP; Wed, 9 Feb 2011 00:55:37 -0800 (PST)
+In-Reply-To: <AANLkTinUdYK2NpEiYCKGnCEp_OXKqst_bWNdBVHsfDVh@mail.gmail.com>
+References: <AANLkTi=1ANR2FzeeQ-vK3-_ty0gUrOsAxMRYkob6CL-c@mail.gmail.com>
+            <AANLkTinUdYK2NpEiYCKGnCEp_OXKqst_bWNdBVHsfDVh@mail.gmail.com>
+Date: Wed, 9 Feb 2011 11:55:37 +0300
+Message-ID: <AANLkTikbSvKnE9RjZLNrpupmNMKChv2Kz8qB3HAagmSw@mail.gmail.com>
+Subject: Fwd: Please forward this email to me
+From: Hello <hello@example.com>
+To: example@example.com
+Content-Type: multipart/alternative; boundary=00221532cee4fb1f3e049bd5a0f3
+
+--00221532cee4fb1f3e049bd5a0f3
+Content-Type: text/plain; charset=ISO-8859-1
+
+---------- Forwarded message ----------
+From: Hello <hello@example.com>
+Date: Wed, Feb 9, 2011 at 11:55 AM
+Subject: Fwd: Please forward this email to me
+To: Bob <bob@example.com>
+
+
+
+
+---------- Forwarded message ----------
+From: Bob <example@example.com>
+Date: Wed, Feb 9, 2011 at 11:54 AM
+Subject: Please forward this email to me
+To: Hello <hello@example.com>
+
+
+Forward please
+
+-- 
+Regards,
+Hello
+
+--00221532cee4fb1f3e049bd5a0f3
+Content-Type: text/html; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
+
+<br><br><div class=3D"gmail_quote">---------- Forwarded message ----------<=
+br>From: <b class=3D"gmail_sendername">Bob Simple</b> <span dir=3D"ltr=
+">&lt;<a href=3D"mailto:hello@example.com">hello@example.com</a>&gt;</spa=
+n><br>
+Date: Wed, Feb 9, 2011 at 11:55 AM<br>Subject: Fwd: Please forward this ema=
+il to me<br>To: Hello &lt;<a href=3D"mailto:hello@example.com">hell=
+o@example.com</a>&gt;<br><br><br><br><br><div class=3D"gmail_quote">-------=
+--- Forwarded message ----------<br>
+From: <b class=3D"gmail_sendername">Hello</b> <span dir=3D"ltr">&=
+lt;<a href=3D"mailto:example@example.com" target=3D"_blank">example@example=
+.com</a>&gt;</span><br>
+Date: Wed, Feb 9, 2011 at 11:54 AM<br>Subject: Please forward this email to=
+ me<br>To: Bob Simple &lt;<a href=3D"mailto:hello@example.com" target=
+=3D"_blank">hello@example.com</a>&gt;<br><br><br>Forward please<br clear=
+=3D"all">
+<br>-- <br>
+Regards,<br><font color=3D"#888888">Hello<br>
+</font></div><br>
+</div><br>
+
+--00221532cee4fb1f3e049bd5a0f3--

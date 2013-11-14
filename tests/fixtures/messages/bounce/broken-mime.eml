@@ -1,0 +1,25 @@
+X-Envelope-From: <>
+Date: Mon,  9 Jul 2012 22:37:56 -0700
+Message-Id: <11207092237.AA1808414764@example.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+From: "Postmaster" <postmaster@example.com>
+Sender: <postmaster@example.com>
+To: <support@afw.example.com>
+Subject: Undeliverable Mail
+
+Delivery failed 10 attempts: info@example.net
+
+
+Original message follows.
+
+MIME-Version: 1.0
+From: support@afw.example.com
+To: info@example.net
+Date: 9 Jul 2012 18:25:13 -0700
+Subject: Hey
+Content-Type: text/html; charset=us-ascii
+Content-Transfer-Encoding: quoted-printable
+
+Hey there
+

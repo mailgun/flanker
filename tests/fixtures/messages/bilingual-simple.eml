@@ -1,0 +1,33 @@
+Delivered-To: bob@example.com
+Received: by 10.151.50.2 with SMTP id c2cs24435ybk;
+        Sun, 7 Feb 2010 14:02:40 -0800 (PST)
+Received: by 10.224.35.102 with SMTP id o38mr2108525qad.174.1265580159629;
+        Sun, 07 Feb 2010 14:02:39 -0800 (PST)
+Return-Path: <hello@example.com>
+Received: from web50704.mail.re2.yahoo.com (web50704.mail.re2.yahoo.com [206.190.38.102])
+        by mx.google.com with SMTP id 29si6881757qyk.23.2010.02.07.14.02.38;
+        Sun, 07 Feb 2010 14:02:38 -0800 (PST)
+Received-SPF: pass (google.com: domain of hello@example.com designates 206.190.38.102 as permitted sender) client-ip=206.190.38.102;
+Authentication-Results: mx.google.com; spf=pass (google.com: domain of hello@example.com designates 206.190.38.102 as permitted sender) smtp.mail=hello@example.com; dkim=pass (test mode) header.i=@yahoo.com
+Received: (qmail 85589 invoked by uid 60001); 7 Feb 2010 22:02:38 -0000
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s1024; t=1265580158; bh=C0yuEJ1D3RGuEWp8xzXKWUMZTH+ILg2NRzhJGAgbVbQ=; h=Message-ID:X-YMail-OSG:Received:X-Mailer:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding; b=rUJfhhPA2U3oiuNBs0e7Skj0tZToEUq6voN9TDvo7TSYvip7+wEV61JH/Smkly62F1YVjVhAwaLGHPGakTqeTWo9Ui7qxyLZBPR7ZOAjAScPED6KQnYBKsOCS9OP/chwIQD35qC44YSo6nA3UGisZ6OnuGV+pmzWlxs30aP7xUA=
+DomainKey-Signature:a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  h=Message-ID:X-YMail-OSG:Received:X-Mailer:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=gmORdpKyQRaEtDlSGaEmzBiHDKEyZNpBZ5AQxHaD+ruY4+WHU++ruSpnfqFvpUhdTXb5FqL/QsofvbF5407AcrJ3A+Q4wkZYkGIqJ4pK3UDoLwEd9GwJvBUj3XukT3MX+HufLB55hYHdy+FNDZSrZgzkRnLIE72ZDtOX5k7SXT4=;
+Message-ID: <341090.85574.qm@web50704.mail.re2.yahoo.com>
+X-YMail-OSG: eMrawLgVM1ma8AsZrTC_8QLLs39Kx5DN_6memIxtWLmUL6NPihELBiKADi93ZlJVfjgaGWzbnjcBQA1sm3VBMNQzpNf1tkQoB5WAVYj49O1gTX5WdU6A5qx1yKlgtnj.tCYc2Vn4WEYdOWxzeHgIpU6iTdOImUPGsQcHG1eggBgRk5hcCfLvdextPz0nV2Wp_yRmRl29jdV9bbUb7SUiJ6EqRLbZE86laK_4m294KO6cdVr4CIN0IMS0Pa4vBd5A7UHr.8Eous9BD4h5oYH5snbcndUnaeY.om0o5zv.IzzZ44wC3Np5y5fp7Qmnlf3ncbg0u7jr1E8MrAvV8Y0mRwr.sg--
+Received: from [207.237.228.149] by web50704.mail.re2.yahoo.com via HTTP; Sun, 07 Feb 2010 14:02:38 PST
+X-Mailer: YahooMailRC/272.7 YahooMailWebService/0.8.100.260964
+Date: Sun, 7 Feb 2010 14:02:38 -0800 (PST)
+From: Hello <hello@example.com>
+Subject: =?utf-8?B?U2ltcGxlIHRleHQuIEhvdyBhcmUgeW91PyDQmtCw0Log0YLRiyDQv9C+0LY=?=
+ =?utf-8?B?0LjQstCw0LXRiNGMPw==?=
+To: bob@example.com
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+
+This line is in English=0A=D0=90 =D1=8D=D1=82=D0=B0 =D0=BB=D0=B8=D0=BD=D0=
+=B8=D1=8F =D0=BF=D0=BE-=D1=80=D1=83=D1=81=D1=81=D0=BA=D0=B8.=0A=0A=0A=0A   =
+   

@@ -405,6 +405,18 @@ def message_alter_body_and_serialize_test():
     eq_(u'Привет, Danielle!\n\n', parts[2].body)
 
 
+def alter_message_test_size():
+    # check to make sure size is recalculated after header changed
+    stream_part = scan(IPHONE)
+    size_before = stream_part.size
+
+    stream_part.headers.add('foo', 'bar')
+    size_after = stream_part.size
+
+    eq_(size_before, len(IPHONE))
+    eq_(size_after, len(stream_part.to_string()))
+
+
 def message_size_test():
     # message part as a stream
     stream_part = scan(IPHONE)
@@ -418,7 +430,7 @@ def message_size_test():
         text('plain', text1),
         text('plain', text2))
 
-    eq_(len(text1) + len(text2), message.size)
+    eq_(len(message.to_string()), message.size)
 
 
 def message_convert_to_python_test():

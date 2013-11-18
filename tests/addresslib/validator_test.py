@@ -61,15 +61,14 @@ def mock_exchanger_lookup(arg, metrics=False):
     mtimes = {'mx_lookup': 10, 'dns_lookup': 20, 'mx_conn': 30}
     if metrics is True:
         if arg == 'ai' or arg == 'mailgun.org' or arg == 'fakecompany.mailgun.org':
-            return (True, '', mtimes)
+            return ('', mtimes)
         else:
-            return (False, '', mtimes)
+            return (None, mtimes)
     else:
         if arg == 'ai' or arg == 'mailgun.org' or arg == 'fakecompany.mailgun.org':
-            return (True, '')
+            return ''
         else:
-            return (False, '')
-
+            return None
 
 def test_abridged_mailbox_valid_set():
     for line in ABRIDGED_LOCALPART_VALID_TESTS.split('\n'):
@@ -225,14 +224,14 @@ def test_mx_lookup_metrics():
     with patch.object(validate, 'mail_exchanger_lookup') as mock_method:
         mock_method.side_effect = mock_exchanger_lookup
 
-        a, b, metrics = validate.mail_exchanger_lookup('example.com', metrics=True)
+        a, metrics = validate.mail_exchanger_lookup('example.com', metrics=True)
         assert_equal(metrics['mx_lookup'], 10)
         assert_equal(metrics['dns_lookup'], 20)
         assert_equal(metrics['mx_conn'], 30)
 
         # ensure values are unpacked correctly
-        a, b = validate.mail_exchanger_lookup('example.com', metrics=False)
-        a, b = validate.mail_exchanger_lookup('example.com', metrics=False)
+        a = validate.mail_exchanger_lookup('example.com', metrics=False)
+        a = validate.mail_exchanger_lookup('example.com', metrics=False)
 
 def test_validate_address_metrics():
     with patch.object(validate, 'mail_exchanger_lookup') as mock_method:

@@ -18,7 +18,7 @@ SAMPLE_MX = 'mx0.hotmail.com'
 @nottest
 def mock_exchanger_lookup(arg, metrics=False):
     mtimes = {'mx_lookup': 0, 'dns_lookup': 0, 'mx_conn': 0}
-    return (True, SAMPLE_MX, mtimes)
+    return (SAMPLE_MX, mtimes)
 
 
 def test_exchanger_lookup():

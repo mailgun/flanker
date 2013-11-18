@@ -12,14 +12,14 @@ def mock_exchanger_lookup(arg, metrics=False):
     mtimes = {'mx_lookup': 10, 'dns_lookup': 20, 'mx_conn': 30}
     if metrics is True:
         if arg == 'ai' or arg == 'mailgun.org' or arg == 'fakecompany.mailgun.org':
-            return (True, '', mtimes)
+            return ('', mtimes)
         else:
-            return (False, '', mtimes)
+            return (None, mtimes)
     else:
         if arg == 'ai' or arg == 'mailgun.org' or arg == 'fakecompany.mailgun.org':
-            return (True, '')
+            return ''
         else:
-            return (False, '')
+            return None
 
 
 def test_metrics_parse():

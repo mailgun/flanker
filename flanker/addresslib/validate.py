@@ -117,13 +117,65 @@ def mail_exchanger_lookup(domain, metrics=False):
     Looks up the mail exchanger for a domain. If MX records exist they will
     be returned, if not it will attempt to fallback to A records, if neither
     exist None will be returned.
+    '''
+    mtimes = {'mx_lookup': 0, 'dns_lookup': 0, 'mx_conn': 0}
+    mx_cache = flanker.addresslib.mx_cache
 
+    # look in cache
+    bstart = time.time()
+    in_cache, cache_value = lookup_exchanger_in_cache(domain)
+    mtimes['mx_lookup'] = time.time() - bstart
+    if in_cache:
+        return cache_value, mtimes
+
+    # dns lookup on domain
+    bstart = time.time()
+    mx_hosts = lookup_domain(domain)
+    mtimes['dns_lookup'] = time.time() - bstart
+    if mx_hosts is None:
+        # try one more time
+        bstart = time.time()
+        mx_hosts = lookup_domain(domain)
+        mtimes['dns_lookup'] += time.time() - bstart
+        if mx_hosts is None:
+            mx_cache[domain] = False
+            return None, mtimes
+
+    # test connecting to the mx exchanger
+    bstart = time.time()
+    mail_exchanger = connect_to_mail_exchanger(mx_hosts)
+    mtimes['mx_conn'] = time.time() - bstart
+    if mail_exchanger is None:
+        mx_cache[domain] = False
+        return None, mtimes
+
+    # valid mx records, connected to mail exchanger, return True
+    mx_cache[domain] = mail_exchanger
+    return mail_exchanger, mtimes
+
+
+def lookup_exchanger_in_cache(domain):
+    '''
     Uses a cache to store the results of the mail exchanger lookup to speed
     up lookup times. The default is redis, but this can be overidden by your
     own cache as long as it conforms to the same interface as that of a dict.
     See the implimentation of the redis cache in the flanker.addresslib.driver
     package for more details if you wish to implement your own cache.
+    '''
+    mx_cache = flanker.addresslib.mx_cache
 
+    lookup = mx_cache[domain]
+    if lookup is None:
+        return (False, None)
+
+    if lookup == 'False':
+        return (True, None)
+    else:
+        return (True, lookup)
+
+
+def lookup_domain(domain):
+    '''
     The dnspython package is used for dns lookups. The dnspython package uses
     the dns server specified by your operating system. Just like the cache,
     this can be overridden by your own dns lookup method of choice as long
@@ -131,41 +183,15 @@ def mail_exchanger_lookup(domain, metrics=False):
     implimentation of the dnspython lookup in the flanker.addresslib.driver
     package for more details.
     '''
-    mtimes = {'mx_lookup': 0, 'dns_lookup': 0, 'mx_conn': 0}
 
-    mx_cache = flanker.addresslib.mx_cache
     dns_lookup = flanker.addresslib.dns_lookup
 
-    # if we have the mx lookup cached, return the cached result
-    bstart = time.time()
-    lookup = mx_cache[domain]
-    mtimes['mx_lookup'] = time.time() - bstart
-    if lookup is not None:
-        if lookup == 'False':
-            return (False, None, mtimes)
-        else:
-            return (True, lookup, mtimes)
-
-    # check if mx records exist
     fqdn = domain if domain[-1] == '.' else ''.join([domain, '.'])
-    bstart = time.time()
     mx_hosts = dns_lookup[fqdn]
-    mtimes['dns_lookup'] = time.time() - bstart
+
     if len(mx_hosts) == 0:
-        mx_cache[domain] = False
-        return (False, None, mtimes)
-
-    # check if we can connect to the mail exchanger
-    bstart = time.time()
-    mail_exchanger = connect_to_mail_exchanger(mx_hosts)
-    mtimes['mx_conn'] = time.time() - bstart
-    if mail_exchanger is None:
-        mx_cache[domain] = False
-        return (False, None, mtimes)
-
-    # valid mx records, connected to mail exchanger, return True
-    mx_cache[domain] = mail_exchanger
-    return (True, mail_exchanger, mtimes)
+        return None
+    return mx_hosts
 
 
 def connect_to_mail_exchanger(mx_hosts):

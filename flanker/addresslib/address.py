@@ -192,12 +192,12 @@ def validate_address(addr_spec, metrics=False):
         return None, mtimes
 
     # lookup if this domain has a mail exchanger
-    has_exchanger, exchanger, mx_metrics = \
+    exchanger, mx_metrics = \
         flanker.addresslib.validate.mail_exchanger_lookup(addr_parts[-1], metrics=True)
     mtimes['mx_lookup'] = mx_metrics['mx_lookup']
     mtimes['dns_lookup'] = mx_metrics['dns_lookup']
     mtimes['mx_conn'] = mx_metrics['mx_conn']
-    if has_exchanger is False:
+    if exchanger is None:
         return None, mtimes
 
     # lookup custom local-part grammar if it exists
@@ -249,13 +249,13 @@ def validate_list(addr_list, as_tuple=False, metrics=False):
     for paddr in parsed_addresses:
 
         # lookup if this domain has a mail exchanger
-        has_exchanger, exchanger, mx_metrics = \
+        exchanger, mx_metrics = \
             flanker.addresslib.validate.mail_exchanger_lookup(paddr.hostname, metrics=True)
         mtimes['mx_lookup'] += mx_metrics['mx_lookup']
         mtimes['dns_lookup'] += mx_metrics['dns_lookup']
         mtimes['mx_conn'] += mx_metrics['mx_conn']
 
-        if has_exchanger is False:
+        if exchanger is None:
             ulist.append(paddr.full_spec())
             continue
 

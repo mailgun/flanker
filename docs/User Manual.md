@@ -79,7 +79,7 @@ mailboxes and the total limit on a mailbox-list is 524288 characters.
 
 ##### Parsing Single Address
 
-The parser can be used the parse mailboxes, here a mailbox is defined as a
+The parser can be used to parse mailboxes, here a mailbox is defined as a
 display name as well as a address spec. The parser can parse the entire
 mailbox (both display name and address spec) or the address spec alone.
 

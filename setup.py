@@ -3,8 +3,8 @@
 from setuptools import setup, find_packages
 
 setup(name='flanker',
-      version="0.3.2",
-      description="Mailgun Parsing Tools",
+      version='0.3.2',
+      description='Mailgun Parsing Tools',
       long_description='',
       classifiers=[],
       keywords='',
@@ -24,7 +24,7 @@ setup(name='flanker',
         'Paste==1.7.5',
         'redis==2.7.1',
          # IMPORTANT! Newer regex versions are a lot slower for
-         # mime parsing (100x slower) so so keep it as-is for now
+         # mime parsing (100x slower) so keep it as-is for now.
          'regex==0.1.20110315',
       ],
       )

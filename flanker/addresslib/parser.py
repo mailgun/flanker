@@ -1,7 +1,7 @@
 # coding:utf-8
 
 '''
-_AddressParser is an implementation of a recursive decent parser for email
+_AddressParser is an implementation of a recursive descent parser for email
 addresses and urls. While _AddressParser can be used directly it is not
 recommended, use the the parse() and parse_list() methods which are provided
 in the address module for convenience.

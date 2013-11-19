@@ -33,7 +33,7 @@ Service Provider (ESP) if it exists.
 
 #### Parsing
 
-The address parser is an implementation of a recursive decent parser for email addresses
+The address parser is an implementation of a recursive descent parser for email addresses
 and urls. The grammar supported by the parser (as well as other limitations) are outlined
 below. For email addresses, the grammar tries to stick to RFC 5322 as much as possible,
 but includes relaxed (lax) grammar as well to support for common realistic uses of email
@@ -79,7 +79,7 @@ mailboxes and the total limit on a mailbox-list is 524288 characters.
 
 ##### Parsing Single Address
 
-The parser can be used the parse mailboxes, here a mailbox is defined as a
+The parser can be used to parse mailboxes, here a mailbox is defined as a
 display name as well as a address spec. The parser can parse the entire
 mailbox (both display name and address spec) or the address spec alone.
 

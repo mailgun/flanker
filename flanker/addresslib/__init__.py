@@ -3,7 +3,7 @@ The flanker.addresslib package exposes a simple address parsing library that
 can handle email addresses and urls.
 
 See the address.py module for the public interfaces to the library and the
-parser.py module for the implementation of the recursive decent parser
+parser.py module for the implementation of the recursive descent parser
 used to parse email addresses and urls.
 
 To override the default DNS lookup library or MX Cache, use the

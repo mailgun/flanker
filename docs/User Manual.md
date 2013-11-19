@@ -33,7 +33,7 @@ Service Provider (ESP) if it exists.
 
 #### Parsing
 
-The address parser is an implementation of a recursive decent parser for email addresses
+The address parser is an implementation of a recursive descent parser for email addresses
 and urls. The grammar supported by the parser (as well as other limitations) are outlined
 below. For email addresses, the grammar tries to stick to RFC 5322 as much as possible,
 but includes relaxed (lax) grammar as well to support for common realistic uses of email

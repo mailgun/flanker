@@ -170,11 +170,11 @@ class MessageId(str):
                 yield cls(message_id)
 
 
-class Subject(str):
+class Subject(unicode):
     RE_RE = re.compile("((RE|FW|FWD|HA)([[]\d])*:\s*)*", re.I)
 
     def __new__(cls, *args, **kw):
-        return str.__new__(cls, *args, **kw)
+        return unicode.__new__(cls, *args, **kw)
 
     def strip_replies(self):
         return self.RE_RE.sub('', self)

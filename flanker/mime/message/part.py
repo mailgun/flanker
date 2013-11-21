@@ -1,8 +1,9 @@
-import email.utils
 import email.encoders
 import logging
 import mimetypes
 import imghdr
+import base64
+import quopri
 
 from contextlib import closing
 from cStringIO import StringIO
@@ -523,9 +524,9 @@ def decode_body(content_type, content_encoding, body):
 
 def decode_transfer_encoding(encoding, body):
     if encoding == 'base64':
-        return email.utils._bdecode(body)
+        return base64.b64decode(body)
     elif encoding == 'quoted-printable':
-        return email.utils._qdecode(body)
+        return quopri.decodestring(body)
     else:
         return body
 
@@ -575,9 +576,9 @@ def encode_charset(preferred_charset, text):
 
 def encode_transfer_encoding(encoding, body):
     if encoding == 'quoted-printable':
-        return email.encoders._qencode(body)
+        return quopri.encodestring(body)
     elif encoding == 'base64':
-        return email.encoders._bencode(body)
+        return base64.b64encode(body)
     else:
         return body
 

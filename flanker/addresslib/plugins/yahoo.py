@@ -3,7 +3,7 @@
 '''
     Email address validation plugin for yahoo.com email addresses.
 
-    Notes:
+    Notes for primary e-mail:
 
         4-32 characters
         must start with letter
@@ -24,6 +24,20 @@
         1. No more than a single dot (.) is allowed in the local-part
         2. Length of local-part must be no more than 32 characters, and no
            less than 4 characters.
+
+    Notes for disposable e-mails using "AddressGuard":
+
+        example: base-keyword@yahoo.com
+
+        base and keyword may each be up to 32 characters
+        base may contain letters, numbers, underscores
+        base must start with a letter
+        keyword may contain letters and numbers
+        a single hyphen (-) connects the base and keyword
+
+    Grammar:
+
+        local-part  ->  alpha { [ alpha | num | underscore ] } hyphen { [ alpha | num ] }
 
 '''
 
@@ -50,12 +64,33 @@ UNDERSCORE = re.compile(r'''
                         \_
                         ''', re.MULTILINE | re.VERBOSE)
 
+HYPHEN     = re.compile(r'''
+                        \-
+                        ''', re.MULTILINE | re.VERBOSE)
+
 
 def validate(localpart):
     # check string exists and not empty
     if not localpart:
         return False
 
+    # must start with letter
+    if len(localpart) < 1 or ALPHA.match(localpart[0]) is None:
+        return False
+
+    # must end with letter or digit
+    if ALPHANUM.match(localpart[-1]) is None:
+        return False
+
+    # only disposable addresses may contain hyphens
+    if HYPHEN.search(localpart):
+        return _validate_disposable(localpart)
+
+    # otherwise, normal validation
+    return _validate_primary(localpart)
+
+
+def _validate_primary(localpart):
     # length check
     l = len(localpart)
     if l < 4 or l > 32:
@@ -65,20 +100,7 @@ def validate(localpart):
     if localpart.count('.') > 1:
         return False
 
-    # must start with letter
-    if ALPHA.match(localpart[0]) is None:
-        return False
-
-    # must end with letter or digit
-    if ALPHANUM.match(localpart[-1]) is None:
-        return False
-
-    # grammar check
-    return _validate(localpart)
-
-
-def _validate(localpart):
-    "Grammar: local-part -> alpha  { [ dot | underscore ] ( alpha | num ) }"
+    # Grammar: local-part -> alpha  { [ dot | underscore ] ( alpha | num ) }"
     stream = TokenStream(localpart)
 
     # local-part must being with alpha
@@ -93,6 +115,49 @@ def _validate(localpart):
         # alpha or numeric
         alpanum = stream.get_token(ALPHA) or stream.get_token(NUMERIC)
         if alpanum is None:
+            break
+
+    # alpha or numeric must be end of stream
+    if not stream.end_of_stream():
+        return False
+
+    return True
+
+def _validate_disposable(localpart):
+    # length check (base + hyphen + keyword)
+    l = len(localpart)
+    if l < 3 or l > 65:
+        return False
+
+    # single hyphen
+    if localpart.count('-') != 1:
+        return False
+
+    # Grammar: local-part  ->  alpha { [ alpha | num | underscore ] } hyphen { [ alpha | num ] }
+    stream = TokenStream(localpart)
+
+    # must being with alpha
+    begin = stream.get_token(ALPHA)
+    if begin is None:
+        return False
+
+    while True:
+        # alpha, num, underscore
+        base = stream.get_token(ALPHANUM) or stream.get_token(UNDERSCORE)
+
+        if base is None:
+            break
+
+    # hyphen
+    hyphen = stream.get_token(HYPHEN)
+    if hyphen is None:
+        return False
+
+    while True:
+        # alpha, num
+        keyword = stream.get_token(ALPHANUM)
+
+        if keyword is None:
             break
 
     # alpha or numeric must be end of stream

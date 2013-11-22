@@ -71,6 +71,58 @@ def test_yahoo_pass():
             assert_not_equal(addr, None)
 
 
+def test_yahoo_disposable_pass():
+    with patch.object(validate, 'mail_exchanger_lookup') as mock_method:
+        mock_method.side_effect = mock_exchanger_lookup
+
+        # valid length range
+        for i in range(1, 32):
+            base = ''.join(random.choice(string.ascii_letters) for x in range(i))
+            keyword = ''.join(random.choice(string.ascii_letters) for x in range(i))
+            localpart = base + '-' + keyword
+            addr = address.validate_address(localpart + DOMAIN)
+            assert_not_equal(addr, None)
+
+        # base must be letter, number, underscore
+        for i in string.ascii_letters + string.digits + '_':
+            localpart = 'aa' + str(i) + '-00'
+            addr = address.validate_address(localpart + DOMAIN)
+            assert_not_equal(addr, None)
+
+        # keyword must be letter, number
+        for i in string.ascii_letters + string.digits:
+            localpart = 'aa-' + str(i) + '00'
+            addr = address.validate_address(localpart + DOMAIN)
+            assert_not_equal(addr, None)
+
+
+def test_yahoo_disposable_fail():
+    with patch.object(validate, 'mail_exchanger_lookup') as mock_method:
+        mock_method.side_effect = mock_exchanger_lookup
+
+        # invalid length range
+        for i in range(0) + range(33, 40):
+            base = ''.join(random.choice(string.ascii_letters) for x in range(i))
+            keyword = ''.join(random.choice(string.ascii_letters) for x in range(i))
+            localpart = base + '-' + keyword
+            addr = address.validate_address(localpart + DOMAIN)
+            assert_equal(addr, None)
+
+        # invalid base (must be letter, num, underscore)
+        invalid_chars = string.punctuation
+        invalid_chars = invalid_chars.replace('_', '')
+        for i in invalid_chars:
+            localpart = 'aa' + str(i) + '-00'
+            addr = address.validate_address(localpart + DOMAIN)
+            assert_equal(addr, None)
+
+        # invalid keyword (must be letter, num)
+        invalid_chars = string.punctuation
+        for i in invalid_chars:
+            localpart = 'aa-' + str(i) + '00'
+            addr = address.validate_address(localpart + DOMAIN)
+            assert_equal(addr, None)
+
 def test_yahoo_fail():
     with patch.object(validate, 'mail_exchanger_lookup') as mock_method:
         mock_method.side_effect = mock_exchanger_lookup
@@ -94,7 +146,9 @@ def test_yahoo_fail():
             assert_equal(addr, None)
 
         # invalid chars (must be letter, num, underscore, or dot)
+        # addresses containing a dash may be a valid disposable address
         invalid_chars = string.punctuation
+        invalid_chars = invalid_chars.replace('-', '')
         invalid_chars = invalid_chars.replace('.', '')
         invalid_chars = invalid_chars.replace('_', '')
         for i in invalid_chars:

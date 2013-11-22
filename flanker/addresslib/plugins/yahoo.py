@@ -133,6 +133,13 @@ def _validate_disposable(localpart):
     if localpart.count('-') != 1:
         return False
 
+    # base and keyword length limit
+    parts = localpart.split('-')
+    for part in parts:
+        l = len(part)
+        if l < 1 or l > 32:
+            return False
+
     # Grammar: local-part  ->  alpha { [ alpha | num | underscore ] } hyphen { [ alpha | num ] }
     stream = TokenStream(localpart)
 

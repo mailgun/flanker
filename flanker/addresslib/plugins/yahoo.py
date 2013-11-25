@@ -160,14 +160,9 @@ def _validate_disposable(localpart):
     if hyphen is None:
         return False
 
-    while True:
-        # alpha, num
-        keyword = stream.get_token(ALPHANUM)
+    # keyword must be alpha, num
+    stream.get_token(ALPHANUM)
 
-        if keyword is None:
-            break
-
-    # alpha or numeric must be end of stream
     if not stream.end_of_stream():
         return False
 

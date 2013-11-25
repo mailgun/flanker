@@ -10,7 +10,6 @@
         must end with letter, number, hyphen (-), or underscore (_)
         must use letters, numbers, periods (.), hypens (-), or underscores (_)
         only one plus (+) is allowed
-        only one dot (.) is allowed
         case is ignored
 
     Grammar:
@@ -25,7 +24,7 @@
 
     Other limitations:
 
-        1. No more than a single dot (.) is allowed in the local-part
+        1. Only one consecutive period (.) is allowed in the local-part
         2. Length of local-part must be no more than 64 characters, and no
            less than 1 characters.
 
@@ -47,6 +46,10 @@ HOTMAIL_SUFFIX  = re.compile(r'''
 
 PLUS            = re.compile(r'''
                             \+
+                            ''', re.MULTILINE | re.VERBOSE)
+
+PERIODS         = re.compile(r'''
+                            \.{2,}
                             ''', re.MULTILINE | re.VERBOSE)
 
 
@@ -72,12 +75,12 @@ def validate(localpart):
     if HOTMAIL_SUFFIX.match(real_localpart[-1]) is None:
         return False
 
-    # no more than one dot (.)
-    if localpart.count('.') > 1:
-        return False
-
     # no more than one plus (+)
     if localpart.count('+') > 1:
+        return False
+
+    # no consecutive periods (..)
+    if PERIODS.search(localpart):
         return False
 
     # grammar check

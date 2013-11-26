@@ -156,6 +156,11 @@ def bad_messages_test():
     assert_raises(DecodingError, scan, ENCLOSED_ENDLESS)
     assert_raises(DecodingError, scan, NDN_BROKEN)
 
+def apache_mime_message_news_test():
+    message = scan(APACHE_MIME_MESSAGE_NEWS)
+    eq_('[Fwd: Netscape Enterprise vs. Apache Secure]',
+        message.subject)
+
 
 def missing_final_boundaries_enclosed_test():
     message = scan(ENCLOSED_BROKEN_BOUNDARY)

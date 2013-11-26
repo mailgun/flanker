@@ -3,7 +3,7 @@
 from setuptools import setup, find_packages
 
 setup(name='flanker',
-      version='0.3.2',
+      version='0.3.3',
       description='Mailgun Parsing Tools',
       long_description='',
       classifiers=[],

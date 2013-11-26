@@ -409,6 +409,7 @@ class MimePart(object):
         if self.content_type.is_singlepart():
             if self._container.body_changed():
                 return True
+            return False
 
         elif self.content_type.is_multipart():
             return any(p.was_changed() for p in self.parts)

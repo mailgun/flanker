@@ -188,6 +188,12 @@ def bounce_headers_only_test():
     eq_('multipart/alternative',
         str(message.parts[2].enclosed.content_type))
 
+def message_external_body_test():
+    message = scan(MESSAGE_EXTERNAL_BODY)
+    eq_(2, len(message.parts))
+    eq_(message.parts[1].parts[1].content_type.params['access-type'], 'anon-ftp')
+
+
 def messy_content_types_test():
     message = scan(MISSING_BOUNDARIES)
     eq_(0, len(message.parts))

@@ -1,0 +1,136 @@
+Return-Path: <new-httpd-owner-new-httpd-archive=hyperreal.org@apache.org>
+Delivered-To: new-httpd-archive@hyperreal.org
+Received: (qmail 6890 invoked by uid 6000); 1 Dec 1997 17:50:05 -0000
+Received: (qmail 6883 invoked from network); 1 Dec 1997 17:50:04 -0000
+Received: from scanner.worldgate.com (198.161.84.3)
+  by taz.hyperreal.org with SMTP; 1 Dec 1997 17:50:04 -0000
+Received: from znep.com (uucp@localhost)
+	by scanner.worldgate.com (8.8.7/8.8.7) with UUCP id KAA09958
+	for new-httpd@apache.org; Mon, 1 Dec 1997 10:50:02 -0700 (MST)
+Received: from localhost (marcs@localhost) by alive.znep.com (8.7.5/8.7.3) with SMTP id KAA22531 for <new-httpd@apache.org>; Mon, 1 Dec 1997 10:48:46 -0700 (MST)
+Date: Mon, 1 Dec 1997 10:48:46 -0700 (MST)
+From: Marc Slemko <marcs@znep.com>
+To: TLOSAP <new-httpd@apache.org>
+Subject: I-D ACTION:draft-ietf-http-authentication-00.txt (fwd)
+Message-ID: <Pine.BSF.3.95.971201104619.22475B-120000@alive.znep.com>
+MIME-Version: 1.0
+Content-Type: MULTIPART/MIXED; BOUNDARY=NextPart
+Content-ID: <Pine.BSF.3.95.971201104619.22475C@alive.znep.com>
+Sender: new-httpd-owner@apache.org
+Precedence: bulk
+Reply-To: new-httpd@apache.org
+
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
+
+--NextPart
+Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
+Content-ID: <Pine.BSF.3.95.971201104619.22475D@alive.znep.com>
+
+I am amazed.  Actual work on authentication?  No..... it coudln't be.
+
+My cynical mind suggests that browser vendors don't like real
+authentication since they want to push client certificates for various
+reasons, who cares about the fact that they aren't overly for a lot of
+things. 
+
+---------- Forwarded message ----------
+Date: Mon, 01 Dec 1997 12:24:00 -0500
+From: Internet-Drafts@ns.ietf.org
+To: IETF-Announce@ns.ietf.org
+Cc: http-wg%cuckoo.hpl.hp.com@hplb.hpl.hp.com
+Subject: I-D ACTION:draft-ietf-http-authentication-00.txt
+Resent-Date: Mon, 1 Dec 1997 17:26:15 GMT
+Resent-From: http-wg@cuckoo.hpl.hp.com
+
+A New Internet-Draft is available from the on-line Internet-Drafts directories.
+This draft is a work item of the HyperText Transfer Protocol Working Group 
+of the IETF.
+
+	Title		: HTTP Authentication: Basic and Digest Access 
+                          Authentication
+	Author(s)	: J. Franks, A. Luotonen, P. Leach, J. Hostetler,
+                          P. Hallam-Baker, E. Sink, L. Stewart
+	Filename	: draft-ietf-http-authentication-00.txt
+	Pages		: 27
+	Date		: 26-Nov-97
+	
+       ''HTTP/1.0'' includes the specification for a Basic Access Authentication
+       scheme. This scheme is not considered to be a secure method of user
+       authentication (unless used in conjunction with  some external secure
+       system such as SSL [5]), as the user name and password are passed over
+       the network as clear text.
+ 
+       This document also provides the specification for HTTP's authentication
+       framework, the original Basic authentication scheme and a scheme based
+       on cryptographic hashes, referred to as ''Digest Access Authentication''.
+       It is therefore intended to also serve as a replacement for RFC 2069.[6]
+ 
+       Like Basic, Digest access authentication verifies that both parties to a
+       communication know a shared secret (a password); unlike Basic, this
+       verification can be done without sending the password in the clear,
+       which is Basic's biggest weakness. As with most other authentication
+       protocols, the greatest sources of risks are usually found not in the
+       core protocol itself but in policies and procedures surrounding its use.
+
+Internet-Drafts are available by anonymous FTP.  Login with the username
+"anonymous" and a password of your e-mail address.  After logging in,
+type "cd internet-drafts" and then
+	"get draft-ietf-http-authentication-00.txt".
+A URL for the Internet-Draft is:
+ftp://ds.internic.net/internet-drafts/draft-ietf-http-authentication-00.txt
+
+Internet-Drafts directories are located at:
+
+	Africa:	ftp.is.co.za
+	
+	Europe: ftp.nordu.net
+		ftp.nis.garr.it
+			
+	Pacific Rim: munnari.oz.au
+	
+	US East Coast: ds.internic.net
+	
+	US West Coast: ftp.isi.edu
+
+Internet-Drafts are also available by mail.
+
+Send a message to:	mailserv@ds.internic.net.  In the body type:
+	"FILE /internet-drafts/draft-ietf-http-authentication-00.txt".
+	
+NOTE:	The mail server at ds.internic.net can return the document in
+	MIME-encoded form by using the "mpack" utility.  To use this
+	feature, insert the command "ENCODING mime" before the "FILE"
+	command.  To decode the response(s), you will need "munpack" or
+	a MIME-compliant mail reader.  Different MIME-compliant mail readers
+	exhibit different behavior, especially when dealing with
+	"multipart" MIME messages (i.e. documents which have been split
+	up into multiple messages), so check your local documentation on
+	how to manipulate these messages.
+		
+		
+Below is the data which will enable a MIME compliant mail reader
+implementation to automatically retrieve the ASCII version of the
+Internet-Draft.
+
+--NextPart
+Content-Type: MULTIPART/ALTERNATIVE; BOUNDARY=OtherAccess
+Content-ID: <Pine.BSF.3.95.971201104619.22475E@alive.znep.com>
+Content-Description: 
+
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
+
+--OtherAccess
+Content-Type: MESSAGE/EXTERNAL-BODY; ACCESS-TYPE=mail-server; SERVER="mailserv@ds.internic.net"
+Content-ID: <Pine.BSF.3.95.971201104619.22475F@alive.znep.com>
+
+--OtherAccess
+Content-Type: MESSAGE/EXTERNAL-BODY; NAME="draft-ietf-http-authentication-00.txt"; SITE="ds.internic.net"; ACCESS-TYPE=anon-ftp; DIRECTORY=internet-drafts
+Content-ID: <Pine.BSF.3.95.971201104619.22475G@alive.znep.com>
+
+--OtherAccess--
+--NextPart--
+

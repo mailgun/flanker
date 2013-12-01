@@ -84,7 +84,7 @@ def validate(localpart):
         return False
 
     # grammar check
-    retval= _validate(real_localpart)
+    retval = _validate(real_localpart)
     return retval
 
 

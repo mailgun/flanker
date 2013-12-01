@@ -152,7 +152,7 @@ def parse_parameter_name(key):
     """
     m = reverseContinuation.match(reverse(key))
     key = reverse(m.group('key'))
-    part= reverse(m.group('part')) if m.group('part') else None
+    part = reverse(m.group('part')) if m.group('part') else None
     encoded = m.group('encoded')
     return (key, part, encoded)
 

@@ -233,6 +233,13 @@ foo@mailgun.com
 >>> flanker.addresslib.set_mx_cache(custom_mx_cache_library)
 ```
 
+###### Example: Use the Django Cache Framework
+
+```python
+>>> from flanker import addresslib
+>>> addresslib.set_mx_cache(addresslib.drivers.django_driver.DjangoCache())
+```
+
 ### MIME Parsing
 
 `flanker.mime` is a complete MIME handling package for parsing and creating MIME

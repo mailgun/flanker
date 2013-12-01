@@ -96,7 +96,7 @@ def preparse_address(addr_spec):
 
 def plugin_for_esp(mail_exchanger):
     '''
-    Checks if custom grammar exists for a particular mail exchanger. If 
+    Checks if custom grammar exists for a particular mail exchanger. If
     a grammar is found, the plugin to validate an address for that particular
     email service provider is returned, otherwise None is returned.
 

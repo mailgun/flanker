@@ -206,7 +206,7 @@ class FallbackHeaders(object):
         return self.m.keys()
 
     def items(self):
-        return [(key,val) for (key, val) in self.iteritems()]
+        return [(key, val) for (key, val) in self.iteritems()]
 
     def iteritems(self):
         for key, val in self.m.items():

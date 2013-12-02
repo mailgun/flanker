@@ -29,7 +29,7 @@ def binary_test():
         ]
 
     for a,b in zip(expect, tokens):
-        eq_(a, b, "{} != {}".format(a, b))
+        eq_(a, b, "{0} != {1}".format(a, b))
 
 
 def torture_test():
@@ -40,7 +40,7 @@ def torture_test():
     boundaries = set([b.value for b in tokens if b.is_boundary()])
     eq_(TORTURE_BOUNDARIES, boundaries)
 
-    ctypes = [("{}/{}".format(b.main, b.sub), b.get_boundary())\
+    ctypes = [("{0}/{1}".format(b.main, b.sub), b.get_boundary())\
                   for b in tokens if b.is_content_type()]
     for a, b in zip(TORTURE_CTYPES, ctypes):
         eq_(a, b)
@@ -63,7 +63,7 @@ def dashed_boundary_test():
         ]
 
     for a,b in zip(expect, tokens):
-        eq_(a, b, "{} != {}".format(a, b))
+        eq_(a, b, "{0} != {1}".format(a, b))
 
 
 def dashed_ending_boundary_test():
@@ -82,7 +82,7 @@ def dashed_ending_boundary_test():
         ]
 
     for a,b in zip(expect, tokens):
-        eq_(a, b, "{} != {}".format(a, b))
+        eq_(a, b, "{0} != {1}".format(a, b))
 
 
 def complete_garbage_test():

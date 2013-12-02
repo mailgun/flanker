@@ -6,12 +6,22 @@ import random
 
 from .. import *
 
-from nose.tools import assert_equal, assert_not_equal, assert_list_equal
+from nose.tools import assert_equal, assert_not_equal
 from nose.tools import nottest
 from mock import patch
 
 from flanker.addresslib import address
 from flanker.addresslib import validate
+
+try:
+    from nose.tools import assert_list_equal
+except ImportError:
+    from unittest2 import TestCase
+    class Dummy(TestCase):
+        def nop():
+            pass
+    _t = Dummy('nop')
+    assert_list_equal = _t.assertListEqual
 
 COMMENT = re.compile(r'''\s*#''')
 

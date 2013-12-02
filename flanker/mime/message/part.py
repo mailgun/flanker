@@ -266,7 +266,7 @@ class MimePart(object):
     def message_id(self, value):
         if not MessageId.is_valid(value):
             raise ValueError("invalid message id format")
-        self.headers['Message-Id'] = "<{}>".format(value)
+        self.headers['Message-Id'] = "<{0}>".format(value)
 
     @property
     def subject(self):
@@ -508,7 +508,7 @@ class MimePart(object):
             m.set_root(False)
 
     def __str__(self):
-        return "({})".format(self.content_type)
+        return "({0})".format(self.content_type)
 
 
 def decode_body(content_type, content_encoding, body):

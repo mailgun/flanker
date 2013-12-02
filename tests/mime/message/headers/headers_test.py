@@ -114,7 +114,7 @@ def headers_transform_test():
     assert_false(h.have_changed())
 
     # ok, now something have changed, make sure we've preserved order and did not collapse anything
-    h.transform(lambda key,val: ("X-{}".format(key), "t({})".format(val)))
+    h.transform(lambda key,val: ("X-{0}".format(key), "t({0})".format(val)))
     ok_(h.have_changed())
 
     eq_([('X-Mime-Version', 't(1)'), ('X-Received', 't(2)'), ('X-Mime-Version', 't(3)'), ('X-Received', 't(4)')], h.items())
@@ -126,14 +126,14 @@ def headers_parsing_empty_test():
 
 def headers_parsing_ridiculously_long_line_test():
     val = "abcdefg"*100000
-    header = "Hello: {}\r\n".format(val)
+    header = "Hello: {0}\r\n".format(val)
     assert_raises(
         DecodingError, MimeHeaders.from_stream, StringIO(header))
 
 
 def headers_parsing_binary_stuff_survives_test():
     value = zlib.compress("abcdefg")
-    header = "Hello: {}\r\n".format(value)
+    header = "Hello: {0}\r\n".format(value)
     assert_raises(
         DecodingError, MimeHeaders.from_stream, StringIO(header))
 

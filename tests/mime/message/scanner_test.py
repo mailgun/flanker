@@ -227,7 +227,7 @@ def tree_to_string(part):
 
 
 def print_tree(part, parts, delimiters=""):
-    parts.append("{}{}".format(delimiters, part.content_type))
+    parts.append("{0}{1}".format(delimiters, part.content_type))
 
     if part.content_type.is_multipart():
         for p in part.parts:

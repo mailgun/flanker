@@ -6,14 +6,25 @@ import random
 
 from .. import *
 
-from nose.tools import assert_equal, assert_not_equal, assert_greater
+from nose.tools import assert_equal, assert_not_equal
 from nose.tools import nottest
 from mock import patch
 
 from flanker.addresslib import validate
 from flanker.addresslib import corrector
 
+try:
+    from nose.tools import assert_greater
+except ImportError:
+    from unittest2 import TestCase
+    class Dummy(TestCase):
+        def nop():
+            pass
+    _t = Dummy('nop')
+    assert_greater = _t.assertGreater
+
 COMMENT = re.compile(r'''\s*#''')
+
 
 @nottest
 def generate_mutated_string(source_str, num):
@@ -73,13 +84,13 @@ def test_domain_typo_valid_set():
         if sugg_str == corr_str:
             sugg_correct += 1
         else:
-            print 'did not match: {}, {}'.format(test_str, sugg_str)
+            print 'did not match: {0}, {1}'.format(test_str, sugg_str)
 
         sugg_total += 1
 
     # ensure that we have greater than 90% accuracy
     accuracy = float(sugg_correct) / sugg_total
-    print 'external valid: accuracy: {}, correct: {}, total: {}'.\
+    print 'external valid: accuracy: {0}, correct: {1}, total: {2}'.\
         format(accuracy, sugg_correct, sugg_total)
     assert_greater(accuracy, 0.90)
 
@@ -106,13 +117,13 @@ def test_domain_typo_invalid_set():
         if sugg_str == None:
             sugg_correct += 1
         else:
-            print 'incorrect correction: {}, {}'.format(test_str, sugg_str)
+            print 'incorrect correction: {0}, {1}'.format(test_str, sugg_str)
 
         sugg_total += 1
 
     # ensure that we have greater than 90% accuracy
     accuracy = float(sugg_correct) / sugg_total
-    print 'external invalid: accuracy: {}, correct: {}, total: {}'.\
+    print 'external invalid: accuracy: {0}, correct: {1}, total: {2}'.\
         format(accuracy, sugg_correct, sugg_total)
     assert_greater(accuracy, 0.90)
 
@@ -144,7 +155,7 @@ def test_suggest_alternate_mutations_valid():
 
     # ensure that we have greater than 60% accuracy
     accuracy = float(sugg_correct) / sugg_total
-    print 'mutations valid: accuracy: {}, correct: {}, total: {}'.\
+    print 'mutations valid: accuracy: {0}, correct: {1}, total: {2}'.\
         format(accuracy, sugg_correct, sugg_total)
     assert_greater(accuracy, 0.60)
 
@@ -168,7 +179,7 @@ def test_suggest_alternate_longer_valid():
 
     # ensure that we have greater than 60% accuracy
     accuracy = float(sugg_correct) / sugg_total
-    print 'longer valid: accuracy: {}, correct: {}, total: {}'.\
+    print 'longer valid: accuracy: {0}, correct: {1}, total: {2}'.\
         format(accuracy, sugg_correct, sugg_total)
     assert_greater(accuracy, 0.60)
 
@@ -192,7 +203,7 @@ def test_suggest_alternate_shorter_valid():
 
     # ensure that we have greater than 60% accuracy
     accuracy = float(sugg_correct) / sugg_total
-    print 'shorter valid: accuracy: {}, correct: {}, total: {}'.\
+    print 'shorter valid: accuracy: {0}, correct: {1}, total: {2}'.\
         format(accuracy, sugg_correct, sugg_total)
     assert_greater(accuracy, 0.60)
 
@@ -211,12 +222,12 @@ def test_suggest_alternate_invalid():
             if sugg_str == None:
                 sugg_correct += 1
             else:
-                print 'did not match: {}, {}'.format(orig_str, sugg_str)
+                print 'did not match: {0}, {1}'.format(orig_str, sugg_str)
 
             sugg_total += 1
 
     # ensure that we have greater than 60% accuracy
     accuracy = float(sugg_correct) / sugg_total
-    print 'alternative invalid: accuracy: {}, correct: {}, total: {}'.\
+    print 'alternative invalid: accuracy: {0}, correct: {1}, total: {2}'.\
         format(accuracy, sugg_correct, sugg_total)
     assert_greater(accuracy, 0.60)

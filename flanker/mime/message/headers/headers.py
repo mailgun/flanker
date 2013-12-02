@@ -126,7 +126,7 @@ class MimeHeaders(object):
                 h = h.encode('ascii')
             except UnicodeDecodeError:
                 raise EncodingError("Non-ascii header name")
-            stream.write("{}: {}\r\n".format(h, to_mime(h, v)))
+            stream.write("{0}: {1}\r\n".format(h, to_mime(h, v)))
 
 
 def _remove_newlines(value):

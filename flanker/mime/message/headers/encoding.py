@@ -51,7 +51,7 @@ def encode_unstructured(name, value):
             return encode_address_header(name, value)
         else:
             return Header(
-                value.encode("utf-8"), "utf-8", header_name=name).encode(
+                to_utf8(value), "utf-8", header_name=name).encode(
                 splitchars=' ;,')
 
 

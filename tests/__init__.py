@@ -40,6 +40,7 @@ RELATIVE = open(fixture_file("messages/relative.eml")).read()
 IPHONE = open(fixture_file("messages/iphone.eml")).read()
 
 MULTIPART = open(fixture_file("messages/multipart.eml")).read()
+FROM_ENCODING = open(fixture_file("messages/from-encoding.eml")).read()
 NO_CTYPE = open(fixture_file("messages/no-ctype.eml")).read()
 ENCLOSED = open(fixture_file("messages/enclosed.eml")).read()
 ENCLOSED_BROKEN_BOUNDARY = open(

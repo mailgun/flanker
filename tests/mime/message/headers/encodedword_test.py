@@ -3,6 +3,7 @@
 from nose.tools import *
 from mock import *
 from flanker.mime.message.headers import encodedword
+from flanker import utils
 from flanker.mime.message import errors, charsets
 
 def encoded_word_test():
@@ -130,7 +131,7 @@ def various_encodings_test():
     eq_(u'Evaneos-Concepción.pdf', encodedword.mime_to_unicode(v))
 
 
-@patch.object(charsets, 'guess_and_convert', Mock(side_effect=errors.EncodingError()))
+@patch.object(utils, '_guess_and_convert', Mock(side_effect=errors.EncodingError()))
 def test_convert_to_utf8_unknown_encoding():
     v = "abc\x80def"
     eq_(u"abc\u20acdef", charsets.convert_to_unicode("windows-874", v))

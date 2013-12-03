@@ -138,6 +138,11 @@ Body."""
     assert_raises(DecodingError, lambda x: message.headers, 1)
 
 
+def test_non_ascii_from():
+    message = scan(FROM_ENCODING)
+    eq_(u'"Ingo Lütkebohle" <ingo@blank.pages.de>', message.headers.get('from'))
+
+
 def notification_about_multipart_test():
     message = scan(NOTIFICATION)
     eq_(3, len(message.parts))

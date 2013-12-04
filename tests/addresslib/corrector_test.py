@@ -6,22 +6,12 @@ import random
 
 from .. import *
 
-from nose.tools import assert_equal, assert_not_equal
+from nose.tools import assert_equal, assert_not_equal, ok_
 from nose.tools import nottest
-from mock import patch
 
 from flanker.addresslib import validate
 from flanker.addresslib import corrector
 
-try:
-    from nose.tools import assert_greater
-except ImportError:
-    from unittest2 import TestCase
-    class Dummy(TestCase):
-        def nop():
-            pass
-    _t = Dummy('nop')
-    assert_greater = _t.assertGreater
 
 COMMENT = re.compile(r'''\s*#''')
 
@@ -92,7 +82,7 @@ def test_domain_typo_valid_set():
     accuracy = float(sugg_correct) / sugg_total
     print 'external valid: accuracy: {0}, correct: {1}, total: {2}'.\
         format(accuracy, sugg_correct, sugg_total)
-    assert_greater(accuracy, 0.90)
+    ok_(accuracy > 0.90)
 
 
 def test_domain_typo_invalid_set():
@@ -125,7 +115,7 @@ def test_domain_typo_invalid_set():
     accuracy = float(sugg_correct) / sugg_total
     print 'external invalid: accuracy: {0}, correct: {1}, total: {2}'.\
         format(accuracy, sugg_correct, sugg_total)
-    assert_greater(accuracy, 0.90)
+    ok_(accuracy > 0.90)
 
 
 # For the remaining tests, the accuracy is significantly lower than
@@ -157,7 +147,7 @@ def test_suggest_alternate_mutations_valid():
     accuracy = float(sugg_correct) / sugg_total
     print 'mutations valid: accuracy: {0}, correct: {1}, total: {2}'.\
         format(accuracy, sugg_correct, sugg_total)
-    assert_greater(accuracy, 0.60)
+    ok_(accuracy > 0.60)
 
 
 def test_suggest_alternate_longer_valid():
@@ -181,7 +171,7 @@ def test_suggest_alternate_longer_valid():
     accuracy = float(sugg_correct) / sugg_total
     print 'longer valid: accuracy: {0}, correct: {1}, total: {2}'.\
         format(accuracy, sugg_correct, sugg_total)
-    assert_greater(accuracy, 0.60)
+    ok_(accuracy > 0.60)
 
 
 def test_suggest_alternate_shorter_valid():
@@ -205,7 +195,7 @@ def test_suggest_alternate_shorter_valid():
     accuracy = float(sugg_correct) / sugg_total
     print 'shorter valid: accuracy: {0}, correct: {1}, total: {2}'.\
         format(accuracy, sugg_correct, sugg_total)
-    assert_greater(accuracy, 0.60)
+    ok_(accuracy > 0.60)
 
 
 def test_suggest_alternate_invalid():
@@ -230,4 +220,4 @@ def test_suggest_alternate_invalid():
     accuracy = float(sugg_correct) / sugg_total
     print 'alternative invalid: accuracy: {0}, correct: {1}, total: {2}'.\
         format(accuracy, sugg_correct, sugg_total)
-    assert_greater(accuracy, 0.60)
+    ok_(accuracy > 0.60)

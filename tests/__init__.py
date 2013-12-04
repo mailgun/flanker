@@ -51,6 +51,8 @@ ENCLOSED_BROKEN_BODY = open(
     fixture_file("messages/enclosed-broken-body.eml")).read()
 ENCLOSED_BROKEN_ENCODING = open(
     fixture_file("messages/enclosed-bad-encoding.eml")).read()
+MESSAGE_EXTERNAL_BODY= open(
+    fixture_file("messages/message-external-body.eml")).read()
 EIGHT_BIT = open(fixture_file("messages/8bitmime.eml")).read()
 BIG = open(fixture_file("messages/big.eml")).read()
 RUSSIAN_ATTACH_YAHOO = open(

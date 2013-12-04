@@ -69,10 +69,14 @@ class ContentType(tuple):
     def is_headers_container(self):
         return self.is_feedback_report() or \
             self.is_rfc_headers() or \
+            self.is_message_external_body() or \
             self.is_disposition_notification()
 
     def is_rfc_headers(self):
         return self == 'text/rfc822-headers'
+
+    def is_message_external_body(self):
+        return self == 'message/external-body'
 
     def is_message_container(self):
         return self == 'message/rfc822' or self == 'message/news'

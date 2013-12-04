@@ -1,0 +1,61 @@
+Received: by taz.hyperreal.com (8.6.12/8.6.5) id OAA24149; Mon, 1 Jul 1996 14:55:48 -0700
+Received: from ooo.lanl.gov by taz.hyperreal.com (8.6.12/8.6.5) with ESMTP id OAA24141; Mon, 1 Jul 1996 14:55:46 -0700
+Received: from ooo (localhost.lanl.gov) by ooo.lanl.gov with SMTP
+	(1.37.109.16/16.2) id AA054718121; Mon, 1 Jul 1996 15:55:21 -0600
+Message-Id: <31D84948.3641@lanl.gov>
+Date: Mon, 01 Jul 1996 15:55:20 -0600
+From: Rob Hartill <hartill@lanl.gov>
+Organization: Los Alamos National Lab
+X-Mailer: Mozilla 3.0b5 (X11; I; HP-UX A.09.07 9000/715)
+Mime-Version: 1.0
+To: new-httpd@hyperreal.com
+Subject: [Fwd: Netscape Enterprise vs. Apache Secure]
+Content-Type: multipart/mixed; boundary="------------14251B16086"
+Sender: owner-new-httpd@apache.org
+Precedence: bulk
+Reply-To: new-httpd@hyperreal.com
+
+This is a multi-part message in MIME format.
+
+--------------14251B16086
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+
+Sameer... someone for you to pester...   :-)
+
+--------------14251B16086
+Content-Type: message/news
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+Newsgroups: comp.infosystems.www.servers.unix
+Path: newshost.lanl.gov!ncar!imci4!newsfeed.internetmci.com!news.sprintlink.net!new-news.sprintlink.net!coopnews.coop.net!pvi.com!news
+From: mangi@moondog.pvi (Richard Mangi)
+Subject: Netscape Enterprise vs. Apache Secure
+Message-ID: <MANGI.96Jul1110016@moondog.pvi>
+Sender: news@pvi.com
+Organization: Visual Numerics, Inc.
+Date: Mon, 1 Jul 1996 17:00:16 GMT
+
+I am currently evaluating secure web servers for my company. We will be running
+the server from a Sun Ultra. I haven't been able to find any recent comparisons 
+of the new Netscape Servers with the Apache Secure server. Has anyone done
+any comparisons of features, ease of use, and reliability? Any advice would be
+appreciated.
+
+Thanks.
+
+Rick
+-- 
+ 
+----------------------------------------------
+           Rick Mangi  -- ** Webmaster **
+    Visual Numerics, Inc. http://www.vni.com     
+mangi@boulder.vni.com (w) / rick@henge.com (h)
+         * Member: HTML Writer's Guild *
+             ** Surrender Earthlings! ** 
+-----------------------------------------------
+
+--------------14251B16086--
+
+

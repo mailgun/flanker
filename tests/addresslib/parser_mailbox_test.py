@@ -108,8 +108,8 @@ def test_display_name():
 
 
     # pass display-name quoted-string rfc
-    run_full_mailbox_test('"{}" <a@b>'.format(FULL_QTEXT), EmailAddress('"' + FULL_QTEXT + '"', 'a@b'))
-    run_full_mailbox_test('"{}" <a@b>'.format(FULL_QUOTED_PAIR), EmailAddress('"' + FULL_QUOTED_PAIR + '"', 'a@b'))
+    run_full_mailbox_test('"{0}" <a@b>'.format(FULL_QTEXT), EmailAddress('"' + FULL_QTEXT + '"', 'a@b'))
+    run_full_mailbox_test('"{0}" <a@b>'.format(FULL_QUOTED_PAIR), EmailAddress('"' + FULL_QUOTED_PAIR + '"', 'a@b'))
     run_full_mailbox_test('"<a@b>" <a@b>', EmailAddress('"<a@b>"', 'a@b'))
     run_full_mailbox_test('"Bill" <bill@microsoft.com>', EmailAddress('"Bill"', 'bill@microsoft.com'))
     run_full_mailbox_test('"Bill Gates" <bill@microsoft.com>', EmailAddress('"Bill Gates"', 'bill@microsoft.com'))
@@ -119,19 +119,19 @@ def test_display_name():
     run_full_mailbox_test(' " Bill Gates "<bill@microsoft.com>', EmailAddress('" Bill Gates "', 'bill@microsoft.com'))
 
     # fail display-name quoted-string rfc
-    run_mailbox_test('"{} <a@b>"'.format(FULL_QUOTED_PAIR), None)
-    run_mailbox_test('"{} <a@b>'.format(FULL_QTEXT), None)
-    run_mailbox_test('{}" <a@b>'.format(FULL_QUOTED_PAIR), None)
-    run_mailbox_test('{} <a@b>'.format(FULL_QUOTED_PAIR), None)
-    run_mailbox_test(u'{} <a@b>'.format(''.join(CONTROL_CHARS)), None)
-    run_mailbox_test(u'"{}" <a@b>'.format(''.join(CONTROL_CHARS)), None)
+    run_mailbox_test('"{0} <a@b>"'.format(FULL_QUOTED_PAIR), None)
+    run_mailbox_test('"{0} <a@b>'.format(FULL_QTEXT), None)
+    run_mailbox_test('{0}" <a@b>'.format(FULL_QUOTED_PAIR), None)
+    run_mailbox_test('{0} <a@b>'.format(FULL_QUOTED_PAIR), None)
+    run_mailbox_test(u'{0} <a@b>'.format(''.join(CONTROL_CHARS)), None)
+    run_mailbox_test(u'"{0}" <a@b>'.format(''.join(CONTROL_CHARS)), None)
     for cc in CONTROL_CHARS:
-        run_mailbox_test(u'"{}" <a@b>'.format(cc), None)
-        run_mailbox_test(u'{} <a@b>'.format(cc), None)
+        run_mailbox_test(u'"{0}" <a@b>'.format(cc), None)
+        run_mailbox_test(u'{0} <a@b>'.format(cc), None)
 
     # pass display-name quoted-string lax
-    run_full_mailbox_test('"{}" a@b'.format(FULL_QTEXT), EmailAddress('"' + FULL_QTEXT + '"', 'a@b'))
-    run_full_mailbox_test('"{}" a@b'.format(FULL_QUOTED_PAIR), EmailAddress('"' + FULL_QUOTED_PAIR + '"', 'a@b'))
+    run_full_mailbox_test('"{0}" a@b'.format(FULL_QTEXT), EmailAddress('"' + FULL_QTEXT + '"', 'a@b'))
+    run_full_mailbox_test('"{0}" a@b'.format(FULL_QUOTED_PAIR), EmailAddress('"' + FULL_QUOTED_PAIR + '"', 'a@b'))
     run_full_mailbox_test('"a@b" a@b', EmailAddress('"a@b"', 'a@b'))
     run_full_mailbox_test('"Bill" bill@microsoft.com', EmailAddress('"Bill"', 'bill@microsoft.com'))
     run_full_mailbox_test('"Bill Gates" bill@microsoft.com', EmailAddress('"Bill Gates"', 'bill@microsoft.com'))
@@ -141,15 +141,15 @@ def test_display_name():
 
     # fail display-name quoted-string lax
     run_mailbox_test('"Bill Gates"bill@microsoft.com', None)
-    run_mailbox_test('"{} a@b"'.format(FULL_QUOTED_PAIR), None)
-    run_mailbox_test('"{} a@b'.format(FULL_QTEXT), None)
-    run_mailbox_test('{}" a@b'.format(FULL_QUOTED_PAIR), None)
-    run_mailbox_test('{} a@b'.format(FULL_QUOTED_PAIR), None)
-    run_mailbox_test(u'{} a@b'.format(''.join(CONTROL_CHARS)), None)
-    run_mailbox_test(u'"{}" a@b'.format(''.join(CONTROL_CHARS)), None)
+    run_mailbox_test('"{0} a@b"'.format(FULL_QUOTED_PAIR), None)
+    run_mailbox_test('"{0} a@b'.format(FULL_QTEXT), None)
+    run_mailbox_test('{0}" a@b'.format(FULL_QUOTED_PAIR), None)
+    run_mailbox_test('{0} a@b'.format(FULL_QUOTED_PAIR), None)
+    run_mailbox_test(u'{0} a@b'.format(''.join(CONTROL_CHARS)), None)
+    run_mailbox_test(u'"{0}" a@b'.format(''.join(CONTROL_CHARS)), None)
     for cc in CONTROL_CHARS:
-        run_mailbox_test(u'{} a@b'.format(cc), None)
-        run_mailbox_test(u'"{}" a@b'.format(cc), None)
+        run_mailbox_test(u'{0} a@b'.format(cc), None)
+        run_mailbox_test(u'"{0}" a@b'.format(cc), None)
 
     # pass unicode display-name sanity
     run_full_mailbox_test(u'Bill <bill@microsoft.com>', EmailAddress(u'Bill', 'bill@microsoft.com'))
@@ -165,60 +165,60 @@ def test_display_name():
 
 def test_unicode_display_name():
     # unicode, no quotes, display-name rfc
-    run_full_mailbox_test(u'ö <{}>'.format(u'foo@example.com'),
+    run_full_mailbox_test(u'ö <{0}>'.format(u'foo@example.com'),
         EmailAddress(u'ö', 'foo@example.com'), '=?utf-8?b?w7Y=?= <foo@example.com>')
-    run_full_mailbox_test(u'Föö <{}>'.format(u'foo@example.com'),
+    run_full_mailbox_test(u'Föö <{0}>'.format(u'foo@example.com'),
         EmailAddress(u'Föö', 'foo@example.com'), '=?utf-8?b?RsO2w7Y=?= <foo@example.com>')
-    run_full_mailbox_test(u'Foo ö <{}>'.format(u'foo@example.com'),
+    run_full_mailbox_test(u'Foo ö <{0}>'.format(u'foo@example.com'),
         EmailAddress(u'Foo ö', 'foo@example.com'), '=?utf-8?b?Rm9vIMO2?= <foo@example.com>')
-    run_full_mailbox_test(u'Foo Föö <{}>'.format(u'foo@example.com'),
+    run_full_mailbox_test(u'Foo Föö <{0}>'.format(u'foo@example.com'),
         EmailAddress(u'Foo Föö', 'foo@example.com'), '=?utf-8?b?Rm9vIEbDtsO2?= <foo@example.com>')
-    run_full_mailbox_test(u'Foo Föö Foo <{}>'.format(u'foo@example.com'),
+    run_full_mailbox_test(u'Foo Föö Foo <{0}>'.format(u'foo@example.com'),
         EmailAddress(u'Foo Föö Foo', 'foo@example.com'), '=?utf-8?b?Rm9vIEbDtsO2IEZvbw==?= <foo@example.com>')
-    run_full_mailbox_test(u'Foo Föö Foo Föö <{}>'.format(u'foo@example.com'),
+    run_full_mailbox_test(u'Foo Föö Foo Föö <{0}>'.format(u'foo@example.com'),
         EmailAddress(u'Foo Föö Foo Föö', 'foo@example.com'), '=?utf-8?b?Rm9vIEbDtsO2IEZvbyBGw7bDtg==?= <foo@example.com>')
 
     # unicode, no quotes, display-name lax
-    run_full_mailbox_test(u'ö {}'.format(u'foo@example.com'),
+    run_full_mailbox_test(u'ö {0}'.format(u'foo@example.com'),
         EmailAddress(u'ö', 'foo@example.com'), '=?utf-8?b?w7Y=?= <foo@example.com>')
-    run_full_mailbox_test(u'Föö {}'.format(u'foo@example.com'),
+    run_full_mailbox_test(u'Föö {0}'.format(u'foo@example.com'),
         EmailAddress(u'Föö', 'foo@example.com'), '=?utf-8?b?RsO2w7Y=?= <foo@example.com>')
-    run_full_mailbox_test(u'Foo ö {}'.format(u'foo@example.com'),
+    run_full_mailbox_test(u'Foo ö {0}'.format(u'foo@example.com'),
         EmailAddress(u'Foo ö', 'foo@example.com'), '=?utf-8?b?Rm9vIMO2?= <foo@example.com>')
-    run_full_mailbox_test(u'Foo Föö {}'.format(u'foo@example.com'),
+    run_full_mailbox_test(u'Foo Föö {0}'.format(u'foo@example.com'),
         EmailAddress(u'Foo Föö', 'foo@example.com'), '=?utf-8?b?Rm9vIEbDtsO2?= <foo@example.com>')
-    run_full_mailbox_test(u'Foo Föö Foo {}'.format(u'foo@example.com'),
+    run_full_mailbox_test(u'Foo Föö Foo {0}'.format(u'foo@example.com'),
         EmailAddress(u'Foo Föö Foo', 'foo@example.com'), '=?utf-8?b?Rm9vIEbDtsO2IEZvbw==?= <foo@example.com>')
-    run_full_mailbox_test(u'Foo Föö Foo Föö {}'.format(u'foo@example.com'),
+    run_full_mailbox_test(u'Foo Föö Foo Föö {0}'.format(u'foo@example.com'),
         EmailAddress(u'Foo Föö Foo Föö', 'foo@example.com'), '=?utf-8?b?Rm9vIEbDtsO2IEZvbyBGw7bDtg==?= <foo@example.com>')
 
 
     # unicode, quotes, display-name rfc
-    run_full_mailbox_test(u'"ö" <{}>'.format(u'foo@example.com'),
+    run_full_mailbox_test(u'"ö" <{0}>'.format(u'foo@example.com'),
         EmailAddress(u'"ö"', 'foo@example.com'), '"=?utf-8?b?w7Y=?=" <foo@example.com>')
-    run_full_mailbox_test(u'"Föö" <{}>'.format(u'foo@example.com'),
+    run_full_mailbox_test(u'"Föö" <{0}>'.format(u'foo@example.com'),
         EmailAddress(u'"Föö"', 'foo@example.com'), '"=?utf-8?b?RsO2w7Y=?=" <foo@example.com>')
-    run_full_mailbox_test(u'"Foo ö" <{}>'.format(u'foo@example.com'),
+    run_full_mailbox_test(u'"Foo ö" <{0}>'.format(u'foo@example.com'),
         EmailAddress(u'"Foo ö"', 'foo@example.com'), '"=?utf-8?b?Rm9vIMO2?=" <foo@example.com>')
-    run_full_mailbox_test(u'"Foo Föö" <{}>'.format(u'foo@example.com'),
+    run_full_mailbox_test(u'"Foo Föö" <{0}>'.format(u'foo@example.com'),
         EmailAddress(u'"Foo Föö"', 'foo@example.com'), '"=?utf-8?b?Rm9vIEbDtsO2?=" <foo@example.com>')
-    run_full_mailbox_test(u'"Foo Föö Foo" <{}>'.format(u'foo@example.com'),
+    run_full_mailbox_test(u'"Foo Föö Foo" <{0}>'.format(u'foo@example.com'),
         EmailAddress(u'"Foo Föö Foo"', 'foo@example.com'), '"=?utf-8?b?Rm9vIEbDtsO2IEZvbw==?=" <foo@example.com>')
-    run_full_mailbox_test(u'"Foo Föö Foo Föö" <{}>'.format(u'foo@example.com'),
+    run_full_mailbox_test(u'"Foo Föö Foo Föö" <{0}>'.format(u'foo@example.com'),
         EmailAddress(u'"Foo Föö Foo Föö"', 'foo@example.com'), '"=?utf-8?b?Rm9vIEbDtsO2IEZvbyBGw7bDtg==?=" <foo@example.com>')
 
     # unicode, quotes, display-name lax
-    run_full_mailbox_test(u'"ö" {}'.format(u'foo@example.com'),
+    run_full_mailbox_test(u'"ö" {0}'.format(u'foo@example.com'),
         EmailAddress(u'"ö"', 'foo@example.com'), '"=?utf-8?b?w7Y=?=" <foo@example.com>')
-    run_full_mailbox_test(u'"Föö" {}'.format(u'foo@example.com'),
+    run_full_mailbox_test(u'"Föö" {0}'.format(u'foo@example.com'),
         EmailAddress(u'"Föö"', 'foo@example.com'), '"=?utf-8?b?RsO2w7Y=?=" <foo@example.com>')
-    run_full_mailbox_test(u'"Foo ö" {}'.format(u'foo@example.com'),
+    run_full_mailbox_test(u'"Foo ö" {0}'.format(u'foo@example.com'),
         EmailAddress(u'"Foo ö"', 'foo@example.com'), '"=?utf-8?b?Rm9vIMO2?=" <foo@example.com>')
-    run_full_mailbox_test(u'"Foo Föö" {}'.format(u'foo@example.com'),
+    run_full_mailbox_test(u'"Foo Föö" {0}'.format(u'foo@example.com'),
         EmailAddress(u'"Foo Föö"', 'foo@example.com'), '"=?utf-8?b?Rm9vIEbDtsO2?=" <foo@example.com>')
-    run_full_mailbox_test(u'"Foo Föö Foo" {}'.format(u'foo@example.com'),
+    run_full_mailbox_test(u'"Foo Föö Foo" {0}'.format(u'foo@example.com'),
         EmailAddress(u'"Foo Föö Foo"', 'foo@example.com'), '"=?utf-8?b?Rm9vIEbDtsO2IEZvbw==?=" <foo@example.com>')
-    run_full_mailbox_test(u'"Foo Föö Foo Föö" {}'.format(u'foo@example.com'),
+    run_full_mailbox_test(u'"Foo Föö Foo Föö" {0}'.format(u'foo@example.com'),
         EmailAddress(u'"Foo Föö Foo Föö"', 'foo@example.com'), '"=?utf-8?b?Rm9vIEbDtsO2IEZvbyBGw7bDtg==?=" <foo@example.com>')
 
 
@@ -244,13 +244,13 @@ def test_unicode_display_name():
 
     # unicode, no quotes, punctuation
     for i in u'''.!#$%&*+-/=?^_`{|}~''':
-        run_full_mailbox_test(u'ö {} <foo@example.com>'.format(i),
-            EmailAddress(u'ö {}'.format(i), 'foo@example.com'))
+        run_full_mailbox_test(u'ö {0} <foo@example.com>'.format(i),
+            EmailAddress(u'ö {0}'.format(i), 'foo@example.com'))
 
     # unicode, quotes, punctuation
     for i in u'''.!#$%&*+-/=?^_`{|}~''':
-        run_full_mailbox_test(u'"ö {}" <foo@example.com>'.format(i),
-            EmailAddress(u'"ö {}"'.format(i), 'foo@example.com'))
+        run_full_mailbox_test(u'"ö {0}" <foo@example.com>'.format(i),
+            EmailAddress(u'"ö {0}"'.format(i), 'foo@example.com'))
 
 
 def test_unicode_special_chars():
@@ -499,41 +499,41 @@ def test_local_part():
 
     # pass qtext
     for cnk in chunks(FULL_QTEXT, len(FULL_QTEXT)/2):
-        run_mailbox_test('"{}"@b'.format(cnk), '"{}"@b'.format(cnk))
-    run_mailbox_test('" {}"@b'.format(sample_qtext), '" {}"@b'.format(sample_qtext))
-    run_mailbox_test('"{} "@b'.format(sample_qtext), '"{} "@b'.format(sample_qtext))
-    run_mailbox_test('" {} "@b'.format(sample_qtext), '" {} "@b'.format(sample_qtext))
+        run_mailbox_test('"{0}"@b'.format(cnk), '"{0}"@b'.format(cnk))
+    run_mailbox_test('" {0}"@b'.format(sample_qtext), '" {0}"@b'.format(sample_qtext))
+    run_mailbox_test('"{0} "@b'.format(sample_qtext), '"{0} "@b'.format(sample_qtext))
+    run_mailbox_test('" {0} "@b'.format(sample_qtext), '" {0} "@b'.format(sample_qtext))
     run_full_mailbox_test('"{0}" "{0}"@b'.format(sample_qtext),
-        EmailAddress('"{}"'.format(sample_qtext), '"{}"@b'.format(sample_qtext)))
+        EmailAddress('"{0}"'.format(sample_qtext), '"{0}"@b'.format(sample_qtext)))
 
     # fail qtext
     run_mailbox_test('"{0}""{0}"@b'.format(sample_qtext), None)
     run_mailbox_test('"john""smith"@b'.format(sample_qtext), None)
-    run_mailbox_test('"{}" @b'.format(sample_qtext), None)
-    run_mailbox_test(' "{}" @b'.format(sample_qtext), None)
-    run_mailbox_test('"{}@b'.format(sample_qtext), None)
-    run_mailbox_test('{}"@b'.format(sample_qtext), None)
-    run_mailbox_test('{}@b'.format(sample_qtext), None)
-    run_mailbox_test('"{}@b"'.format(sample_qtext), None)
+    run_mailbox_test('"{0}" @b'.format(sample_qtext), None)
+    run_mailbox_test(' "{0}" @b'.format(sample_qtext), None)
+    run_mailbox_test('"{0}@b'.format(sample_qtext), None)
+    run_mailbox_test('{0}"@b'.format(sample_qtext), None)
+    run_mailbox_test('{0}@b'.format(sample_qtext), None)
+    run_mailbox_test('"{0}@b"'.format(sample_qtext), None)
 
     # pass quoted-pair
     for cnk in chunks(FULL_QUOTED_PAIR, len(FULL_QUOTED_PAIR)/3):
-        run_mailbox_test('"{}"@b'.format(cnk), '"{}"@b'.format(cnk))
-    run_mailbox_test('" {}"@b'.format(sample_qpair), '" {}"@b'.format(sample_qpair))
-    run_mailbox_test('"{} "@b'.format(sample_qpair), '"{} "@b'.format(sample_qpair))
-    run_mailbox_test('" {} "@b'.format(sample_qpair), '" {} "@b'.format(sample_qpair))
+        run_mailbox_test('"{0}"@b'.format(cnk), '"{0}"@b'.format(cnk))
+    run_mailbox_test('" {0}"@b'.format(sample_qpair), '" {0}"@b'.format(sample_qpair))
+    run_mailbox_test('"{0} "@b'.format(sample_qpair), '"{0} "@b'.format(sample_qpair))
+    run_mailbox_test('" {0} "@b'.format(sample_qpair), '" {0} "@b'.format(sample_qpair))
     run_full_mailbox_test('"{0}" "{0}"@b'.format(sample_qpair),
-        EmailAddress('"{}"'.format(sample_qpair), '"{}"@b'.format(sample_qpair)))
+        EmailAddress('"{0}"'.format(sample_qpair), '"{0}"@b'.format(sample_qpair)))
 
     # fail quoted-pair
     run_mailbox_test('"{0}""{0}"@b'.format(sample_qpair), None)
     run_mailbox_test('"john""smith"@b'.format(sample_qpair), None)
-    run_mailbox_test('"{}" @b'.format(sample_qpair), None)
-    run_mailbox_test(' "{}" @b'.format(sample_qpair), None)
-    run_mailbox_test('"{}@b'.format(sample_qpair), None)
-    run_mailbox_test('{}"@b'.format(sample_qpair), None)
-    run_mailbox_test('{}@b'.format(sample_qpair), None)
-    run_mailbox_test('"{}@b"'.format(sample_qpair), None)
+    run_mailbox_test('"{0}" @b'.format(sample_qpair), None)
+    run_mailbox_test(' "{0}" @b'.format(sample_qpair), None)
+    run_mailbox_test('"{0}@b'.format(sample_qpair), None)
+    run_mailbox_test('{0}"@b'.format(sample_qpair), None)
+    run_mailbox_test('{0}@b'.format(sample_qpair), None)
+    run_mailbox_test('"{0}@b"'.format(sample_qpair), None)
 
 
 def test_domain():

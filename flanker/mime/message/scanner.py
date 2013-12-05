@@ -269,7 +269,7 @@ class TokensIterator(object):
         self.opcount += 1
         if self.opcount > MAX_OPS:
             raise DecodingError(
-                "Too many parts: {}, max is {}".format(
+                "Too many parts: {0}, max is {1}".format(
                     self.opcount, MAX_OPS))
 
 class Boundary(object):
@@ -283,7 +283,7 @@ class Boundary(object):
         return self.final
 
     def __str__(self):
-        return "Boundary({}, final={})".format(
+        return "Boundary({0}, final={1})".format(
             self.value, self.final)
 
     def __ne__(self, other):

@@ -60,7 +60,7 @@ def split(fp):
     for line in fp:
         if len(line) > MAX_LINE_LENGTH:
             raise DecodingError(
-                "Line is too long: {}".format(len(line)))
+                "Line is too long: {0}".format(len(line)))
 
         if is_empty(line):
             break

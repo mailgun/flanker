@@ -311,7 +311,7 @@ def test_prune_empty():
     #
     # after:
     #
-    # r 
+    # r
     # +- a
     #
     a, = make_full('a')
@@ -338,7 +338,7 @@ def test_prune_empty():
     #
     # r
     # +- c1 (empty)
-    #    +- a - b 
+    #    +- a - b
     #
     a,b = make_full('a', 'b')
     r, c1 = make_empty(2)
@@ -481,7 +481,7 @@ def test_prune_empty():
     #    +- c2---------- c6 ------- e
     #       +- c3        +- c7----- f
     #          +- c4        +- c8
-    #              +- a ------ c 
+    #              +- a ------ c
     #                 +- b     +- d
     #
     # after:
@@ -531,7 +531,7 @@ def test_introduces_loop():
     a, b, c = make_empty(3)
     b.add_child(c)
     c.add_child(a)
-    ok_(introduces_loop(a, b))    
+    ok_(introduces_loop(a, b))
 
 @patch.object(MessageId, 'is_valid', Mock(return_value=True))
 def test_build_table():
@@ -668,13 +668,13 @@ def test_build_root_set():
     # in the following order
     #
     # a
-    # +- b 
-    #    + - c 
+    # +- b
+    #    + - c
     #        +- d
     #
     # b
     # +- c
-    #    +- d 
+    #    +- d
     #
     # c
     # +- d
@@ -732,10 +732,10 @@ def tc(*args, **kwargs):
 def make_message(message_id, references=None, subject=""):
     message = create.text('plain','hey')
     if message_id:
-        message.headers['Message-Id'] = '<{}>'.format(message_id)
+        message.headers['Message-Id'] = '<{0}>'.format(message_id)
     if references:
         message.headers['References'] = ' '.join(
-            '<{}>'.format(rid) for rid in references)
+            '<{0}>'.format(rid) for rid in references)
     return message
 
 def wrapper(message_id, references=None, subject=""):

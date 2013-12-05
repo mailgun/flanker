@@ -1,17 +1,16 @@
 # coding:utf-8
 
 import re
-import string
-import random
 
 from .. import *
 
-from nose.tools import assert_equal, assert_not_equal, assert_list_equal
+from nose.tools import assert_equal, assert_not_equal
 from nose.tools import nottest
 from mock import patch
 
 from flanker.addresslib import address
 from flanker.addresslib import validate
+
 
 COMMENT = re.compile(r'''\s*#''')
 
@@ -154,36 +153,36 @@ def test_parse_syntax_only_false():
 
         parse, unpar = address.validate_list(', '.join(valid_tld_list), as_tuple=True)
         assert_equal(parse, valid_tld_list)
-        assert_list_equal(unpar, [])
+        assert_equal(unpar, [])
 
         parse, unpar = address.validate_list(', '.join(valid_domain_list), as_tuple=True)
         assert_equal(parse, valid_domain_list)
-        assert_list_equal(unpar, [])
+        assert_equal(unpar, [])
 
         parse, unpar = address.validate_list(', '.join(valid_subdomain_list), as_tuple=True)
         assert_equal(parse, valid_subdomain_list)
-        assert_list_equal(unpar, [])
+        assert_equal(unpar, [])
 
         # all invalid
         parse, unpar = address.validate_list(', '.join(invalid_mx_list), as_tuple=True)
         assert_equal(parse, [])
-        assert_list_equal(unpar, invalid_mx_list)
+        assert_equal(unpar, invalid_mx_list)
 
         parse, unpar = address.validate_list(', '.join(invalid_tld_list), as_tuple=True)
         assert_equal(parse, [])
-        assert_list_equal(unpar, invalid_tld_list)
+        assert_equal(unpar, invalid_tld_list)
 
         parse, unpar = address.validate_list(', '.join(invalid_domain_list), as_tuple=True)
         assert_equal(parse, [])
-        assert_list_equal(unpar, invalid_domain_list)
+        assert_equal(unpar, invalid_domain_list)
 
         parse, unpar = address.validate_list(', '.join(invalid_subdomain_list), as_tuple=True)
         assert_equal(parse, [])
-        assert_list_equal(unpar, invalid_subdomain_list)
+        assert_equal(unpar, invalid_subdomain_list)
 
         parse, unpar = address.validate_list(', '.join(all_list), as_tuple=True)
         assert_equal(parse, all_valid_list)
-        assert_list_equal(unpar, all_invalid_list)
+        assert_equal(unpar, all_invalid_list)
 
 
 def test_mx_lookup():

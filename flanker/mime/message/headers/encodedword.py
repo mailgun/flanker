@@ -69,7 +69,7 @@ def mime_to_unicode(header):
     except Exception:
         try:
             log.warning(
-                u"HEADER-DECODE-FAIL: ({}) - b64encoded".format(
+                u"HEADER-DECODE-FAIL: ({0}) - b64encoded".format(
                         b64encode(header)))
         except Exception:
             log.exception("Failed to log exception")
@@ -114,7 +114,7 @@ def decode_part(charset, encoding, value):
 
     else:
         raise errors.DecodingError(
-            "Unknown encoding: {}".format(encoding))
+            "Unknown encoding: {0}".format(encoding))
 
 
 

@@ -576,7 +576,7 @@ class _AddressParser(object):
         # unicode qstr
         uwrd = self.stream.get_token(UNI_QSTR, 'qstr')
         if uwrd and isinstance(uwrd, unicode) and not contains_control_chars(uwrd):
-            return u'"{}"'.format(encode_string(None, uwrd))
+            return u'"{0}"'.format(encode_string(None, uwrd))
 
         # rollback
         self.stream.position = start_pos

@@ -404,14 +404,14 @@ class EmailAddress(Address):
            '=?utf-8?b?0JbQtdC60LA=?= <ev@example.com>'
         '''
         if self._display_name:
-            return '{} <{}>'.format(self._display_name, self.address)
-        return u'{}'.format(self.address)
+            return '{0} <{1}>'.format(self._display_name, self.address)
+        return u'{0}'.format(self.address)
 
     def to_unicode(self):
         "Converts to unicode"
         if self.display_name:
-            return u'{} <{}>'.format(self.display_name, self.address)
-        return u'{}'.format(self.address)
+            return u'{0} <{1}>'.format(self.display_name, self.address)
+        return u'{0}'.format(self.address)
 
     def __cmp__(self, other):
         return True

@@ -97,7 +97,7 @@ class ContentType(tuple):
         return self.params.get("boundary")
 
     def get_boundary_line(self, final=False):
-        return "--{}{}".format(
+        return "--{0}{1}".format(
             self.get_boundary(), "--" if final else "")
 
     def get_charset(self):
@@ -107,7 +107,7 @@ class ContentType(tuple):
         self.params["charset"] = value.lower()
 
     def __str__(self):
-        return "{}/{}".format(self.main, self.sub)
+        return "{0}/{1}".format(self.main, self.sub)
 
     def __eq__(self, other):
         if isinstance(other, ContentType):
@@ -158,7 +158,7 @@ class MessageId(str):
         message_id = make_msgid().strip("<>")
         if domain:
             local = message_id.split('@')[0]
-            message_id = "{}@{}".format(local, domain)
+            message_id = "{0}@{1}".format(local, domain)
         return cls(message_id)
 
     @classmethod

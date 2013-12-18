@@ -4,7 +4,7 @@ from collections import deque
 from flanker.mime.message.headers import encodedword, parametrized
 from flanker.mime.message.headers.wrappers import ContentType, WithParams
 from flanker.mime.message.errors import DecodingError
-from flanker.utils import is_pure_ascii
+from flanker.utils import to_unicode, is_pure_ascii
 
 MAX_LINE_LENGTH = 10000
 
@@ -122,12 +122,3 @@ def split2(header):
     else:
         return (None, None)
 
-
-def to_unicode(val):
-    if isinstance(val, unicode):
-        return val
-    else:
-        try:
-            return unicode(val, 'utf-8', 'strict')
-        except UnicodeDecodeError:
-            raise DecodingError("Non ascii or utf-8 header value")

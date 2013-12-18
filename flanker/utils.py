@@ -1,22 +1,56 @@
 # coding:utf-8
 import re
+import chardet
 
 from functools import wraps
+from flanker.mime.message import errors
 
 '''
 Utility functions and classes used by flanker.
 '''
 
-def to_utf8(str_or_unicode):
+def _guess_and_convert(value):
+    charset = chardet.detect(value)
+
+    if not charset["encoding"]:
+        raise errors.DecodingError("Failed to guess encoding for %s" %(value, ))
+
+    try:
+        value = value.decode(charset["encoding"], "replace")
+        return value
+    except (UnicodeError, LookupError):
+        raise errors.DecodingError(str(e))
+
+def _make_unicode(value, charset=None):
+    if isinstance(value, unicode):
+        return value
+
+    try:
+        if charset:
+            value = value.decode(charset, "strict")
+            return value
+        else:
+            value = value.decode("utf-8", "strict")
+            return value
+    except (UnicodeError, LookupError):
+        value = _guess_and_convert(value)
+
+    return value
+
+def to_unicode(value, charset=None):
+    value = _make_unicode(value, charset)
+    return unicode(value.encode("utf-8", "strict"), "utf-8", 'strict')
+
+def to_utf8(value, charset=None):
     '''
     Safely returns a UTF-8 version of a given string
     >>> utils.to_utf8(u'hi')
         'hi'
     '''
 
-    if isinstance(str_or_unicode, unicode):
-        return str_or_unicode.encode("utf-8", "ignore")
-    return str(str_or_unicode)
+    value = _make_unicode(value, charset)
+
+    return value.encode("utf-8", "strict")
 
 
 def is_pure_ascii(value):

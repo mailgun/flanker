@@ -1,6 +1,6 @@
-import chardet
 import regex as re
 from flanker.mime.message import errors
+from flanker.utils import to_utf8, to_unicode
 
 def convert_to_unicode(charset, value):
     #in case of unicode we have nothing to do
@@ -9,26 +9,7 @@ def convert_to_unicode(charset, value):
 
     charset = _translate_charset(charset)
 
-    #try to decode string strictly
-    try:
-        return value.decode(charset, 'strict')
-    except (UnicodeError, LookupError):
-        try:
-            #try guess encoding and decode strictly
-            return guess_and_convert(value)
-        except Exception:
-            return value.decode(charset, 'ignore')
-
-
-def guess_and_convert(data):
-    charset = chardet.detect(data)
-    if not charset['encoding']:
-        raise errors.DecodingError("Failed to guess encoding for %s" %(data, ))
-    try:
-        return data.decode(charset["encoding"], 'strict')
-    except Exception, e:
-        raise errors.DecodingError(str(e))
-
+    return to_unicode(value, charset=charset)
 
 def _translate_charset(charset):
     """Translates crappy charset into Python analogue (if supported).
@@ -51,7 +32,3 @@ def _translate_charset(charset):
 
     return charset
 
-
-RE_7BIT = ''
-def is_7bit_string():
-    pass

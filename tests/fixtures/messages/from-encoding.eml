@@ -1,0 +1,36 @@
+Received: (from majordom@localhost)
+	by hyperreal.org (8.8.5/8.8.5) id NAA18142;
+	Sat, 12 Jul 1997 13:10:53 -0700 (PDT)
+Received: from linteuto.teuto.de (root@linteuto.teuto.de [194.77.23.26])
+	by hyperreal.org (8.8.5/8.8.5) with ESMTP id NAA18138
+	for <new-httpd@apache.org>; Sat, 12 Jul 1997 13:10:48 -0700 (PDT)
+Received: from suri.teuto.de (ppp-neu24.teuto.de [194.77.23.152])
+	by linteuto.teuto.de (8.8.5/8.8.5) with ESMTP id WAA30612
+	for <new-httpd@apache.org>; Sat, 12 Jul 1997 22:10:45 +0200
+Message-ID: <33C7E4E1.2A12445E@blank.pages.de>
+Date: Sat, 12 Jul 1997 22:11:13 +0200
+From: "Ingo Lütkebohle" <ingo@blank.pages.de>
+Organization: dev/consulting GmbH
+X-Mailer: Mozilla 4.01 [en] (Win95; I)
+MIME-Version: 1.0
+To: new-httpd@apache.org
+Subject: Re: running server as root (Was: Re: PUT method)
+X-Priority: 3 (Normal)
+References: <Pine.BSF.3.95q.970712135859.28530B-100000@valis.worldgate.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Sender: new-httpd-owner@apache.org
+Precedence: bulk
+Reply-To: new-httpd@apache.org
+
+Marc Slemko wrote:
+> If you have a real uid of root, then if someone finds something like a
+> buffer overflow in the code that is exploitable they can get root.  Sure,
+> takes another couple of syscalls but no big deal.  That is not good.
+
+Isn't that the case for almost every other server you care to mention?
+What about switching to an EUID of nobody early in the request
+processing stage?
+
+---/dev/il
+

@@ -23,7 +23,7 @@ setup(name='flanker',
           'expiringdict==1.0',
           'mock==1.0.1',
           'nose==1.2.1',
-          'Paste==1.7.5',
+          'WebOb',
           'redis==2.7.1',
           # IMPORTANT! Newer regex versions are a lot slower for
           # mime parsing (100x slower) so keep it as-is for now.

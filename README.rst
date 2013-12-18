@@ -37,6 +37,13 @@ If you are using `pip`, simply type:
 
    pip install flanker
 
+*Note about installing from PyPi. Installing without specifying a version number will
+install the latest version from PyPi that does not pin version dependences. This version
+of Flanker will most likely work, but is not guaranteed. If you want to run a guaranteed
+to work version of Flanker, run the version where we pin dependences, which is one lower
+major version number. For example, if the current release is `0.4.4` then the stabled
+pinned dependency version is `0.3.4`.*
+
 If you are cloning from GitHub, you can type:
 
 ::

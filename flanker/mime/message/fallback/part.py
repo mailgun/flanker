@@ -1,11 +1,11 @@
 import logging
 import email
 from flanker.mime.message.charsets import convert_to_unicode
-from flanker.mime.message.headers.headers import remove_newlines
+from flanker.mime.message.headers.headers import remove_newlines, MimeHeaders
 from flanker.mime.message.part import RichPartMixin
 from flanker.mime.message.scanner import ContentType
-from flanker.mime.message import utils, charsets, headers
-from flanker.mime.message.headers import parametrized, MimeHeaders, normalize
+from flanker.mime.message import utils, headers
+from flanker.mime.message.headers import parametrized, encodedword, normalize
 
 log = logging.getLogger(__name__)
 
@@ -152,7 +152,8 @@ def _try_decode(key, value):
         return value
     elif isinstance(value, str):
         try:
-            return headers.parse_header_value(key, value)
+            return encodedword.decode(
+                headers.parse_header_value(key, value))
         except Exception:
             return unicode(value, 'utf-8', 'ignore')
     elif isinstance(value, unicode):

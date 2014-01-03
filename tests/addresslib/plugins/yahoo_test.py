@@ -13,7 +13,7 @@ from nose.tools import nottest
 from ... import skip_if_asked
 
 DOMAIN = '@yahoo.com'
-SAMPLE_MX = 'sample.yahoodns.net'
+SAMPLE_MX = 'mta0.am0.yahoodns.net'
 
 @nottest
 def mock_exchanger_lookup(arg, metrics=False):

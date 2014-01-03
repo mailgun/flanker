@@ -25,7 +25,7 @@ from flanker.addresslib.plugins import google
 mx_cache = RedisCache()
 dns_lookup = DNSLookup()
 
-YAHOO_PATTERN = re.compile(r'''.*\.yahoodns\.net$''')
+YAHOO_PATTERN = re.compile(r'''mta[0-9]+\.am[0-9]+\.yahoodns\.net$''')
 GMAIL_PATTERN = re.compile(r'''.*gmail-smtp-in\.l\.google.com$''')
 AOL_PATTERN = re.compile(r'''.*\.mx\.aol\.com$''')
 ICLOUD_PATTERN = re.compile(r'''.*\.icloud\.com\.akadns\.net$''')

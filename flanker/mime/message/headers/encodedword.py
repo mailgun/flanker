@@ -1,5 +1,6 @@
 # coding:utf-8
-import logging, regex as re
+import logging
+import regex as re
 
 import email.quoprimime
 import email.base64mime
@@ -12,6 +13,7 @@ log = logging.getLogger(__name__)
 
 #deal with unfolding
 foldingWhiteSpace = re.compile(r"(\n\r?|\r\n?)(\s*)")
+
 
 def unfold(value):
     """
@@ -42,7 +44,7 @@ def mime_to_unicode(header):
     """
     try:
         header = unfold(header)
-        decoded = [] # decoded parts
+        decoded = []  # decoded parts
 
         while header:
             match = encodedWord.search(header)
@@ -70,7 +72,7 @@ def mime_to_unicode(header):
         try:
             log.warning(
                 u"HEADER-DECODE-FAIL: ({0}) - b64encoded".format(
-                        b64encode(header)))
+                    b64encode(header)))
         except Exception:
             log.exception("Failed to log exception")
         return header
@@ -115,6 +117,3 @@ def decode_part(charset, encoding, value):
     else:
         raise errors.DecodingError(
             "Unknown encoding: {0}".format(encoding))
-
-
-

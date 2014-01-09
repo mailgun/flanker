@@ -48,7 +48,6 @@ class ContentType(tuple):
     def subtype(self):
         return tuple.__getitem__(self, 0).split('/')[1]
 
-
     def is_content_type(self):
         return True
 
@@ -91,7 +90,7 @@ class ContentType(tuple):
         return self == 'message/feedback-report'
 
     def is_delivery_report(self):
-         return self == 'multipart/report'
+        return self == 'multipart/report'
 
     def get_boundary(self):
         return self.params.get("boundary")
@@ -135,7 +134,7 @@ class MessageId(str):
         return str.__new__(cls, *args, **kw)
 
     def __clean(self):
-        return self.replace('"','').replace("'", '')
+        return self.replace('"', '').replace("'", '')
 
     def __hash__(self):
         return hash(self.__clean())
@@ -182,4 +181,3 @@ class Subject(unicode):
 
     def strip_replies(self):
         return self.RE_RE.sub('', self)
-

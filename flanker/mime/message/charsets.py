@@ -2,6 +2,7 @@ import regex as re
 from flanker.mime.message import errors
 from flanker.utils import to_utf8, to_unicode
 
+
 def convert_to_unicode(charset, value):
     #in case of unicode we have nothing to do
     if isinstance(value, unicode):
@@ -10,6 +11,7 @@ def convert_to_unicode(charset, value):
     charset = _translate_charset(charset)
 
     return to_unicode(value, charset=charset)
+
 
 def _translate_charset(charset):
     """Translates crappy charset into Python analogue (if supported).
@@ -31,4 +33,3 @@ def _translate_charset(charset):
         return 'utf-8'
 
     return charset
-

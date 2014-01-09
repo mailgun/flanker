@@ -64,6 +64,7 @@ class MimeHeaders(object):
         """
 
         changed = [False]
+
         def tracking_fn(key, val):
             new_key, new_val = fn(key, val)
             if new_val != val or new_key != key:
@@ -75,20 +76,17 @@ class MimeHeaders(object):
             self.v = v
             self.changed = True
 
-
     def items(self):
         """
         Returns header,val pairs in the preserved order.
         """
         return list(self.iteritems())
 
-
     def iteritems(self):
         """
         Returns iterator header,val pairs in the preserved order.
         """
         return self.v.iteritems()
-
 
     def get(self, key, default=None):
         """

@@ -12,10 +12,11 @@ log = logging.getLogger(__name__)
 # max length for a header line is 80 chars
 # max recursion depth is 1000
 # 80 * 1000 for header is too much for the system
-# so we allow just 100 lines for header 
+# so we allow just 100 lines for header
 MAX_HEADER_LENGTH = 8000
 
 ADDRESS_HEADERS = ('From', 'To', 'Delivered-To', 'Cc', 'Bcc', 'Reply-To')
+
 
 def to_mime(key, value):
     if not value:
@@ -44,15 +45,15 @@ def encode_unstructured(name, value):
         return to_utf8(value)
     try:
         return Header(
-            value.encode("ascii"), "ascii", header_name=name).encode(
-            splitchars=' ;,')
+            value.encode("ascii"), "ascii",
+            header_name=name).encode(splitchars=' ;,')
     except UnicodeEncodeError:
         if is_address_header(name, value):
             return encode_address_header(name, value)
         else:
             return Header(
-                to_utf8(value), "utf-8", header_name=name).encode(
-                splitchars=' ;,')
+                to_utf8(value), "utf-8",
+                header_name=name).encode(splitchars=' ;,')
 
 
 def encode_address_header(name, value):
@@ -75,18 +76,17 @@ def encode_param(key, name, value):
         value = value.encode("ascii")
         return email.message._formatparam(name, value)
     except Exception:
-        value = Header(
-            value.encode("utf-8"), "utf-8", header_name=key).encode(splitchars=' ;,')
+        value = Header(value.encode("utf-8"), "utf-8",  header_name=key).encode(splitchars=' ;,')
         return email.message._formatparam(name, value)
 
 
 def encode_string(name, value):
     try:
         return Header(
-            value.encode("ascii"), "ascii", header_name=name).encode(splitchars=' ;,')
+            value.encode("ascii"), "ascii",
+            header_name=name).encode(splitchars=' ;,')
     except UnicodeEncodeError:
-        return Header(
-            value.encode("utf-8"), "utf-8", header_name=name).encode(splitchars=' ;,')
+        return Header(value.encode("utf-8"), "utf-8", header_name=name).encode(splitchars=' ;,')
 
 
 def is_address_header(key, val):

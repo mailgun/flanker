@@ -182,6 +182,7 @@ def partition(parts):
     if encoded:
         yield join_parameters(encoded)
 
+
 def decode_charset(parameter):
     """Decodes things like:
     "us-ascii'en'This%20is%20even%20more%20%2A%2A%2Afun%2A%2A%2A%20"
@@ -207,17 +208,22 @@ def parameter(ptype, key, value):
     """
     return (ptype, key, value)
 
+
 def is_quoted(part):
     return get_value(part)[0] == '"'
+
 
 def is_new_style(parameter):
     return parameter[0] == 'new'
 
+
 def is_old_style(parameter):
     return parameter[0] == 'old'
 
+
 def is_encoded(part):
     return part[1][2] == '*'
+
 
 def get_key(parameter):
     if is_old_style(parameter):
@@ -225,8 +231,10 @@ def get_key(parameter):
     else:
         return parameter[1][0].lower()
 
+
 def get_value(parameter):
     return parameter[2]
+
 
 def join_parameters(parts):
     joined = "".join(get_value(p) for p in parts)

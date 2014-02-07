@@ -39,9 +39,11 @@ def get_status(headers):
         if RE_STATUS.match(v.strip()):
             return v
 
+
 def get_notification(message):
     for part in message.walk():
-        if part.headers.get('Content-Description', '').lower() == 'notification':
+        if part.headers.get('Content-Description',
+                            '').lower() == 'notification':
             return part.body
 
 
@@ -56,11 +58,10 @@ HEADERS = ('Action',
 
 RE_STATUS = re.compile(r'\d\.\d+\.\d+', re.IGNORECASE)
 
+
 class Result(object):
     def __init__(self, score, status, notification, diagnostic_code):
         self.score = score
         self.status = status
         self.notification = notification
         self.diagnostic_code = diagnostic_code
-
-

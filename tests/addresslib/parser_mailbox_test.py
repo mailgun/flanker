@@ -469,7 +469,7 @@ def test_local_part():
 
     # test length limits
     run_mailbox_test(''.join(['a'*128, '@b']), ''.join(['a'*128, '@b']))
-    run_mailbox_test(''.join(['a'*129, '@b']), None)
+    run_mailbox_test(''.join(['a'*257, '@b']), None)
 
     # because qtext and quoted-pair are longer than 64 bytes (limit on local-part)
     # we use a sample in testing, every other for qtext and every fifth for quoted-pair

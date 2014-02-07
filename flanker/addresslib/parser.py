@@ -185,11 +185,11 @@ class _AddressParser(object):
         "Additional post processing checks to ensure mailbox is valid."
         parts = address.split('@')
 
-        # check if local part is less than 128 octets, the actual
-        # limit is 64 octets but we double the size here because
+        # check if local part is less than 256 octets, the actual
+        # limit is 64 octets but we quadruple the size here because
         # unsubscribe links are frequently longer
         lpart = parts[0]
-        if len(lpart) > 128:
+        if len(lpart) > 256:
             return False
 
         # check if the domain is less than 255 octets

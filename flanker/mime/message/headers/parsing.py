@@ -20,6 +20,7 @@ def parse_stream(stream):
         out.append(parse_header(header))
     return out
 
+
 def parse_header(header):
     """ Accepts a raw header with name, colons and newlines
     and returns it's parsed value
@@ -28,6 +29,7 @@ def parse_header(header):
     if not is_pure_ascii(name):
         raise DecodingError("Non-ascii header name")
     return name, parse_header_value(name, encodedword.unfold(val))
+
 
 def parse_header_value(name, val):
     if not is_pure_ascii(val):
@@ -48,11 +50,13 @@ def parse_header_value(name, val):
         else:
             return val
 
+
 def is_empty(line):
     return line in ('\r\n', '\r', '\n')
 
 
 RE_HEADER = regex.compile(r'^(From |[\041-\071\073-\176]+:|[\t ])')
+
 
 def split(fp):
     """Read lines with headers until the start of body"""
@@ -121,4 +125,3 @@ def split2(header):
         return normalize(pair[0].rstrip()), pair[1].lstrip()
     else:
         return (None, None)
-

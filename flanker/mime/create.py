@@ -7,6 +7,7 @@ from flanker.mime.message import scanner
 from flanker.mime.message.headers.parametrized import fix_content_type
 from flanker.mime.message.headers import WithParams
 
+
 def multipart(subtype):
     return MimePart(
         container=Part(
@@ -34,7 +35,8 @@ def text(subtype, body, charset=None, disposition=None, filename=None):
         is_root=True)
 
 
-def binary(maintype, subtype, body, filename=None, disposition=None, charset=None):
+def binary(maintype, subtype, body, filename=None,
+           disposition=None, charset=None):
     return MimePart(
         container=Body(
             content_type=ContentType(maintype, subtype),
@@ -45,7 +47,8 @@ def binary(maintype, subtype, body, filename=None, disposition=None, charset=Non
         is_root=True)
 
 
-def attachment(content_type, body, filename=None, disposition=None, charset=None):
+def attachment(content_type, body, filename=None,
+               disposition=None, charset=None):
     """Smarter method to build attachments that detects the proper content type
     and form of the message based on content type string, body and filename
     of the attachment
@@ -83,4 +86,3 @@ def from_python(message):
 
 def from_message(message):
     return from_string(message.to_string())
-

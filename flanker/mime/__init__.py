@@ -23,10 +23,11 @@ not attempt to fix anything except simple errors (like mistyped charsets)
 
 Alternatives:
 
-If you still need to process the broken MIME, use flanker.mime.fallback.FallbackMessage
-that relies on python parser in terms of fixing the broken MIME and forces broken
-encodings in bodies and headers, but beware that it can loose some information because
-of broken or unknown encodings.
+If you still need to process the broken MIME, use
+flanker.mime.fallback.FallbackMessage that relies on python parser in terms
+of fixing the broken MIME and forces broken encodings in bodies and headers,
+but beware that it can loose some information because of broken
+or unknown encodings.
 
 Examples
 -------

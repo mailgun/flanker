@@ -1,4 +1,4 @@
-from webob.multidict import MultiDict
+from paste.util.multidict import MultiDict
 from flanker.mime.message.headers.parsing import normalize, parse_stream
 from flanker.mime.message.headers.encoding import to_mime
 from flanker.mime.message.errors import EncodingError

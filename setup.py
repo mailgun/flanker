@@ -5,7 +5,7 @@ from setuptools import setup, find_packages
 
 
 setup(name='flanker',
-      version='0.4.6',
+      version='0.4.7',
       description='Mailgun Parsing Tools',
       long_description=open('README.rst').read(),
       classifiers=[],
@@ -25,8 +25,8 @@ setup(name='flanker',
           'nose>=1.2.1',
           'WebOb>=0.9.8',
           'redis>=2.7.1',
-          # IMPORTANT! Newer regex versions are a lot slower for
-          # mime parsing (100x slower) so keep it as-is for now.
-          'regex==0.1.20110315',
+          # IMPORTANT! Newer regex versions can be a lot slower for mime
+          # parsing (100x slower), keep that in mind when using newer versions
+          'regex>=0.1.20110315',
       ],
       )

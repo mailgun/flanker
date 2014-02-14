@@ -197,7 +197,7 @@ def validate_address(addr_spec, metrics=False):
     mtimes['mx_lookup'] = mx_metrics['mx_lookup']
     mtimes['dns_lookup'] = mx_metrics['dns_lookup']
     mtimes['mx_conn'] = mx_metrics['mx_conn']
-    if exchanger is None:
+    if exchanger in (None, False):
         return None, mtimes
 
     # lookup custom local-part grammar if it exists
@@ -255,7 +255,7 @@ def validate_list(addr_list, as_tuple=False, metrics=False):
         mtimes['dns_lookup'] += mx_metrics['dns_lookup']
         mtimes['mx_conn'] += mx_metrics['mx_conn']
 
-        if exchanger is None:
+        if exchanger in (None, False):
             ulist.append(paddr.full_spec())
             continue
 

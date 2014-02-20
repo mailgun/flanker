@@ -23,7 +23,7 @@ You can install flanker via `pip` or clone the repo from GitHub.
 
 You'll need Python headers files before you start working with flanker, so install them first:
 
-::
+.. code-block:: bash
 
    # ubuntu 
    sudo apt-get install python-dev
@@ -33,7 +33,7 @@ You'll need Python headers files before you start working with flanker, so insta
 If you are using `pip`, simply type:
 
 
-::
+.. code-block:: bash
 
    pip install flanker
 
@@ -46,7 +46,7 @@ pinned dependency version is `0.3.4`.*
 
 If you are cloning from GitHub, you can type:
 
-::
+.. code-block:: bash
 
    git clone git@github.com:mailgun/flanker.git
    cd flanker
@@ -57,7 +57,7 @@ Address Parsing
 
 To parse a single mailbox (display name as well as email address):
 
-::
+.. code-block:: py
 
    >>> from flanker.addresslib import address
    >>>
@@ -66,7 +66,7 @@ To parse a single mailbox (display name as well as email address):
 
 An invalid address is returned as `None`:
 
-::
+.. code-block:: py
 
    >>> from flanker.addresslib import address
    >>>
@@ -75,7 +75,7 @@ An invalid address is returned as `None`:
 
 To parse a single email address (no display name):
 
-::
+.. code-block:: py
 
    >>> from flanker.addresslib import address
    >>>
@@ -84,7 +84,7 @@ To parse a single email address (no display name):
 
 To parse an address list:
 
-::
+.. code-block:: py
 
    >>> from flanker.addresslib import address
    >>>
@@ -94,7 +94,7 @@ To parse an address list:
 To parse an address list as well as return a tuple containing the parsed 
 addresses and the unparsable portions
 
-::
+.. code-block:: py
 
    >>> from flanker.addresslib import address
    >>>
@@ -103,7 +103,7 @@ addresses and the unparsable portions
 
 To parse an address list in strict mode:
 
-::
+.. code-block:: py
 
    >>> from flanker.addresslib import address
    >>>
@@ -112,7 +112,7 @@ To parse an address list in strict mode:
 
 To validate an email address (parse as well as DNS, MX existence, and ESP grammar checks):
 
-::
+.. code-block:: py
 
    >>> from flanker.addresslib import address
    >>>
@@ -121,7 +121,7 @@ To validate an email address (parse as well as DNS, MX existence, and ESP gramma
 
 To validate an address list:
 
-::
+.. code-block:: py
 
    >>> from flanker.addresslib import address
    >>>
@@ -156,7 +156,7 @@ For the following examples, `message_string` will be set to the following MIME m
    
 To parse a MIME message:
 
-::
+.. code-block:: py
 
    >>> from flanker import mime
    >>>
@@ -164,7 +164,7 @@ To parse a MIME message:
 
 MIME message headers (unicode multi-value dictionary with headers):
 
-::
+.. code-block:: py
 
    >>> from flanker import mime
    >>>
@@ -180,7 +180,7 @@ MIME message headers (unicode multi-value dictionary with headers):
 
 Useful content_type member with predicates:
 
-::
+.. code-block:: py
 
    >>> from flanker import mime
    >>> msg = mime.from_string(message_string)
@@ -196,7 +196,7 @@ Useful content_type member with predicates:
 
 Decoded body of a message:
 
-::
+.. code-block:: py
 
    >>> from flanker import mime
    >>> msg = mime.from_string(message_string)

@@ -71,7 +71,7 @@ Additional limitations on email addresses:
     * No more than 127 levels
     * Each level no more than 63 octets
     * Textual representation can not exceed 253 characters
-    * No level can being or end with -
+    * No level can begin or end with -
 3. Maximum mailbox length is len(local-part) + len('@') + len(domain) which
 is 64 + 1 + 253 = 318 characters. Allow 194 characters for a display
 name and the (very generous) limit becomes 512 characters. Allow 1024

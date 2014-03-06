@@ -1,2 +1,3 @@
 recursive-include tests *.py
-include README.md LICENSE
+include README.rst
+include LICENSE

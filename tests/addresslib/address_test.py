@@ -47,6 +47,11 @@ def test_address_compare():
     eq_ (2, len(s))
 
 
+def test_local_url():
+    u = UrlAddress('http:///foo/bar')
+    eq_(None, u.hostname)
+
+
 def test_addresslist_basics():
     lst = parse_list("http://foo.com:1000; Biz@Kontsevoy.Com   ")
     eq_ (2, len(lst))

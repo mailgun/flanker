@@ -471,7 +471,9 @@ class UrlAddress(Address):
 
     @property
     def hostname(self):
-        return self.parse_result.hostname.lower()
+        hostname = self.parse_result.hostname
+        if hostname:
+            return hostname.lower()
 
     @property
     def port(self):

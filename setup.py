@@ -5,7 +5,7 @@ from setuptools import setup, find_packages
 
 
 setup(name='flanker',
-      version='0.3.11',
+      version='0.3.12',
       description='Mailgun Parsing Tools',
       long_description=open('README.rst').read(),
       classifiers=[],
@@ -20,9 +20,9 @@ setup(name='flanker',
       install_requires=[
           'chardet==1.0.1',
           'dnsq==1.1',
-          'expiringdict==1.1',
-          'mock==1.0.1',
-          'nose==1.2.1',
+          'expiringdict>=1.1',
+          'mock>=1.0.1',
+          'nose>=1.2.1',
           'Paste==1.7.5',
           'redis==2.7.1',
           # IMPORTANT! Newer regex versions are a lot slower for

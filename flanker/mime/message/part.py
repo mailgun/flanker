@@ -1,3 +1,4 @@
+import email.utils
 import email.encoders
 import logging
 import mimetypes
@@ -525,9 +526,9 @@ def decode_body(content_type, content_encoding, body):
 
 def decode_transfer_encoding(encoding, body):
     if encoding == 'base64':
-        return base64.b64decode(body)
+        return email.utils._bdecode(body)
     elif encoding == 'quoted-printable':
-        return quopri.decodestring(body)
+        return email.utils._qdecode(body)
     else:
         return body
 
@@ -577,9 +578,9 @@ def encode_charset(preferred_charset, text):
 
 def encode_transfer_encoding(encoding, body):
     if encoding == 'quoted-printable':
-        return quopri.encodestring(body)
+        return email.encoders._qencode(body)
     elif encoding == 'base64':
-        return base64.b64encode(body)
+        return email.encoders._bencode(body)
     else:
         return body
 

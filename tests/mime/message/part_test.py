@@ -8,6 +8,7 @@ from flanker.mime.message.errors import EncodingError, DecodingError
 from email import message_from_string
 from contextlib import closing
 from cStringIO import StringIO
+from flanker.mime.message.part import encode_transfer_encoding
 
 from ... import *
 from .scanner_test import TORTURE_PARTS, tree_to_string
@@ -505,3 +506,10 @@ def read_body_test():
     eq_(ENCLOSED, part._container.read_message())
     body = part.parts[1]._container.read_body()
     ok_(body.endswith("--===============4360815924781479146==--"))
+
+
+def test_encode_transfer_encoding():
+    body = "long line " * 100
+    encoded_body = encode_transfer_encoding('base64', body)
+    # according to  RFC 5322 line "SHOULD be no more than 78 characters"
+    assert_less(max([len(l) for l in encoded_body.splitlines()]), 79)

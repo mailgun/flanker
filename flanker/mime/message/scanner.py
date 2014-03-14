@@ -84,8 +84,13 @@ def traverse(pointer, iterator, parent=None):
         # we are expecting first boundary for multipart message
         # something is broken otherwize
         if not token.is_boundary() or token != boundary:
-            raise DecodingError(
-                "Multipart message without starting boundary")
+	    if type(token) is ContentType:
+   	        # This means that the Content-Type and boundary values are being repeated in the
+	        # actual message body. I've noticed that sometimes the new Content-Type is different
+	        # and actually the correct one.
+	        content_type=token
+	    else:
+		log.warning("Multipart message without starting boundary. Found {0}".format(token))
 
         while True:
             token = iterator.current()
@@ -193,7 +198,12 @@ def make_part(content_type, start, end, iterator,
     if start.is_boundary():
         start = start.end + 1
     else:
-        start = start.start
+	try:
+            start = start.start
+	except AttributeError:
+	    log.debug("Object {0} has no start value".format(type(start)))
+	    start = 0
+
 
     # if this is the message ending, end of part
     # the position of the last symbol of the message

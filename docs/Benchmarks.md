@@ -69,9 +69,11 @@ Headers Only:
 
 #### Pinned Regex 
 
-Even though master does not use a pinned version of regex, we strongly recommend
-due to the 5x speedup compared to the latest version on PyPi (as of 4/15/14).
+Even though `master` does not use a pinned version of regex, we strongly recommend
+due to the 6x speedup compared to the latest version on PyPi (as of 4/15/14). It may
+not be an issue for someone that handles many small files, but is an issue for large
+files.
 
 | File Size | `regex.1.20110315` (seconds) | `regex 2014.04.10` (seconds) | Speedup |
 | --------- | ---------------------------- | ---------------------------- | ------- |
-| 800 KB    | 0.0447                       | 0.0083                       | 5x      |
+| [11 MB](https://github.com/mailgun/flanker/blob/master/tests/fixtures/messages/big.eml) | 0.0720 | 0.4652 | 6x |

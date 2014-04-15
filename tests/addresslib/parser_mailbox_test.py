@@ -581,3 +581,22 @@ def test_domain():
     run_mailbox_test('bill@"microsoft.com"', None)
     run_mailbox_test('bill@"microsoft.com', None)
     run_mailbox_test('bill@microsoft.com"', None)
+
+
+def test_full_spec_symmetry_bug():
+    """
+    There was a bug that if an address has a display name that is equal or
+    longer then 78 characters and consists of at least two words, then
+    `full_spec` returned a string where a '\n' character was inserted between
+    the display name words.
+    """
+    # Given
+    original = 'very loooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooong <foo@example.com>'
+    addr = address.parse(original)
+
+    # When
+    restored = addr.full_spec()
+
+    # Then
+    assert_equal(original, restored)
+

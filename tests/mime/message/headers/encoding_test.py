@@ -2,15 +2,15 @@
 
 from email.header import Header
 
-from nose.tools import *
-from mock import *
+from nose.tools import eq_, ok_
+from mock import patch, Mock
 
 from flanker.mime.message import headers
-from flanker.mime.message.headers.encoding import encode_unstructured
+from flanker.mime.message.headers.encoding import (encode_unstructured,
+                                                   encode_string)
 from flanker.mime.message import part
-from flanker.mime.message.part import MimePart
 from flanker.mime import create
-from .... import LONG_HEADER
+from tests import LONG_HEADER
 
 
 def encodings_test():
@@ -29,6 +29,19 @@ def encodings_test():
     folded_s = ("This is a long subject with commas, bob, Jay, suzy, tom, over"
                 "\n 75,250,234 times!")
     eq_(folded_s, headers.to_mime('Subject', s))
+
+
+def string_maxlinelen_test():
+    """
+    If the encoded string is longer then the maximum line length, which is 76,
+    by default then it is broken down into lines. But a maximum line length
+    value can be provided in the `maxlinelen` parameter.
+    """
+    eq_("very\n loooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooong",
+        encode_string(None, "very loooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooong"))
+
+    eq_("very loooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooong",
+        encode_string(None, "very loooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooong", maxlinelen=78))
 
 
 @patch.object(part.MimePart, 'was_changed', Mock(return_value=True))        

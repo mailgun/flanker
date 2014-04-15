@@ -80,13 +80,14 @@ def encode_param(key, name, value):
         return email.message._formatparam(name, value)
 
 
-def encode_string(name, value):
+def encode_string(name, value, maxlinelen=None):
     try:
-        return Header(
-            value.encode("ascii"), "ascii",
-            header_name=name).encode(splitchars=' ;,')
+        header = Header(value.encode("ascii"), "ascii", maxlinelen,
+                        header_name=name)
     except UnicodeEncodeError:
-        return Header(value.encode("utf-8"), "utf-8", header_name=name).encode(splitchars=' ;,')
+        header = Header(value.encode("utf-8"), "utf-8", header_name=name)
+
+    return header.encode(splitchars=' ;,')
 
 
 def is_address_header(key, val):

@@ -38,8 +38,7 @@ import time
 import flanker.addresslib.parser
 import flanker.addresslib.validate
 
-from email.header import Header
-from email.utils import formataddr
+from flanker.addresslib.parser import MAX_ADDRESS_LENGTH
 from flanker.utils import is_pure_ascii
 from flanker.utils import metrics_wrapper
 from flanker.mime.message.headers.encoding import encode_string
@@ -356,7 +355,8 @@ class EmailAddress(Address):
         if display_name is None:
             self.display_name = u''
         else:
-            self.display_name = encode_string(None, display_name)
+            self.display_name = encode_string(None, display_name,
+                                              maxlinelen=MAX_ADDRESS_LENGTH)
 
         parts = spec.rsplit('@', 1)
         self.mailbox = parts[0]

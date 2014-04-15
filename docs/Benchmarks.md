@@ -1,7 +1,8 @@
 ## Benchmarks
 
 Below is a comparison between the default Python MIME parser and
-`flanker.mime` in Time, Memory, and Function calls.
+`flanker.mime` in Time, Memory, and Function calls as well as other
+benchmarks relating to Flanker performance.
 
 ### Test Specification:
 
@@ -64,3 +65,13 @@ Headers Only:
 | 11 MB     | 914,741            | 1,253              | 730x    |
 | 1.8 MB    | 195,062            | 9,741              | 20x     |
 | 16 KB     | 3,216              | 2,476              | 1.2x    |
+
+
+#### Pinned Regex 
+
+Even though master does not use a pinned version of regex, we strongly recommend
+due to the 5x speedup compared to the latest version on PyPi (as of 4/15/14).
+
+| File Size | `regex.1.20110315` (seconds) | `regex 2014.04.10` (seconds) | Speedup |
+| --------- | ---------------------------- | ---------------------------- | ------- |
+| 800 KB    | 0.0447                       | 0.0083                       | 5x      |

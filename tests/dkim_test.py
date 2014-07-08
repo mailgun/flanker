@@ -47,3 +47,15 @@ def test_simple_domain_key_signature():
         b"i2SN1doNsdHigD7hnXwzoRVaZQ15zWNcQwaHriaTyijV+PUHEeU/EdNSakv\r\n XDoo"
         b"7lzEjzaYxBDx2PP25abuTSJF0=\r\n"
     )
+
+def test_simple_dkim_signature():
+    signer = dkim.DKIMSigner(DUMMY_RSA_KEY, "mx", "testing1")
+    sig = signer.sign(DUMMY_EMAIL, current_time=1404859754)
+    assert sig == (
+        b"DKIM-Signature: a=rsa-sha256; v=1; c=simple/simple; d=testing1; q=dn"
+        b"s/txt; s=mx;\r\n t=1404859754; h=From: To: Subject: Date: Message-ID"
+        b";\r\n bh=4bLNXImK9drULnmePzZNEBleUanJCX5PIsDIFoH4KTQ=; b=IrtWacnHcpq"
+        b"elwoPBxtI9RY0qJ9ABdltZRJcf5wXjXwA7sCbuxibMWk4m81m2zGqMOBsziIE\r\n 0j"
+        b"Jxf4OJGbWVXwSB2mNPfPyScpqJEL+z43vhx+/ZTWBWpj3TSAuHmOT4G7wrySLAZmfDcm"
+        b"je\r\n J00EP9NPpJOz2oUI8NJwozkUr6k=\r\n"
+    )

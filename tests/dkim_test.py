@@ -1,0 +1,49 @@
+from cryptography.hazmat.backends import default_backend
+from cryptography.hazmat.primitives import serialization
+
+from flanker import dkim
+
+
+DUMMY_EMAIL = b"""
+From: Joe SixPack <joe@football.example.com>
+To: Suzie Q <suzie@shopping.example.net>
+Subject: Is dinner ready?
+Date: Fri, 11 Jul 2003 21:00:37 -0700 (PDT)
+Message-ID: <20030712040037.46341.5F8J@football.example.com>
+
+Hi.
+
+We lost the game.  Are you hungry yet?
+
+Joe.
+""".strip()
+
+DUMMY_RSA_KEY = serialization.load_pem_pkcs8_private_key(b"""
+-----BEGIN RSA PRIVATE KEY-----
+MIICXgIBAAKBgQDn09PV9KPE7Q+N5K5UtNLT1DLl8z/pKM2pP5tXqWx2OsEw00lC
+kDHdHESwzS050s/8rtkERKKyusCzCm9+vC1pQzUlmtibfF4PQAQc1pJL6KHqlidg
+Hw49atYmnC25CaeXt65pAYXoIacOZ8k5X7FW3Eagex8nG0iMw4ObOtg6CwIDAQAB
+AoGBAL31l/4YYN1rNrSZLrQgGyUSGsbLxJHEKolFon95R3O1fzoH117gkstQb4TE
+Cwv3jw/JIfBaYUq8tku/AE9D2Jx51x7kYaCuQIMTavKIgkXKfxTQCQDjSEfkvXMW
+4WOIj5sYdSCNbzLbaeFsWG32bSsBTy/sSheDIlCEFnqDuqwBAkEA+wYfJEMDf5nS
+VCQd9VKGM4HVeTWBioaWBFCflFdhc1Vb65dsNDp8iIMZgAHC2LEX5dMUmgqXk7AT
+lwFlIeW4CwJBAOxsSfuIVMuPKyx1xQ6ebpC7zeVxIOdswcM8ain91MSGDdKZw6pF
+ioFh3kUbKHw4yqqHbdRmUDAJ1mcgGJQOxgECQQCmQaGylKfmhWymyd0FtIip6J4I
+z4ViyEznwrZOu6kRiEF/QiUqWmpMx/fFrmTsvC5Fy43jkIxgBsiSxRvEXa+NAkB+
+5m0bhwTEslchKSGZhC6inzuYAQ4BSh4C1mXBnk5bIf0/Ymtk9KiwY8CzZS1o5+7Y
+c5LfI/+8mTss5UxsBDYBAkEA6NqhcsNWndIJZiWUU4u+RjFUQXqH8WCyJmEDCNxs
+7SGRS1DTUGX4Y70m9dQpguy6Zg+gpHC+o+ERZR06uEQr+w==
+-----END RSA PRIVATE KEY-----
+""", password=None, backend=default_backend())
+
+
+def test_simple_domain_key_signature():
+    signer = dkim.DomainKeySigner(DUMMY_RSA_KEY, "mx", "testing1")
+    sig = signer.sign(DUMMY_EMAIL)
+    assert sig == (
+        b"DomainKey-Signature: a=rsa-sha1; c=nofws; d=testing1; s=mx; q=dns;\r"
+        b"\n h=From: To: Subject: Date: Message-ID;\r\n b=NDj4joHi27ePRug/aCgy"
+        b"wVFaAzxkcWP+F9r5J/gj7SHd1dFB3YfyZIYmnc+xo/HTN425sj\r\n njfKMRjSLNugH"
+        b"i2SN1doNsdHigD7hnXwzoRVaZQ15zWNcQwaHriaTyijV+PUHEeU/EdNSakv\r\n XDoo"
+        b"7lzEjzaYxBDx2PP25abuTSJF0=\r\n"
+    )

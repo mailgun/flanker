@@ -110,6 +110,9 @@ class DKIMSigner(object):
         self._signed_headers = signed_headers
 
     def sign(self, message, current_time=None):
+        if current_time is None:
+            current_time = int(time.time())
+
         message = io.BytesIO(_BODY_LINES_RE.sub("\r\n", message))
         signer = self._key.signer(padding.PKCS1v15(), hashes.SHA256())
 
@@ -119,11 +122,11 @@ class DKIMSigner(object):
             if self._signed_headers is None or header in self._signed_headers:
                 h_field.append(header)
 
-                header, value = self._header_canonicalization.canonicalize_header(
+                h, v = self._header_canonicalization.canonicalize_header(
                     header, value)
-                signer.update(header)
+                signer.update(h)
                 signer.update(b":")
-                signer.update(value)
+                signer.update(v)
 
         h = hashes.Hash(hashes.SHA256(), backend=default_backend())
         h.update(self._body_canonicalization.canonicalize_body(message.read()))
@@ -136,18 +139,21 @@ class DKIMSigner(object):
                 body_canonicalization=self._body_canonicalization,
                 domain=self._domain,
                 selector=self._selector,
-                time=int(time.time()) if current_time is None else current_time,
+                time=current_time,
                 headers=": ".join(h_field),
                 body_hash=base64.b64encode(h.finalize()),
             )
         )
 
-        dkim_header, dkim_header_value = self._header_canonicalization.canonicalize_header("DKIM-Signature", dkim_header_value)
-        signer.update(dkim_header)
+        h, v = self._header_canonicalization.canonicalize_header(
+            "DKIM-Signature", dkim_header_value)
+        signer.update(h)
         signer.update(b":")
-        signer.update(dkim_header_value)
-        return b"DKIM-Signature:{dkim_header}{signature}\r\n".format(dkim_header=dkim_header_value, signature=_fold(base64.b64encode(signer.finalize())))
-
+        signer.update(v)
+        return b"DKIM-Signature:{dkim_header}{signature}\r\n".format(
+            dkim_header=v,
+            signature=_fold(base64.b64encode(signer.finalize()))
+        )
 
 
 class DKIMVerifier(object):

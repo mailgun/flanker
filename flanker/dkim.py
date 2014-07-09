@@ -154,11 +154,3 @@ class DKIMSigner(object):
             dkim_header=v,
             signature=_fold(base64.b64encode(signer.finalize()))
         )
-
-
-class DKIMVerifier(object):
-    def __init__(self, keys):
-        self._keys = keys
-
-    def verify(self, message):
-        raise NotImplementedError

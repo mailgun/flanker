@@ -17,6 +17,7 @@ setup(name='flanker',
       packages=find_packages(exclude=['ez_setup', 'examples', 'tests']),
       include_package_data=True,
       zip_safe=True,
+      use_2to3=True,
       install_requires=[
           'chardet>=1.0.1',
           'dnsq>=1.1',

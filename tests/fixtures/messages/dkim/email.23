@@ -1,0 +1,16 @@
+From: <joe@example.net>
+Subject: This subject that wraps
+ onto a new line with a space
+	and then onto another line indented by a tab
+To: <larry@example.com>
+Comment: 	This line has leading spaces and wraps
+	to a second and
+	a third
+	and a fourth
+	and a firth
+ and lastly a sixed
+Message-Id:   <12345.mail@example.net>
+
+      
+			
+Single line of text

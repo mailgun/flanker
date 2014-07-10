@@ -20,7 +20,7 @@ class SimpleCanonicalization(object):
         return header, value
 
     def canonicalize_body(self, body):
-        return body.rstrip() + "\r\n"
+        return body.rstrip("\r\n") + "\r\n"
 
 
 class NoFWSCanonicalization(object):
@@ -33,7 +33,7 @@ class NoFWSCanonicalization(object):
 
     def canonicalize_body(self, body):
         body = self._body_wsp_re.sub("", body)
-        body = self._body_orphan_cr_re.sub("\1", body)
+        body = self._body_orphan_cr_re.sub(r"\1", body)
         body = body.rstrip()
         return body + "\r\n" if body else ""
 
@@ -67,12 +67,13 @@ class DomainKeySigner(object):
         self._signed_headers = None
 
     def sign(self, message):
-        message = io.BytesIO(_BODY_LINES_RE.sub("\r\n", message))
         canonicalization = NoFWSCanonicalization()
         signer = self._key.signer(padding.PKCS1v15(), hashes.SHA1())
+
+        headers, body = rfc822_parse(message)
+
         h_field = []
-        for header_line in parsing.split(message):
-            header, value = header_line.split(b":", 1)
+        for header, value in headers:
             if self._signed_headers is None or header in self._signed_headers:
                 h_field.append(header)
 
@@ -81,8 +82,7 @@ class DomainKeySigner(object):
                 signer.update(header)
                 signer.update(b":")
                 signer.update(value)
-        m = message.read()
-        body = canonicalization.canonicalize_body(m)
+        body = canonicalization.canonicalize_body(body)
         if body:
             signer.update(b"\r\n")
             signer.update(body)
@@ -113,12 +113,11 @@ class DKIMSigner(object):
         if current_time is None:
             current_time = int(time.time())
 
-        message = io.BytesIO(_BODY_LINES_RE.sub("\r\n", message))
         signer = self._key.signer(padding.PKCS1v15(), hashes.SHA256())
 
+        headers, body = rfc822_parse(message)
         h_field = []
-        for header_line in parsing.split(message):
-            header, value = header_line.split(b":", 1)
+        for header, value in headers:
             if self._signed_headers is None or header in self._signed_headers:
                 h_field.append(header)
 
@@ -129,7 +128,7 @@ class DKIMSigner(object):
                 signer.update(v)
 
         h = hashes.Hash(hashes.SHA256(), backend=default_backend())
-        h.update(self._body_canonicalization.canonicalize_body(message.read()))
+        h.update(self._body_canonicalization.canonicalize_body(body))
         dkim_header_value = _fold(
             b" a=rsa-sha256; v=1; "
             b"c={header_canonicalization.name}/{body_canonicalization.name}; "
@@ -154,3 +153,32 @@ class DKIMSigner(object):
             dkim_header=v,
             signature=_fold(base64.b64encode(signer.finalize()))
         )
+
+_RFC822_NEWLINE_RE = re.compile(r"\r?\n")
+_RFC822_WS_RE = re.compile(r"[\x09\x20]")
+_RFC822_HEADER_RE = re.compile(r"([\x21-\x7e]+?):")
+
+def rfc822_parse(message):
+    headers = []
+    lines = _RFC822_NEWLINE_RE.split(message)
+    i = 0
+    while i < len(lines):
+        if len(lines[i]) == 0:
+            # End of headers, return what we have plus the body, excluding the
+            # blank line.
+            i += 1
+            break
+        if _RFC822_WS_RE.match(lines[i][0]):
+            headers[-1][1] += lines[i] + "\r\n"
+        else:
+            m = _RFC822_HEADER_RE.match(lines[i])
+            if m is not None:
+                headers.append([m.group(1), lines[i][m.end(0):] + "\r\n"])
+            elif lines[i].startswith("From "):
+                pass
+            else:
+                raise ValueError(
+                    "Unexpected characters in RFC822 header: %s" % lines[i]
+                )
+        i += 1
+    return (headers, "\r\n".join(lines[i:]))

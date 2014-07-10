@@ -1,9 +1,14 @@
+import glob
+import io
+import os
+
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import serialization
 
 from nose.tools import assert_equal
 
 from flanker import dkim
+from flanker.mime.message.headers import parsing
 
 
 DUMMY_EMAIL = b"""
@@ -64,3 +69,41 @@ def test_simple_dkim_signature():
         b"Jxf4OJGbWVXwSB2mNPfPyScpqJEL+z43vhx+/ZTWBWpj3TSAuHmOT4G7wrySLAZmfDcm"
         b"je\r\n J00EP9NPpJOz2oUI8NJwozkUr6k=\r\n"
     )
+
+
+def test_canonicalization():
+    path = os.path.join(
+        os.path.dirname(__file__), "fixtures", "messages", "dkim", "email.*"
+    )
+    for path in glob.glob(path):
+        if path.endswith(".01"):
+            continue
+        with open(path) as f:
+            contents = f.read()
+        with open(path.replace("email", "nofws.expected")) as f:
+            nofws_contents = f.read()
+        with open(path.replace("email", "simple.expected")) as f:
+            simple_contents = f.read()
+
+        assert_equal(
+            canonicalize_contents(dkim.NoFWSCanonicalization(), contents),
+            nofws_contents
+        )
+        assert_equal(
+            canonicalize_contents(dkim.SimpleCanonicalization(), contents),
+            simple_contents
+        )
+
+
+def canonicalize_contents(canonicalization_rule, contents):
+    headers, body = dkim.rfc822_parse(contents)
+    output = io.BytesIO()
+    for header, value in headers:
+        header, value = canonicalization_rule.canonicalize_header(
+            header, value)
+        output.write(b"{h}:{v}".format(h=header, v=value))
+    body = canonicalization_rule.canonicalize_body(body)
+    if body:
+        output.write(b"\r\n")
+        output.write(body)
+    return output.getvalue()

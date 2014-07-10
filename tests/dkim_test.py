@@ -81,6 +81,8 @@ def test_canonicalization():
             nofws_contents = f.read()
         with open(path.replace("email", "simple.expected")) as f:
             simple_contents = f.read()
+        with open(path.replace("email", "relaxed.expected")) as f:
+            relaxed_contents = f.read()
 
         assert_equal(
             canonicalize_contents(dkim.NoFWSCanonicalization(), contents),
@@ -89,6 +91,10 @@ def test_canonicalization():
         assert_equal(
             canonicalize_contents(dkim.SimpleCanonicalization(), contents),
             simple_contents
+        )
+        assert_equal(
+            canonicalize_contents(dkim.RelaxedCanonicalization(), contents),
+            relaxed_contents
         )
 
 
@@ -100,7 +106,6 @@ def canonicalize_contents(canonicalization_rule, contents):
             header, value)
         output.write(b"{h}:{v}".format(h=header, v=value))
     body = canonicalization_rule.canonicalize_body(body)
-    if body:
-        output.write(b"\r\n")
-        output.write(body)
+    output.write(b"\r\n")
+    output.write(body)
     return output.getvalue()

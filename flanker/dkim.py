@@ -1,5 +1,5 @@
 import base64
-import re
+import regex as re
 import time
 
 from cryptography.hazmat.backends import default_backend
@@ -7,7 +7,8 @@ from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.asymmetric import padding
 
 
-_BODY_LINES_RE = re.compile(r"\r?\n")
+_BODY_TRAILING_WSP = re.compile(r"[\t ]+\r\n")
+_BODY_WSP_RE = re.compile(r"[\t ]+")
 
 
 class SimpleCanonicalization(object):
@@ -20,16 +21,30 @@ class SimpleCanonicalization(object):
         return body.rstrip("\r\n") + "\r\n"
 
 
+class RelaxedCanonicalization(object):
+    name = "relaxed"
+
+    def canonicalize_header(self, header, value):
+        header = header.lower()
+        value = _BODY_WSP_RE.sub(" ", value.replace("\r\n", ""))
+        return header, value.strip() + b"\r\n"
+
+    def canonicalize_body(self, body):
+        body = _BODY_TRAILING_WSP.sub("\r\n", body)
+        body = _BODY_WSP_RE.sub(" ", body)
+        body = body.rstrip("\r\n")
+        return body + b"\r\n" if body else b""
+
+
 class NoFWSCanonicalization(object):
     _header_fws_re = re.compile(r"[\t \r\n]+")
-    _body_wsp_re = re.compile(r"[\t ]+")
     _body_orphan_cr_re = re.compile(b"\r([^\n])")
 
     def canonicalize_header(self, header, value):
         return header, self._header_fws_re.sub("", value) + "\r\n"
 
     def canonicalize_body(self, body):
-        body = self._body_wsp_re.sub("", body)
+        body = _BODY_WSP_RE.sub("", body)
         body = self._body_orphan_cr_re.sub(r"\1", body)
         body = body.rstrip()
         return body + "\r\n" if body else ""

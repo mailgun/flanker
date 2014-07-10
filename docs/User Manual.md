@@ -660,7 +660,8 @@ To sign a message, you need a few things:
 * `domain`: A string which specifies the domain the message is from.
 * `header_canonicalization` and `body_canonicalization` (optional): These
   specify which of the canonicalization rules from the RFC can be used. Valid
-  values are `flanker.dkim.SimpleCanonicalization` (the default).
+  values are `flanker.dkim.SimpleCanonicalization` (the default) and
+  `flanker.dkim.RelaxedCanonicalization`.
 * `signed_headers` (optional): A list of strings which specify which headers
   should be signed. If this argument is not supplied, all of the message's
   headers will be supplied.

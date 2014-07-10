@@ -75,8 +75,6 @@ def test_canonicalization():
         os.path.dirname(__file__), "fixtures", "messages", "dkim", "email.*"
     )
     for path in glob.glob(path):
-        if path.endswith(".01"):
-            continue
         with open(path) as f:
             contents = f.read()
         with open(path.replace("email", "nofws.expected")) as f:

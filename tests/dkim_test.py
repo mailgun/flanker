@@ -8,7 +8,6 @@ from cryptography.hazmat.primitives import serialization
 from nose.tools import assert_equal
 
 from flanker import dkim
-from flanker.mime.message.headers import parsing
 
 
 DUMMY_EMAIL = b"""
@@ -96,7 +95,7 @@ def test_canonicalization():
 
 
 def canonicalize_contents(canonicalization_rule, contents):
-    headers, body = dkim.rfc822_parse(contents)
+    headers, body = dkim._rfc822_parse(contents)
     output = io.BytesIO()
     for header, value in headers:
         header, value = canonicalization_rule.canonicalize_header(

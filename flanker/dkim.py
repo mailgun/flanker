@@ -1,13 +1,10 @@
 import base64
-import io
 import re
 import time
 
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.asymmetric import padding
-
-from flanker.mime.message.headers import parsing
 
 
 _BODY_LINES_RE = re.compile(r"\r?\n")
@@ -24,8 +21,8 @@ class SimpleCanonicalization(object):
 
 
 class NoFWSCanonicalization(object):
-    _header_fws_re = re.compile(r"[\x09\x20\x0D\x0A]+")
-    _body_wsp_re = re.compile(r"[\x09\x20]+")
+    _header_fws_re = re.compile(r"[\t \r\n]+")
+    _body_wsp_re = re.compile(r"[\t ]+")
     _body_orphan_cr_re = re.compile(b"\r([^\n])")
 
     def canonicalize_header(self, header, value):
@@ -70,7 +67,7 @@ class DomainKeySigner(object):
         canonicalization = NoFWSCanonicalization()
         signer = self._key.signer(padding.PKCS1v15(), hashes.SHA1())
 
-        headers, body = rfc822_parse(message)
+        headers, body = _rfc822_parse(message)
 
         h_field = []
         for header, value in headers:
@@ -115,7 +112,7 @@ class DKIMSigner(object):
 
         signer = self._key.signer(padding.PKCS1v15(), hashes.SHA256())
 
-        headers, body = rfc822_parse(message)
+        headers, body = _rfc822_parse(message)
         h_field = []
         for header, value in headers:
             if self._signed_headers is None or header in self._signed_headers:
@@ -155,10 +152,11 @@ class DKIMSigner(object):
         )
 
 _RFC822_NEWLINE_RE = re.compile(r"\r?\n")
-_RFC822_WS_RE = re.compile(r"[\x09\x20]")
+_RFC822_WS_RE = re.compile(r"[\t ]")
 _RFC822_HEADER_RE = re.compile(r"([\x21-\x7e]+?):")
 
-def rfc822_parse(message):
+
+def _rfc822_parse(message):
     headers = []
     lines = _RFC822_NEWLINE_RE.split(message)
     i = 0

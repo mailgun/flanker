@@ -5,7 +5,7 @@ from setuptools import setup, find_packages
 
 
 setup(name='flanker',
-      version='0.4.14',
+      version='0.4.15',
       description='Mailgun Parsing Tools',
       long_description=open('README.rst').read(),
       classifiers=[],
@@ -17,12 +17,14 @@ setup(name='flanker',
       packages=find_packages(exclude=['ez_setup', 'examples', 'tests']),
       include_package_data=True,
       zip_safe=True,
+      tests_require=[
+          'nose',
+          'mock'
+      ],
       install_requires=[
           'chardet>=1.0.1',
-          'dnsq>=1.1',
-          'expiringdict>=1.1',
-          'mock>=1.0.1',
-          'nose>=1.2.1',
+          'dnsq>=1.1.3',
+          'expiringdict>=1.1.2',
           'Paste>=1.7.5',
           'redis>=2.7.1',
           # IMPORTANT! Newer regex versions are a lot slower for

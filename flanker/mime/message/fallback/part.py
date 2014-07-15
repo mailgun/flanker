@@ -1,158 +1,109 @@
 import logging
 import email
+from flanker.mime.message.part import ReachPartMixin
 from flanker.mime.message.scanner import ContentType
 from flanker.mime.message import utils, charsets, headers
 from flanker.mime.message.headers import parametrized
 
 log = logging.getLogger(__name__)
 
-class FallbackMimePart(object):
+
+class FallbackMimePart(ReachPartMixin):
 
     def __init__(self, python_message):
-        self.m = python_message
-        self._is_root = False
-
-    def is_body(self):
-        return (self.content_type.format_type == 'text' or
-                 self.content_type.format_type == 'message')
-
-    def is_root(self):
-        return self._is_root
-
-    def set_root(self, value):
-        self._is_root = value
-
-    def append(self, message):
-        self.m.attach(
-            FallbackMimePart(
-                email.message_from_string(
-                    message.to_string())))
-
-    def remove_headers(self, *headers):
-        for header in headers:
-            if header in self.headers:
-                del self.headers[header]
-
-    def is_bounce(self):
-        return False
+        ReachPartMixin.__init__(self, is_root=False)
+        self._m = python_message
 
     @property
-    def bounce(self):
-        return None
+    def size(self):
+        if not self._m.is_multipart():
+            return len(self._m.get_payload(decode=False))
+        else:
+            return sum(p.size for p in self.parts)
 
-    def to_python_message(self):
-        return self.m
-
-    def get_attached_message(self):
-        """
-        Returns attached message if found, None otherwize
-        """
-        try:
-            for part in self.walk(with_self=True):
-                if part.content_type == 'message/rfc822':
-                    for p in part.walk():
-                        return p
-        except Exception:
-            log.exception("Failed to get attached message")
-            return None
-
-    def walk(self, with_self=False, skip_enclosed=False):
-        if with_self:
-            yield self
-
-        if self.content_type.is_multipart():
-            for p in self.parts:
-                yield p
-                for x in p.walk(False, skip_enclosed=skip_enclosed):
-                    yield x
-
-        elif self.content_type.is_message_container() and not skip_enclosed:
-            yield self.enclosed
-            for p in self.enclosed.walk(False):
-                yield p
+    @property
+    def headers(self):
+        return FallbackHeaders(self._m)
 
     @property
     def content_type(self):
         return ContentType(
-            self.m.get_content_maintype(),
-            self.m.get_content_subtype(),
-            dict(self.m.get_params() or []))
+            self._m.get_content_maintype(),
+            self._m.get_content_subtype(),
+            dict(self._m.get_params() or []))
 
     @property
-    def charset(self):
-        return self.content_type.params.get('charset', 'ascii')
+    def content_disposition(self):
+        try:
+            return parametrized.decode(self._m.get('Content-Disposition', ''))
+        except:
+            return None, {}
 
     @property
-    def headers(self):
-        return FallbackHeaders(self.m)
+    def content_encoding(self):
+        return self._m.get('Content-Transfer-Encoding')
+
+    @content_encoding.setter
+    def content_encoding(self, value):
+        pass  # FIXME Not implement
 
     @property
     def body(self):
-        if not self.m.is_multipart():
+        if self.content_type.is_delivery_status():
+            body = self._m.get_payload(decode=True)
+            if body:
+                return body
+            return "\r\n".join(str(p) for p in self._m.get_payload())
+        if not self._m.is_multipart():
             return charsets.convert_to_unicode(
-                self.charset,
-                self.m.get_payload(decode=True))
+                self.charset, self._m.get_payload(decode=True))
 
     @body.setter
     def body(self, value):
-        if not self.m.is_multipart():
-            return self.m.set_payload(
-                value.encode('utf-8'), 'utf-8')
+        if not self._m.is_multipart():
+            self._m.set_payload(value.encode('utf-8'), 'utf-8')
+
+    @property
+    def charset(self):
+        return self.content_type.get_charset()
+
+    @charset.setter
+    def charset(self, value):
+        pass  # FIXME Not implement
+
+    def to_string(self):
+        return utils.python_message_to_string(self._m)
+
+    def to_stream(self, out):
+        out.write(self.to_string())
+
+    def was_changed(self):
+        return False  # FIXME Not implement
+
+    def to_python_message(self):
+        return self._m
+
+    def append(self, *messages):
+        for m in messages:
+            part = FallbackMimePart(email.message_from_string(m.to_string()))
+            self._m.attach(part)
 
     @property
     def parts(self):
-        if self.m.is_multipart():
-            return [FallbackMimePart(p) for p in self.m.get_payload() if p]
+        if self._m.is_multipart():
+            return [FallbackMimePart(p) for p in self._m.get_payload() if p]
         else:
             return []
 
     @property
     def enclosed(self):
         if self.content_type == 'message/rfc822':
-            return FallbackMimePart(self.m.get_payload()[0])
+            return FallbackMimePart(self._m.get_payload()[0])
 
-    @property
-    def size(self):
-        if not self.m.is_multipart():
-            return len(self.m.get_payload(decode=False))
-        else:
-            return sum(p.size for p in self.parts)
+    def enclose(self, message):
+        pass  # FIXME Not implemented
 
-    @property
-    def content_encoding(self):
-        return self.m.get('Content-Transfer-Encoding')
 
-    @content_encoding.setter
-    def content_encoding(self, value):
-        pass
-
-    @property
-    def content_disposition(self):
-        try:
-            return parametrized.decode(
-                self.m.get('Content-Disposition', ''))
-        except:
-            return (None, {})
-
-    def to_string(self):
-        return utils.python_message_to_string(self.m)
-
-    def to_stream(self, out):
-        out.write(self.to_string())
-
-    def is_attachment(self):
-        return self.content_disposition[0] == 'attachment'
-
-    def is_inline(self):
-        return self.content_disposition[0] == 'inline'
-
-    def is_delivery_notification(self):
-        ctype = self.content_type
-        return  ctype == 'multipart/report'\
-            and ctype.params.get('report-type') == 'delivery-status'
-
-    def __str__(self):
-        return "FallbackMimePart"
 
 def try_decode(key, value):
     if isinstance(value, (tuple, list)):
@@ -166,6 +117,7 @@ def try_decode(key, value):
         return value
     else:
         return ""
+
 
 class FallbackHeaders(object):
 

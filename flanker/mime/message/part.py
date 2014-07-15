@@ -3,21 +3,20 @@ import email.encoders
 import logging
 import mimetypes
 import imghdr
-import base64
-import quopri
-
 from contextlib import closing
 from cStringIO import StringIO
-from os import path
 
+from os import path
 from email.mime import audio
 
 from flanker.utils import is_pure_ascii
 from flanker.mime import bounce
 from flanker.mime.message import headers, charsets
-from flanker.mime.message.headers import WithParams, ContentType, MessageId, Subject
+from flanker.mime.message.headers import (WithParams, ContentType, MessageId,
+                                          Subject)
 from flanker.mime.message.headers.parametrized import fix_content_type
 from flanker.mime.message.errors import EncodingError, DecodingError
+
 
 log = logging.getLogger(__name__)
 
@@ -179,13 +178,192 @@ class Part(object):
         return True
 
 
-class MimePart(object):
-    def __init__(self, container, parts=None, enclosed=None, is_root=False):
+class ReachPartMixin(object):
 
-        self._container = container
+    def __init__(self, is_root=False):
         self._is_root = is_root
         self._bounce = None
 
+    @property
+    def message_id(self):
+        return MessageId.from_string(self.headers.get('Message-Id', ''))
+
+    @message_id.setter
+    def message_id(self, value):
+        if not MessageId.is_valid(value):
+            raise ValueError("invalid message id format")
+        self.headers['Message-Id'] = "<{0}>".format(value)
+
+    @property
+    def subject(self):
+        return self.headers.get('Subject', '')
+
+    @property
+    def clean_subject(self):
+        """
+        Subject without re, fw, fwd, HA prefixes
+        """
+        return Subject(self.subject).strip_replies()
+
+    @property
+    def references(self):
+        """
+        Returns a list of message ids referencing the message in accordance to
+        the Jamie Zawinski threading algorithm.
+
+        See http://www.jwz.org/doc/threading.html for details.
+        """
+        refs = list(MessageId.scan(self.headers.get('References', '')))
+        if not refs:
+            reply = MessageId.from_string(self.headers.get('In-Reply-To', ''))
+            if reply:
+                refs.append(reply[0])
+        return refs
+
+    @property
+    def detected_file_name(self):
+        """
+        Detects file name based on content type or part name.
+        """
+        ctype = self.content_type
+        file_name = ctype.params.get('name', '') or ctype.params.get('filename', '')
+
+        value, params = self.content_disposition
+        if value == 'attachment':
+            file_name = params.get('filename', '') or file_name
+
+        # filenames can be presented as tuples, like:
+        # ('us-ascii', 'en-us', 'image.jpg')
+        if isinstance(file_name, tuple) and len(file_name) == 3:
+            # encoding permissible to be empty
+            encoding = file_name[0]
+            if encoding:
+                file_name = file_name[2].decode(encoding)
+            else:
+                file_name = file_name[2]
+
+        file_name = headers.mime_to_unicode(file_name)
+        return file_name
+
+    @property
+    def detected_format(self):
+        return self.detected_content_type.format_type
+
+    @property
+    def detected_subtype(self):
+        return self.detected_content_type.subtype
+
+    @property
+    def detected_content_type(self):
+        """
+        Returns content type based on the body content, the file name and the
+        original content type provided inside the message.
+        """
+        return adjust_content_type(self.content_type,
+                                   filename=self.detected_file_name)
+
+    def is_body(self):
+        return (not self.detected_file_name and
+                (self.content_type.format_type == 'text' or
+                 self.content_type.format_type == 'message'))
+
+    def is_root(self):
+        return self._is_root
+
+    def set_root(self, val):
+        self._is_root = bool(val)
+
+    def walk(self, with_self=False, skip_enclosed=False):
+        """
+        Returns iterator object traversing through the message parts. If the
+        top level part needs to be included then set the `with_self` to `True`.
+        If the parts of the enclosed messages should not be included then set
+        the `skip_enclosed` parameter to `True`.
+        """
+
+        if with_self:
+            yield self
+
+        if self.content_type.is_multipart():
+            for p in self.parts:
+                yield p
+                for x in p.walk(with_self=False, skip_enclosed=skip_enclosed):
+                    yield x
+
+        elif self.content_type.is_message_container() and not skip_enclosed:
+            yield self.enclosed
+            for p in self.enclosed.walk(with_self=False):
+                yield p
+
+    def is_attachment(self):
+        return self.content_disposition[0] == 'attachment'
+
+    def is_inline(self):
+        return self.content_disposition[0] == 'inline'
+
+    def is_delivery_notification(self):
+        """
+        Tells whether a message is a system delivery notification.
+        """
+        content_type = self.content_type
+        return (content_type == 'multipart/report'
+                and content_type.params.get('report-type') == 'delivery-status')
+
+    def get_attached_message(self):
+        """
+        Returns attached message if found, `None` otherwise.
+        """
+        try:
+            for part in self.walk(with_self=True):
+                if part.content_type == 'message/rfc822':
+                    for p in part.walk():
+                        return p
+        except Exception:
+            log.exception("Failed to get attached message")
+            return None
+
+    def remove_headers(self, *header_names):
+        """
+        Removes all passed headers name in one operation.
+        """
+        for header_name in header_names:
+            if header_name in self.headers:
+                del self.headers[header_name]
+
+    @property
+    def bounce(self):
+        """
+        If the message is NOT bounce, then `None` is returned. Otherwise
+        it returns a bounce object that provides the values:
+          * score - a value between 0 and 1, where 0 means that the message is
+                    definitely not a bounce, and 1 means that is definitely a
+                    bounce;
+          * status -  delivery status;
+          * notification - human readable description;
+          * diagnostic_code - smtp diagnostic codes;
+
+        Can raise MimeError in case if MIME is screwed.
+        """
+        if not self._bounce:
+            self._bounce = bounce.detect(self)
+        return self._bounce
+
+    def is_bounce(self, probability=0.3):
+        """
+        Determines whether the message is a bounce message based on
+        given probability. 0.3 is a good conservative base.
+        """
+        return self.bounce.score > probability
+
+    def __str__(self):
+        return "({0})".format(self.content_type)
+
+
+class MimePart(ReachPartMixin):
+
+    def __init__(self, container, parts=None, enclosed=None, is_root=False):
+        ReachPartMixin.__init__(self, is_root)
+        self._container = container
         self.parts = parts or []
         self.enclosed = enclosed
 
@@ -259,90 +437,10 @@ class MimePart(object):
         self.headers['Content-Type'].params['charset'] = charset
         self.headers.changed = True
 
-    @property
-    def message_id(self):
-        return MessageId.from_string(self.headers.get('Message-Id', ''))
-
-    @message_id.setter
-    def message_id(self, value):
-        if not MessageId.is_valid(value):
-            raise ValueError("invalid message id format")
-        self.headers['Message-Id'] = "<{0}>".format(value)
-
-    @property
-    def subject(self):
-        return self.headers.get('Subject', '')
-
-    @property
-    def clean_subject(self):
-        """
-        Subject without re, fw, fwd, HA prefixes
-        """
-        return Subject(self.subject).strip_replies()
-
-    @property
-    def references(self):
-        """
-        Retunrs message-ids referencing the message
-        in accordance to jwz threading algo
-        """
-        refs = list(MessageId.scan(self.headers.get('References', '')))
-        if not refs:
-            reply = MessageId.from_string(self.headers.get('In-Reply-To', ''))
-            if reply:
-                refs.append(reply[0])
-        return refs
-
-    @property
-    def detected_format(self):
-        return self.detected_content_type.format_type
-
-    @property
-    def detected_subtype(self):
-        return self.detected_content_type.subtype
-
-    @property
-    def detected_content_type(self):
-        """Returns content type based on the body
-        content, file name and original content type
-        supplied inside the message
-        """
-        return adjust_content_type(
-            self.content_type, filename=self.detected_file_name)
-
-    @property
-    def detected_file_name(self):
-        """Detects file name based on content type
-        or part name
-        """
-        ctype = self.content_type
-        file_name = ctype.params.get('name', '') or ctype.params.get('filename', '')
-
-        cdisp = self.content_disposition
-        if cdisp.value == 'attachment':
-            file_name = cdisp.params.get('filename', '') or file_name
-
-        # filenames can be presented as tuples, like:
-        # ('us-ascii', 'en-us', 'image.jpg')
-        if isinstance(file_name, tuple) and len(file_name) == 3:
-            # encoding permissible to be empty
-            encoding = file_name[0]
-            if encoding:
-                file_name = file_name[2].decode(encoding)
-            else:
-                file_name = file_name[2]
-
-        file_name = headers.mime_to_unicode(file_name)
-        return file_name
-
-    def is_root(self):
-        return self._is_root
-
-    def set_root(self, val):
-        self._is_root = bool(val)
-
     def to_string(self):
-        """ returns MIME representation of the message"""
+        """
+        Returns a MIME representation of the message.
+        """
         # this optimisation matters *A LOT*
         # we submit the original string,
         # no copying, no alternation, yeah!
@@ -354,19 +452,48 @@ class MimePart(object):
                 return out.getvalue()
 
     def to_stream(self, out):
-        """ serialzes the message using file like object """
+        """
+        Serializes the message using a file like object.
+        """
         if not self.was_changed():
             out.write(self._container.read_message())
         else:
             try:
                 original_position = out.tell()
-                self.to_stream_when_changed(out)
+                self._to_stream_when_changed(out)
             except DecodingError:
                 out.seek(original_position)
                 out.write(self._container.read_message())
 
+    def was_changed(self):
+        if self._container.headers_changed():
+            return True
 
-    def to_stream_when_changed(self, out):
+        if self.content_type.is_singlepart():
+            if self._container.body_changed():
+                return True
+            return False
+
+        elif self.content_type.is_multipart():
+            return any(p.was_changed() for p in self.parts)
+
+        elif self.content_type.is_message_container():
+            return self.enclosed.was_changed()
+
+    def to_python_message(self):
+        return email.message_from_string(self.to_string())
+
+    def append(self, *messages):
+        for m in messages:
+            self.parts.append(m)
+            m.set_root(False)
+
+    def enclose(self, message):
+        self.enclosed = message
+        message.set_root(False)
+
+
+    def _to_stream_when_changed(self, out):
 
         ctype = self.content_type
 
@@ -402,114 +529,6 @@ class MimePart(object):
 
             elif ctype.is_message_container():
                 self.enclosed.to_stream(out)
-
-    def was_changed(self):
-        if self._container.headers_changed():
-            return True
-
-        if self.content_type.is_singlepart():
-            if self._container.body_changed():
-                return True
-            return False
-
-        elif self.content_type.is_multipart():
-            return any(p.was_changed() for p in self.parts)
-
-        elif self.content_type.is_message_container():
-            return self.enclosed.was_changed()
-
-    def walk(self, with_self=False, skip_enclosed=False):
-        """ Returns iterator object traversing through the message parts,
-        if you want to include the top level part into the iteration, use
-        'with_self' parameter. If you don't want to include parts of
-        enclosed messages, use 'skip_enclosed' parameter. Each part itself
-        provides headers, content_type and body members.
-        """
-        if with_self:
-            yield self
-
-        if self.content_type.is_multipart():
-            for p in self.parts:
-                yield p
-                for x in p.walk(False, skip_enclosed=skip_enclosed):
-                    yield x
-
-        elif self.content_type.is_message_container() and not skip_enclosed:
-            yield self.enclosed
-            for p in self.enclosed.walk(False):
-                yield p
-
-    def is_attachment(self):
-        return self.content_disposition.value == 'attachment'
-
-    def is_body(self):
-        return (not self.detected_file_name and
-                (self.content_type.format_type == 'text' or
-                 self.content_type.format_type == 'message'))
-
-    def is_inline(self):
-        return self.content_disposition.value == 'inline'
-
-    def is_delivery_notification(self):
-        """ Tells whether a message is a system delivery notification """
-        ctype = self.content_type
-        return  ctype == 'multipart/report'\
-            and ctype.params.get('report-type') == 'delivery-status'
-
-    def get_attached_message(self):
-        """ Returns attached message if found, None otherwize"""
-        try:
-            for part in self.walk(with_self=True):
-                if part.content_type == 'message/rfc822':
-                    for p in part.walk():
-                        return p
-        except Exception:
-            log.exception("Failed to get attached message")
-            return None
-
-    def remove_headers(self, *headers):
-        """Removes all passed headers name in one operation"""
-        for header in headers:
-            if header in self.headers:
-                del self.headers[header]
-
-    def to_python_message(self):
-        return email.message_from_string(self.to_string())
-
-    @property
-    def bounce(self):
-        """ If the message is bounce, retuns bounce object that
-        provides the values:
-
-        score - between 0 and 1
-        status -  delivery status
-        notification - human readable description
-        diagnostic_code - smtp diagnostic codes
-
-        Can raise MimeError in case if MIME is screwed
-        """
-        if not self._bounce:
-            self._bounce = bounce.detect(self)
-        return self._bounce
-
-    def is_bounce(self, threshold=0.3):
-        """
-        Determines whether the message is a bounce message based on
-        given threshold.  0.3 is a good conservative base.
-        """
-        return self.bounce.score > threshold
-
-    def enclose(self, message):
-        self.enclosed = message
-        message.set_root(False)
-
-    def append(self, *messages):
-        for m in messages:
-            self.parts.append(m)
-            m.set_root(False)
-
-    def __str__(self):
-        return "({0})".format(self.content_type)
 
 
 def decode_body(content_type, content_encoding, body):

@@ -13,7 +13,7 @@ from nose.tools import nottest
 from ... import skip_if_asked
 
 DOMAIN = '@icloud.com'
-SAMPLE_MX = 'sample.icloud.com.akadns.net'
+SAMPLE_MX = 'sample.mail.icloud.com'
 
 @nottest
 def mock_exchanger_lookup(arg, metrics=False):

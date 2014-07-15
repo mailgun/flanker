@@ -18,7 +18,7 @@ def _guess_and_convert(value):
     try:
         value = value.decode(charset["encoding"], "replace")
         return value
-    except (UnicodeError, LookupError):
+    except (UnicodeError, LookupError) as e:
         raise errors.DecodingError(str(e))
 
 def _make_unicode(value, charset=None):

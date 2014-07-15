@@ -28,7 +28,7 @@ dns_lookup = DNSLookup()
 YAHOO_PATTERN = re.compile(r'''mta[0-9]+\.am[0-9]+\.yahoodns\.net$''')
 GMAIL_PATTERN = re.compile(r'''.*gmail-smtp-in\.l\.google.com$''')
 AOL_PATTERN = re.compile(r'''.*\.mx\.aol\.com$''')
-ICLOUD_PATTERN = re.compile(r'''.*\.icloud\.com\.akadns\.net$''')
+ICLOUD_PATTERN = re.compile(r'''.*\.mail\.icloud\.com$''')
 HOTMAIL_PATTERN = re.compile(r'''mx[0-9]\.hotmail\.com''')
 GOOGLE_PATTERN = re.compile(r'''(.*aspmx\.l\.google\.com$)|(aspmx.*\.googlemail.com$)''', re.IGNORECASE)
 

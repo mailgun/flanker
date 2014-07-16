@@ -65,3 +65,9 @@ class Result(object):
         self.status = status
         self.notification = notification
         self.diagnostic_code = diagnostic_code
+
+    def __repr__(self):
+        return (u'bounce.Result(status={}, score={}, notification={},'
+                u' diag_code={})'.format(self.status, self.score,
+                                         self.notification,
+                                         self.diagnostic_code))

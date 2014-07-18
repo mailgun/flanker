@@ -1,16 +1,18 @@
 # coding:utf-8
 
-from nose.tools import *
-from mock import *
 import email
-from flanker.mime.message.fallback import create
-from flanker.mime.message import errors
-from flanker.mime import recover
 from cStringIO import StringIO
 from contextlib import closing
 from email import message_from_string
 
-from .... import *
+from nose.tools import ok_, eq_, assert_false
+
+from flanker.mime.message.fallback import create
+from flanker.mime import recover
+from tests import (IPHONE, ENCLOSED, TORTURE, TEXT_ONLY, MAILFORMED_HEADERS,
+                   SPAM_BROKEN_HEADERS, BILINGUAL, MULTI_RECEIVED_HEADERS,
+                   MAILGUN_PIC, BOUNCE)
+
 
 def bad_string_test():
     mime = "Content-Type: multipart/broken\n\n"
@@ -94,37 +96,98 @@ def message_content_dispositions_test():
 
 
 def message_from_python_test():
-    message = create.from_python(email.message_from_string(ENCLOSED))
+    message = create.from_string(ENCLOSED)
     eq_(2, len(message.parts))
     eq_('multipart/alternative', message.parts[1].enclosed.content_type)
     eq_('multipart/mixed', message.content_type)
     assert_false(message.body)
 
     message.headers['Sasha'] = 'Hello!'
-    message.remove_headers("Subject", "Nonexisting")
     message.parts[1].enclosed.headers['Yo'] = u'Man'
     ok_(message.to_string())
     ok_(str(message))
     ok_(str(message.parts[0]))
+    eq_('4FEEF9B3.7060508@example.net', message.message_id)
+    eq_('Wow', message.subject)
 
     m = message.get_attached_message()
     eq_('multipart/alternative', str(m.content_type))
-    eq_('Thanks!', m.headers['Subject'])
+    eq_('Thanks!', m.subject)
+
+
+def set_message_id_test():
+    # Given
+    message = create.from_string(ENCLOSED)
+
+    # When
+    message.message_id = 'some.message.id@example.net'
+
+    # Then
+    eq_('some.message.id@example.net', message.message_id)
+    eq_('<some.message.id@example.net>', message.headers['Message-Id'])
+
+
+def clean_subject_test():
+    # Given
+    message = create.from_string(ENCLOSED)
+    message.headers['Subject'] = 'FWD: RE: FW: Foo Bar'
+
+    # When/Then
+    eq_('Foo Bar', message.clean_subject)
+
+
+def references_test():
+    # Given
+    message = create.from_python(
+        email.message_from_string(MULTI_RECEIVED_HEADERS))
+
+    # When/Then
+    eq_({'AANLkTi=1ANR2FzeeQ-vK3-_ty0gUrOsAxMRYkob6CL-c@mail.gmail.com',
+         'AANLkTinUdYK2NpEiYCKGnCEp_OXKqst_bWNdBVHsfDVh@mail.gmail.com'},
+        set(message.references))
+
+
+def detected_fields_test():
+    # Given
+    message = create.from_string(MAILGUN_PIC)
+    attachment = message.parts[1]
+
+    # When/Then
+    eq_('mailgun.png', attachment.detected_file_name)
+    eq_('png', attachment.detected_subtype)
+    eq_('image', attachment.detected_format)
+    ok_(not attachment.is_body())
+
+
+def bounce_test():
+    # When
+    message = create.from_string(BOUNCE)
+
+    # Then
+    ok_(message.is_bounce())
+    eq_('5.1.1', message.bounce.status)
+    eq_('smtp; 550-5.1.1 The email account that you tried to reach does '
+        'not exist. Please try 550-5.1.1 double-checking the recipient\'s email '
+        'address for typos or 550-5.1.1 unnecessary spaces. Learn more at '
+        '550 5.1.1 http://mail.google.com/support/bin/answer.py?answer=6596 '
+        '17si20661415yxe.22',
+        message.bounce.diagnostic_code)
 
 
 def torture_test():
     message = create.from_string(TORTURE)
     ok_(list(message.walk(with_self=True)))
     ok_(message.size)
-    message.parts[0].content_encoding
     message.parts[0].content_encoding = 'blablac'
+
 
 def text_only_test():
     message = create.from_string(TEXT_ONLY)
     eq_(u"Hello,\nI'm just testing message parsing\n\nBR,\nBob",
         message.body)
-    eq_(None, message.bounce)
+    ok_(not message.is_bounce())
     eq_(None, message.get_attached_message())
+
 
 def message_headers_test():
     message = create.from_python(email.message_from_string(ENCLOSED))

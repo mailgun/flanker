@@ -1,17 +1,21 @@
 # coding:utf-8
-import re
-from nose.tools import *
-from mock import *
-from flanker.mime.create import multipart, text
-from flanker.mime.message.scanner import scan
-from flanker.mime.message.errors import EncodingError, DecodingError
 from email import message_from_string
 from contextlib import closing
 from cStringIO import StringIO
-from flanker.mime.message.part import encode_transfer_encoding
 
-from ... import *
-from .scanner_test import TORTURE_PARTS, tree_to_string
+from nose.tools import eq_, ok_, assert_false, assert_raises, assert_less
+
+from flanker.mime.create import multipart, text
+from flanker.mime.message.scanner import scan
+from flanker.mime.message.errors import EncodingError, DecodingError
+from flanker.mime.message.part import encode_transfer_encoding
+from tests import (BILINGUAL, ENCLOSED, TORTURE, TORTURE_PART,
+                   ENCLOSED_BROKEN_ENCODING, EIGHT_BIT, QUOTED_PRINTABLE,
+                   TEXT_ONLY, ENCLOSED_BROKEN_BODY, RUSSIAN_ATTACH_YAHOO,
+                   MAILGUN_PIC, MAILGUN_PNG, MULTIPART, IPHONE,
+                   SPAM_BROKEN_CTYPE, BOUNCE, NDN, NO_CTYPE, RELATIVE,
+                   MULTI_RECEIVED_HEADERS)
+from tests.mime.message.scanner_test import TORTURE_PARTS, tree_to_string
 
 
 def readonly_immutability_test():
@@ -228,6 +232,29 @@ def ascii_to_unicode_test():
     eq_('base64', message.content_encoding.value)
     eq_('utf-8', message.content_type.get_charset())
     eq_(unicode_value, message.body)
+
+
+def correct_charset_test():
+    # Given
+    message = scan(TEXT_ONLY)
+    eq_('iso-8859-1', message.charset)
+
+    # When
+    message.charset = 'utf-8'
+
+    # Then
+    eq_('utf-8', message.charset)
+    eq_('utf-8', str(message.headers['Content-Type'].get_charset()))
+
+
+def set_message_id_test():
+    # Given
+    message = scan(MULTI_RECEIVED_HEADERS)
+
+    # When/Then
+    eq_({'AANLkTi=1ANR2FzeeQ-vK3-_ty0gUrOsAxMRYkob6CL-c@mail.gmail.com',
+         'AANLkTinUdYK2NpEiYCKGnCEp_OXKqst_bWNdBVHsfDVh@mail.gmail.com'},
+        set(message.references))
 
 
 def ascii_to_quoted_printable_test():

@@ -11,42 +11,42 @@ class MimeHeaders(object):
     """
 
     def __init__(self, items=()):
-        self.v = MultiDict(
-            [(normalize(key), val) for (key, val) in items])
+        self._v = MultiDict([(normalize(key), remove_newlines(val))
+                             for (key, val) in items])
         self.changed = False
 
     def __getitem__(self, key):
-        return self.v.get(normalize(key), None)
+        return self._v.get(normalize(key), None)
 
     def __len__(self):
-        return len(self.v)
+        return len(self._v)
 
     def __iter__(self):
-        return iter(self.v)
+        return iter(self._v)
 
     def __contains__(self, key):
-        return normalize(key) in self.v
+        return normalize(key) in self._v
 
     def __setitem__(self, key, value):
-        self.v[normalize(key)] = _remove_newlines(value)
+        self._v[normalize(key)] = remove_newlines(value)
         self.changed = True
 
     def __delitem__(self, key):
-        del self.v[normalize(key)]
+        del self._v[normalize(key)]
         self.changed = True
 
     def __nonzero__(self):
-        return len(self.v) > 0
+        return len(self._v) > 0
 
-    def prepend(self, key, val):
-        self.v._items.insert(0, (key, _remove_newlines(val)))
+    def prepend(self, key, value):
+        self._v._items.insert(0, (normalize(key), remove_newlines(value)))
         self.changed = True
 
     def add(self, key, value):
         """Adds header without changing the
         existing headers with same name"""
 
-        self.v.add(normalize(key), _remove_newlines(value))
+        self._v.add(normalize(key), remove_newlines(value))
         self.changed = True
 
     def keys(self):
@@ -55,7 +55,7 @@ class MimeHeaders(object):
         It remembers the order in which they were added, what
         is really important
         """
-        return self.v.keys()
+        return self._v.keys()
 
     def transform(self, fn):
         """Accepts a function, getting a key, val and returning
@@ -71,9 +71,9 @@ class MimeHeaders(object):
                 changed[0] = True
             return new_key, new_val
 
-        v = MultiDict(tracking_fn(key, val) for key, val in self.v.iteritems())
+        v = MultiDict(tracking_fn(key, val) for key, val in self._v.iteritems())
         if changed[0]:
-            self.v = v
+            self._v = v
             self.changed = True
 
     def items(self):
@@ -86,20 +86,20 @@ class MimeHeaders(object):
         """
         Returns iterator header,val pairs in the preserved order.
         """
-        return self.v.iteritems()
+        return self._v.iteritems()
 
     def get(self, key, default=None):
         """
         Returns header value (case-insensitive).
         """
-        return self.v.get(normalize(key), default)
+        return self._v.get(normalize(key), default)
 
     def getall(self, key):
         """
         Returns all header values by the given header name
         (case-insensitive)
         """
-        return self.v.getall(normalize(key))
+        return self._v.getall(normalize(key))
 
     def have_changed(self):
         """Tells whether someone has altered the headers
@@ -107,7 +107,7 @@ class MimeHeaders(object):
         return self.changed
 
     def __str__(self):
-        return str(self.v)
+        return str(self._v)
 
     @classmethod
     def from_stream(cls, stream):
@@ -119,7 +119,7 @@ class MimeHeaders(object):
         """Takes a stream and serializes headers
         in a mime format"""
 
-        for h, v in self.v.iteritems():
+        for h, v in self._v.iteritems():
             try:
                 h = h.encode('ascii')
             except UnicodeDecodeError:
@@ -127,7 +127,7 @@ class MimeHeaders(object):
             stream.write("{0}: {1}\r\n".format(h, to_mime(h, v)))
 
 
-def _remove_newlines(value):
+def remove_newlines(value):
     if not value:
         return ''
     elif isinstance(value, (str, unicode)):

@@ -6,9 +6,11 @@ from contextlib import closing
 from email import message_from_string
 
 from nose.tools import ok_, eq_, assert_false
+from flanker.mime.message import ContentType
 
 from flanker.mime.message.fallback import create
 from flanker.mime import recover
+from flanker.mime.message.scanner import scan
 from tests import (IPHONE, ENCLOSED, TORTURE, TEXT_ONLY, MAILFORMED_HEADERS,
                    SPAM_BROKEN_HEADERS, BILINGUAL, MULTI_RECEIVED_HEADERS,
                    MAILGUN_PIC, BOUNCE)
@@ -189,42 +191,99 @@ def text_only_test():
     eq_(None, message.get_attached_message())
 
 
-def message_headers_test():
-    message = create.from_python(email.message_from_string(ENCLOSED))
+def message_headers_equivalence_test():
+    """
+    FallbackMimePart headers match MimePart headers exactly for the same input.
+    """
+    # Given
+    message = scan(ENCLOSED)
+    fallback_message = create.from_string(ENCLOSED)
 
-    ok_(message.headers)
-    eq_(20, len(message.headers))
+    # When
+    eq_(message.headers.items(), fallback_message.headers.items())
 
-    # iterate a little bit
-    for key, val in message.headers:
-        ok_(key)
-        ok_(val)
 
-    for key, val in message.headers.items():
-        ok_(key)
-        ok_(val)
+def message_headers_mutation_test():
+    """
+    FallbackMimePart headers match MimePart headers exactly for the same input.
+    """
+    # Given
+    orig = create.from_string(ENCLOSED)
+    eq_('Wow', orig.headers['Subject'])
+    eq_(ContentType('multipart', 'mixed', {'boundary': u'===============6195527458677812340=='}),
+        orig.headers['Content-Type'])
 
-    for key, val in message.headers.iteritems():
-        ok_(key)
-        ok_(val)
+    # When
+    del orig.headers['Subject']
+    orig.headers['Content-Type'] = ContentType('text', 'foo')
+    orig.headers.prepend('foo-bar', 'hello')
+    orig.headers.add('blah', 'kitty')
+    restored = create.from_python(orig.to_python_message())
 
-    message.headers.prepend("Received", "Hi")
-    message.headers.add("Received", "Yo")
-    eq_(22, len(message.headers.keys()))
-    ok_(message.headers.get("Received"))
-    ok_(message.headers.getall("Received"))
-    eq_("a", message.headers.get("Received-No", "a"))
-    ok_(str(message.headers))
+    # Then
+    ok_('Subject' not in restored.headers)
+    eq_('', restored.subject)
+    eq_(ContentType('text', 'foo'), restored.headers['Content-Type'])
+
+
+def message_headers_append_test():
+    """
+    `prepend` and `add` add a header to the beginning and the end of the header
+    list respectively.
+    """
+    # Given
+    orig = create.from_string(ENCLOSED)
+
+    # When
+    orig.headers.prepend('foo-bar', 'hello')
+    orig.headers.add('blah', 'kitty')
+    restored = create.from_python(orig.to_python_message())
+
+    # Then
+    eq_(('Foo-Bar', 'hello'), restored.headers.items()[0])
+    eq_(('Blah', 'kitty'), restored.headers.items()[-1])
+
+
+def message_headers_transform_test():
+    """
+    Header transformation is reflected in the underlying Python standard
+    library email object.
+    """
+    # Given
+    orig = create.from_string(ENCLOSED)
+
+    # When
+    orig.headers.transform(lambda k, v: ('X-{}'.format(k), v[:1]))
+    restored = create.from_python(orig.to_python_message())
+
+    # Then
+    eq_([('X-Delivered-To', 'b'),
+         ('X-Received', 'b'),
+         ('X-Received', 'b'),
+         ('X-Return-Path', '<'),
+         ('X-Received', 'f'),
+         ('X-Received-Spf', 'p'),
+         ('X-Authentication-Results', 'm'),
+         ('X-Dkim-Signature', 'a'),
+         ('X-Domainkey-Signature', 'a'),
+         ('X-Content-Type', ('multipart/mixed',)),
+         ('X-Mime-Version', '1'),
+         ('X-Received', 'b'),
+         ('X-Received', 'f'),
+         ('X-Message-Id', '<'),
+         ('X-Date', 'S'),
+         ('X-From', 'B'),
+         ('X-User-Agent', 'M'),
+         ('X-To', u'"'),
+         ('X-Subject', 'W'),
+         ('X-X-Example-Sid', 'W')],
+        restored.headers.items())
 
 
 def bilingual_test():
     message = create.from_string(BILINGUAL)
     eq_(u"Simple text. How are you? Как ты поживаешь?",
         message.headers['Subject'])
-
-    for key, val in message.headers:
-        if key == 'Subject':
-            eq_(u"Simple text. How are you? Как ты поживаешь?", val)
 
     message.headers['Subject'] = u"Да все ок!"
     eq_(u"Да все ок!", message.headers['Subject'])

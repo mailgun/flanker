@@ -123,6 +123,10 @@ class ContentType(tuple):
     def __ne__(self, other):
         return not self.__eq__(other)
 
+    def __repr__(self):
+        return "ContentType('{}', '{}', {!r})".format(self.main, self.sub,
+                                                      self.params)
+
 
 class MessageId(str):
 

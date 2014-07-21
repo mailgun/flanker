@@ -178,7 +178,7 @@ class Part(object):
         return True
 
 
-class ReachPartMixin(object):
+class RichPartMixin(object):
 
     def __init__(self, is_root=False):
         self._is_root = is_root
@@ -359,10 +359,10 @@ class ReachPartMixin(object):
         return "({0})".format(self.content_type)
 
 
-class MimePart(ReachPartMixin):
+class MimePart(RichPartMixin):
 
     def __init__(self, container, parts=None, enclosed=None, is_root=False):
-        ReachPartMixin.__init__(self, is_root)
+        RichPartMixin.__init__(self, is_root)
         self._container = container
         self.parts = parts or []
         self.enclosed = enclosed

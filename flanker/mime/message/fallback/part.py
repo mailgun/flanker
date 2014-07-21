@@ -1,18 +1,20 @@
 import logging
 import email
-from flanker.mime.message.part import ReachPartMixin
+from flanker.mime.message.headers.headers import remove_newlines
+from flanker.mime.message.part import RichPartMixin
 from flanker.mime.message.scanner import ContentType
 from flanker.mime.message import utils, charsets, headers
-from flanker.mime.message.headers import parametrized
+from flanker.mime.message.headers import parametrized, MimeHeaders, normalize
 
 log = logging.getLogger(__name__)
 
 
-class FallbackMimePart(ReachPartMixin):
+class FallbackMimePart(RichPartMixin):
 
-    def __init__(self, python_message):
-        ReachPartMixin.__init__(self, is_root=False)
-        self._m = python_message
+    def __init__(self, message):
+        RichPartMixin.__init__(self, is_root=False)
+        self._m = message
+        self._headers = FallbackHeaders(message)
 
     @property
     def size(self):
@@ -23,7 +25,7 @@ class FallbackMimePart(ReachPartMixin):
 
     @property
     def headers(self):
-        return FallbackHeaders(self._m)
+        return self._headers
 
     @property
     def content_type(self):
@@ -104,8 +106,36 @@ class FallbackMimePart(ReachPartMixin):
         pass  # FIXME Not implemented
 
 
+class FallbackHeaders(MimeHeaders):
 
-def try_decode(key, value):
+    def __init__(self, message):
+        MimeHeaders.__init__(self, [(k, _try_decode(k, v))
+                                    for k, v in message.items()])
+        self._m = message
+
+    def __setitem__(self, key, value):
+        MimeHeaders.__setitem__(self, key, value)
+        del self._m[key]
+        self._m[key] = remove_newlines(value)
+
+    def __delitem__(self, key):
+        MimeHeaders.__delitem__(self, key)
+        del self._m[key]
+
+    def prepend(self, key, value):
+        MimeHeaders.prepend(self, key, value)
+        self._m._headers.insert(0, (normalize(key), remove_newlines(value)))
+
+    def add(self, key, value):
+        MimeHeaders.add(self, key, value)
+        self._m[key] = headers.to_mime(normalize(key), remove_newlines(value))
+
+    def transform(self, func):
+        MimeHeaders.transform(self, func)
+        self._m._headers = self.items()
+
+
+def _try_decode(key, value):
     if isinstance(value, (tuple, list)):
         return value
     elif isinstance(value, str):
@@ -119,57 +149,3 @@ def try_decode(key, value):
         return ""
 
 
-class FallbackHeaders(object):
-
-    def __init__(self, message):
-        self.m = message
-
-    def __getitem__(self, key):
-        return try_decode(key, self.m.get(key))
-
-    def __len__(self):
-        return len(self.m._headers)
-
-    def __contains__(self, key):
-        return key in self.m
-
-    def __setitem__(self, key, value):
-        if key in self.m:
-            del self.m[key]
-        self.m[key] = headers.to_mime(key, value)
-
-    def __delitem__(self, key):
-        del self.m[key]
-
-    def __nonzero__(self):
-        return len(self.m) > 0
-
-    def __iter__(self):
-        for key, val in self.iteritems():
-            yield (key, val)
-
-    def prepend(self, key, val):
-        self.m._headers.insert(0, (key, val))
-
-    def add(self, key, value):
-        self.m[key] = headers.to_mime(key, value)
-
-    def keys(self):
-        return self.m.keys()
-
-    def items(self):
-        return [(key, val) for (key, val) in self.iteritems()]
-
-    def iteritems(self):
-        for key, val in self.m.items():
-            yield (key, try_decode(key, val))
-
-    def get(self, key, default=None):
-        val = try_decode(key, self.m.get(key, default))
-        return val if val is not None else default
-
-    def getall(self, key):
-        return [try_decode(key, v) for v in self.m.get_all(key, [])]
-
-    def __str__(self):
-        return str(self.m._headers)

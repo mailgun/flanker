@@ -1,6 +1,7 @@
 import regex as re
 from collections import deque
 from cStringIO import StringIO
+import sys
 from flanker.mime.message.headers import parsing, is_empty, ContentType
 from flanker.mime.message.part import MimePart, Stream
 from flanker.mime.message.errors import DecodingError
@@ -20,13 +21,11 @@ def scan(string):
     if not tokens:
         tokens = [default_content_type()]
     try:
-        return traverse(
-            Start(), TokensIterator(tokens, string))
+        return traverse(Start(), TokensIterator(tokens, string))
     except DecodingError:
         raise
     except Exception:
-        raise DecodingError(
-            "Mailformed MIME message")
+        raise DecodingError("Malformed MIME message"), None, sys.exc_info()[2]
 
 
 def traverse(pointer, iterator, parent=None):
@@ -82,7 +81,7 @@ def traverse(pointer, iterator, parent=None):
         token = iterator.next()
 
         # we are expecting first boundary for multipart message
-        # something is broken otherwize
+        # something is broken otherwise
         if not token.is_boundary() or token != boundary:
             raise DecodingError(
                 "Multipart message without starting boundary")
@@ -94,8 +93,7 @@ def traverse(pointer, iterator, parent=None):
             if token == boundary and token.is_final():
                 iterator.next()
                 break
-            parts.append(
-                    traverse(token, iterator, content_type))
+            parts.append(traverse(token, iterator, content_type))
 
         return make_part(
             content_type=content_type,
@@ -117,8 +115,7 @@ def traverse(pointer, iterator, parent=None):
                 if not end.is_content_type():
                     break
         else:
-            raise DecodingError(
-                "Mailformed delivery status message")
+            raise DecodingError("Malformed delivery status message")
 
         return make_part(
             content_type=token,
@@ -184,12 +181,12 @@ def default_content_type():
     return ContentType("text", "plain", {'charset': 'ascii'})
 
 
-def make_part(content_type, start, end, iterator,
-        parts=[], enclosed=None, parent=None):
+def make_part(content_type, start, end, iterator, parts=[], enclosed=None,
+              parent=None):
 
     # here we detect where the message really starts
     # the exact position in the string, at the end of the
-    # starting boundary and after the begining of the end boundary
+    # starting boundary and after the beginning of the end boundary
     if start.is_boundary():
         start = start.end + 1
     else:
@@ -203,14 +200,14 @@ def make_part(content_type, start, end, iterator,
     # consider the final boundary as the ending one
     elif content_type.is_multipart():
         end = end.end
-    # otherwize, end is position of the the symbol before
+    # otherwise, end is position of the the symbol before
     # the boundary start
     else:
         end = end.start - 1
 
-    # our tokenizer detected the begining of the message container
+    # our tokenizer detected the beginning of the message container
     # that is separated from the enclosed message by newlines
-    # here we find where the enclosed message begings by searching for the
+    # here we find where the enclosed message begins by searching for the
     # first newline
     if parent and (parent.is_message_container() or parent.is_headers_container()):
         start = locate_first_newline(iterator.stream, start)
@@ -250,12 +247,12 @@ class TokensIterator(object):
     def next(self):
         self.position += 1
         if self.position >= len(self.tokens):
-            return END
+            return _END
         return self.tokens[self.position]
 
     def current(self):
         if self.position >= len(self.tokens):
-            return END
+            return _END
         return self.tokens[self.position]
 
     def back(self):
@@ -267,10 +264,11 @@ class TokensIterator(object):
         and will raise an exception if things go wrong (too much ops)
         """
         self.opcount += 1
-        if self.opcount > MAX_OPS:
+        if self.opcount > _MAX_OPS:
             raise DecodingError(
                 "Too many parts: {0}, max is {1}".format(
-                    self.opcount, MAX_OPS))
+                    self.opcount, _MAX_OPS))
+
 
 class Boundary(object):
     def __init__(self, value, start, end, final=None):
@@ -283,8 +281,11 @@ class Boundary(object):
         return self.final
 
     def __str__(self):
-        return "Boundary({0}, final={1})".format(
-            self.value, self.final)
+        return "Boundary({}, final={})".format(self.value, self.final)
+
+    def __repr__(self):
+        return ("Boundary('{}', {}, {}, final={})"
+                .format(self.value, self.start, self.end, self.final))
 
     def __ne__(self, other):
         return not self.__eq__(other)
@@ -340,52 +341,73 @@ class Start(object):
         return False
 
 
-pattern = re.compile(
-    r"""(?P<ctype>
-             ^content-type:
+_RE_TOKENIZER = re.compile(
+    r"""
+    (?P<ctype>
+        # Note that a content type match corresponds to a Content-Type header
+        # only when it is located between a boundary and an empty line.
+        ^content-type:
 
-               # field value, consists of printable
-               # US-ASCII chars, space and tab
-               [\x21-\x7e\ \t]+
+        # The field value consists of printable US-ASCII chars, spaces and tabs.
+        [\x21-\x7e\ \t]+
 
-              # optional field folded part
-              # newline followed by one or more spaces
-              # and field value symbols (can not be empty)
-              (?:(?:\r\n|\n)[ \t]+[\x20-\x7e \t]+)*
-          ) |
-         (?P<boundary>
-             # this may be a boundary and may be not
-             # we just pre-scan it for future consideration
-             ^--.*
-          )""",
+        # The optional field folded part starts from a newline followed by one
+        # or more spaces and field value symbols (can not be empty).
+        (?:(?:\r\n|\n)[ \t]+[\x20-\x7e \t]+)*
+    )
+    |
+    (?P<boundary>
+        # This may be a boundary and may be not we just pre-scan it for future
+        # consideration.
+        ^--.*
+    )
+    |
+    (?P<empty>
+        # This may be a separator that divides message/part headers section
+        # and its body.
+        ^(\r\n|\n)
+    )
+    """,
     re.IGNORECASE | re.MULTILINE | re.VERBOSE)
 
 
-CTYPE = 'ctype'
-BOUNDARY = 'boundary'
-END = End()
-MAX_OPS = 500
+_CTYPE = 'ctype'
+_BOUNDARY = 'boundary'
+_END = End()
+_MAX_OPS = 500
+
+
+_SECTION_HEADERS = 'headers'
+_SECTION_MULTIPART_PREAMBLE = 'multipart-preamble'
+_SECTION_MULTIPART_EPILOGUE = 'multipart-epilogue'
+_SECTION_BODY = 'body'
+
+_DEFAULT_CONTENT_TYPE = ContentType('text', 'plain', {'charset': 'us-ascii'})
+_EMPTY_LINE = '\r\n'
 
 
 def tokenize(string):
-    """ This function scans the entire message with a simple regex to find
-    all Content-Types and boundaries.
+    """
+    Scans the entire message to find all Content-Types and boundaries.
     """
     tokens = deque()
-    for m in pattern.finditer(string):
-        if m.group(CTYPE):
-            name, token = parsing.parse_header(m.group(CTYPE))
+    for m in _RE_TOKENIZER.finditer(string):
+        if m.group(_CTYPE):
+            name, token = parsing.parse_header(m.group(_CTYPE))
+        elif m.group(_BOUNDARY):
+            token = Boundary(m.group(_BOUNDARY).strip("\t\r\n"),
+                             _grab_newline(m.start(), string, -1),
+                             _grab_newline(m.end(), string, 1))
         else:
-            token = Boundary(
-                m.group(BOUNDARY).strip("\t\r\n"),
-                grab_newline(m.start(), string, -1),
-                grab_newline(m.end(), string, 1))
+            token = _EMPTY_LINE
+
         tokens.append(token)
-    return setup_boundaries(tokens)
+    return _filter_false_tokens(tokens)
 
 
-def grab_newline(position, string, direction):
-    """Boundary can be preceeded by \r\n or \n and can end with \r\n or \n
+def _grab_newline(position, string, direction):
+    """
+    Boundary can be preceded by `\r\n` or `\n` and can end with `\r\n` or `\n`
     this function scans the line to locate these cases.
     """
     while 0 < position < len(string):
@@ -398,45 +420,77 @@ def grab_newline(position, string, direction):
     return position
 
 
-def setup_boundaries(tokens):
-    """ We need to reliably determine whether given line is a boundary
-    or just pretends to be one. We get all the multipart content-types
-    that declare the boundaries and check each boundary against them
-    to verify. Additional complexity is that boundary can consist
-    of dashes only
+def _filter_false_tokens(tokens):
     """
-    boundaries = [t.get_boundary() for t in tokens \
-                      if t.is_content_type() and t.get_boundary()]
+    Traverses a list of pre-scanned tokens and removes false content-type
+    and boundary tokens.
 
-    def strip_endings(value):
-        if value.endswith("--"):
-            return value[:-2]
-        else:
-            return value
+    A content-type header is false unless it it the first content-type header
+    in a message/part headers section.
 
-    def setup(token):
-        if token.is_content_type():
-            return True
+    A boundary token is false if it has not been mentioned in a preceding
+    content-type header.
+    """
+    current_section = _SECTION_HEADERS
+    current_content_type = None
+    filtered = []
+    boundaries = []
+    for token in tokens:
+        if isinstance(token, ContentType):
+            # Only the first content-type header in a headers section is valid.
+            if current_content_type or current_section != _SECTION_HEADERS:
+                continue
+    
+            current_content_type = token
+            boundaries.append(token.get_boundary())
 
-        elif token.is_boundary():
+        elif isinstance(token, Boundary):
             value = token.value[2:]
 
             if value in boundaries:
                 token.value = value
                 token.final = False
-                return True
+                current_section = _SECTION_HEADERS
+                current_content_type = None
 
-            if strip_endings(value) in boundaries:
-                token.value = strip_endings(value)
+            elif _strip_endings(value) in boundaries:
+                token.value = _strip_endings(value)
                 token.final = True
-                return True
+                current_section = _SECTION_MULTIPART_EPILOGUE
 
-            # false boundary
-            return False
+            else:
+                # False boundary detected!
+                continue
 
+        elif token == _EMPTY_LINE:
+            if current_section == _SECTION_HEADERS:
+                if not current_content_type:
+                    current_content_type = _DEFAULT_CONTENT_TYPE
+
+                if current_content_type.is_singlepart():
+                    current_section = _SECTION_BODY
+                elif current_content_type.is_multipart():
+                    current_section = _SECTION_MULTIPART_PREAMBLE
+                else:
+                    # Start of an enclosed message or just its headers.
+                    current_section = _SECTION_HEADERS
+                    current_content_type = None
+
+            # Cast away empty line tokens, for they have been pre-scanned just
+            # to identify a place where a header section completes and a body
+            # section starts.
+            continue
+        
         else:
             raise DecodingError("Unknown token")
 
-        return token.is_content_type() or \
-            (token.is_boundary() and token in boundaries)
-    return [t for t in tokens if setup(t)]
+        filtered.append(token)
+
+    return filtered
+
+
+def _strip_endings(value):
+    if value.endswith("--"):
+        return value[:-2]
+    else:
+        return value

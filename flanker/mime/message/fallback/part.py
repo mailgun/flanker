@@ -1,7 +1,7 @@
 import logging
 import email
 from flanker.mime.message.headers.headers import remove_newlines
-from flanker.mime.message.part import ReachPartMixin
+from flanker.mime.message.part import RichPartMixin
 from flanker.mime.message.scanner import ContentType
 from flanker.mime.message import utils, charsets, headers
 from flanker.mime.message.headers import parametrized, MimeHeaders, normalize
@@ -9,10 +9,10 @@ from flanker.mime.message.headers import parametrized, MimeHeaders, normalize
 log = logging.getLogger(__name__)
 
 
-class FallbackMimePart(ReachPartMixin):
+class FallbackMimePart(RichPartMixin):
 
     def __init__(self, message):
-        ReachPartMixin.__init__(self, is_root=False)
+        RichPartMixin.__init__(self, is_root=False)
         self._m = message
         self._headers = FallbackHeaders(message)
 

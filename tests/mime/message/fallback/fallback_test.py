@@ -9,11 +9,10 @@ from nose.tools import ok_, eq_, assert_false
 from flanker.mime.message import ContentType
 
 from flanker.mime.message.fallback import create
-from flanker.mime import recover
 from flanker.mime.message.scanner import scan
 from tests import (IPHONE, ENCLOSED, TORTURE, TEXT_ONLY, MAILFORMED_HEADERS,
                    SPAM_BROKEN_HEADERS, BILINGUAL, MULTI_RECEIVED_HEADERS,
-                   MAILGUN_PIC, BOUNCE)
+                   MAILGUN_PIC, BOUNCE, ATTACHED_PDF)
 
 
 def bad_string_test():
@@ -310,7 +309,7 @@ def broken_headers_test_2():
 
 
 def test_walk():
-    message = recover(ENCLOSED)
+    message = create.from_string(ENCLOSED)
     expected = [
         'multipart/mixed',
         'text/plain',
@@ -323,3 +322,24 @@ def test_walk():
     eq_(expected, [str(p.content_type) for p in message.walk(with_self=True)])
     eq_(['text/plain', 'message/rfc822'],
         [str(p.content_type) for p in message.walk(skip_enclosed=True)])
+
+
+def test_binary_attachment():
+    """
+    A text part body is returned as a unicode string, but any other part type
+    body is returned as a binary string.
+    """
+    # Given
+    message = create.from_string(ATTACHED_PDF)
+
+    # When
+    parts = [p for p in message.walk(with_self=True)]
+
+    # Then
+    def part_spec(p):
+        return str(p.content_type), str(type(p.body))
+
+    eq_(('multipart/mixed', "<type 'NoneType'>"), part_spec(parts[0]))
+    eq_(('multipart/alternative', "<type 'NoneType'>"), part_spec(parts[1]))
+    eq_(('text/plain', "<type 'unicode'>"), part_spec(parts[2]))
+    eq_(('application/pdf', "<type 'str'>"), part_spec(parts[3]))

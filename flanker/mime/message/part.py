@@ -534,8 +534,7 @@ class MimePart(RichPartMixin):
 def decode_body(content_type, content_encoding, body):
     # decode the transfer encoding
     try:
-        body = decode_transfer_encoding(
-                    content_encoding, body)
+        body = decode_transfer_encoding(content_encoding, body)
     except Exception:
         raise DecodingError("Failed to decode body")
 

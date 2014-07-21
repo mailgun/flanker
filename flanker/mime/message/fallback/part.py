@@ -1,5 +1,6 @@
 import logging
 import email
+from flanker.mime.message.charsets import convert_to_unicode
 from flanker.mime.message.headers.headers import remove_newlines
 from flanker.mime.message.part import RichPartMixin
 from flanker.mime.message.scanner import ContentType
@@ -15,6 +16,7 @@ class FallbackMimePart(RichPartMixin):
         RichPartMixin.__init__(self, is_root=False)
         self._m = message
         self._headers = FallbackHeaders(message)
+        self._body = None
 
     @property
     def size(self):
@@ -51,17 +53,24 @@ class FallbackMimePart(RichPartMixin):
 
     @property
     def body(self):
+        if self._body:
+            return self._body
+
         if self.content_type.is_delivery_status():
-            body = self._m.get_payload(decode=True)
-            if body:
-                return body
-            return "\r\n".join(str(p) for p in self._m.get_payload())
-        if not self._m.is_multipart():
-            return charsets.convert_to_unicode(
-                self.charset, self._m.get_payload(decode=True))
+            self._body = self._m.get_payload(decode=True)
+            if self._body is None:
+                self._body = "\r\n".join(str(p) for p in self._m.get_payload())
+
+        elif not self._m.is_multipart():
+            self._body = self._m.get_payload(decode=True)
+            if self._m.get_content_maintype() == 'text':
+                self._body = convert_to_unicode(self.charset, self._body)
+
+        return self._body
 
     @body.setter
     def body(self, value):
+        self._body = None
         if not self._m.is_multipart():
             self._m.set_payload(value.encode('utf-8'), 'utf-8')
 

@@ -1,5 +1,5 @@
 # coding:utf-8
-'''
+"""
 Spelling corrector library, used to correct common typos in domains like
 gmal.com instead of gmail.com.
 
@@ -12,16 +12,16 @@ a domain, suggests an alternative or returns the original domain
 if no suggestion exists.
 
 [1] http://xlinux.nist.gov/dads/HTML/ratcliffObershelp.html
-'''
+"""
 
 import difflib
 
 
 def suggest(word, cutoff=0.77):
-    '''
+    """
     Given a domain and a cutoff heuristic, suggest an alternative or return the
     original domain if no suggestion exists.
-    '''
+    """
     if word in LOOKUP_TABLE:
         return LOOKUP_TABLE[word]
 

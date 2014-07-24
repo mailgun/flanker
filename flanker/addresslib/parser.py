@@ -1,6 +1,6 @@
 # coding:utf-8
 
-'''
+"""
 _AddressParser is an implementation of a recursive descent parser for email
 addresses and urls. While _AddressParser can be used directly it is not
 recommended, use the the parse() and parse_list() methods which are provided
@@ -54,7 +54,7 @@ Additional limitations on email addresses:
        is 64 + 1 + 253 = 318 characters. Allow 194 characters for a display
        name and the (very generous) limit becomes 512 characters. Allow 1024
        mailboxes and the total limit on a mailbox-list is 524288 characters.
-'''
+"""
 
 import re
 import flanker.addresslib.address
@@ -86,24 +86,24 @@ from flanker.utils import to_utf8
 
 
 class _AddressParser(object):
-    '''
+    """
     Do not use _AddressParser directly because it heavily relies on other
     private classes and methods and it's interface is not guarenteed, it
     will change in the future and possibly break your application.
 
     Instead use the parse() and parse_list() functions in the address.py
     module which will always return a scalar or iterable respectively.
-    '''
+    """
 
     def __init__(self, strict=False):
         self.stream = None
         self.strict = strict
 
     def address_list(self, stream):
-        '''
+        """
         Extract a mailbox and/or url list from a stream of input, operates in
         strict and relaxed modes.
-        '''
+        """
         # sanity check
         if not stream:
             raise ParserException('No input provided to parser.')
@@ -123,10 +123,10 @@ class _AddressParser(object):
         return self._address_list_relaxed()
 
     def address(self, stream):
-        '''
+        """
         Extract a single address or url from a stream of input, always
         operates in strict mode.
-        '''
+        """
         # sanity check
         if not stream:
             raise ParserException('No input provided to parser.')
@@ -152,10 +152,10 @@ class _AddressParser(object):
         return None
 
     def address_spec(self, stream):
-        '''
+        """
         Extract a single address spec from a stream of input, always
         operates in strict mode.
-        '''
+        """
         # sanity check
         if stream is None:
             raise ParserException('No input provided to parser.')
@@ -182,7 +182,9 @@ class _AddressParser(object):
 
 
     def _mailbox_post_processing_checks(self, address):
-        "Additional post processing checks to ensure mailbox is valid."
+        """
+        Additional post processing checks to ensure mailbox is valid.
+        """
         parts = address.split('@')
 
         # check if local part is less than 1024 octets, the actual
@@ -211,7 +213,9 @@ class _AddressParser(object):
         return True
 
     def _address_list_relaxed(self):
-        "Grammar: address-list-relaxed -> address { delimiter address }"
+        """
+        Grammar: address-list-relaxed -> address { delimiter address }
+        """
         #addrs = []
         addrs = flanker.addresslib.address.AddressList()
         unparsable = []
@@ -282,7 +286,9 @@ class _AddressParser(object):
         return addrs, unparsable
 
     def _address_list_strict(self):
-        "Grammar: address-list-strict -> address { delimiter address }"
+        """
+        Grammar: address-list-strict -> address { delimiter address }
+        """
         #addrs = []
         addrs = flanker.addresslib.address.AddressList()
 
@@ -308,7 +314,9 @@ class _AddressParser(object):
         return addrs
 
     def _address(self):
-        "Grammar: address -> name-addr-rfc | name-addr-lax | addr-spec | url"
+        """
+        Grammar: address -> name-addr-rfc | name-addr-lax | addr-spec | url
+        """
         start_pos = self.stream.position
 
         addr = self._name_addr_rfc() or self._name_addr_lax() or \
@@ -324,14 +332,18 @@ class _AddressParser(object):
         return addr
 
     def _url(self):
-        "Grammar: url -> url"
+        """
+        Grammar: url -> url
+        """
         earl = self.stream.get_token(URL)
         if earl is None:
             return None
         return flanker.addresslib.address.UrlAddress(to_utf8(earl))
 
     def _name_addr_rfc(self):
-        "Grammar: name-addr-rfc -> [ display-name-rfc ] angle-addr-rfc"
+        """
+        Grammar: name-addr-rfc -> [ display-name-rfc ] angle-addr-rfc
+        """
         start_pos = self.stream.position
 
         # optional displayname
@@ -348,7 +360,9 @@ class _AddressParser(object):
         return flanker.addresslib.address.EmailAddress(None, aaddr)
 
     def _display_name_rfc(self):
-        "Grammar: display-name-rfc -> [ whitespace ] word { whitespace word }"
+        """
+        Grammar: display-name-rfc -> [ whitespace ] word { whitespace word }
+        """
         wrds = []
 
         # optional whitespace
@@ -376,9 +390,9 @@ class _AddressParser(object):
         return cleanup_display_name(''.join(wrds))
 
     def _angle_addr_rfc(self):
-        '''
-        Grammar: angle-addr-rfc -> [ whitespace ] < addr-spec > [ whitespace ]"
-        '''
+        """
+        Grammar: angle-addr-rfc -> [ whitespace ] < addr-spec > [ whitespace ]
+        """
         start_pos = self.stream.position
 
         # optional whitespace
@@ -411,7 +425,9 @@ class _AddressParser(object):
         return aspec
 
     def _name_addr_lax(self):
-        "Grammar: name-addr-lax -> [ display-name-lax ] angle-addr-lax"
+        """
+        Grammar: name-addr-lax -> [ display-name-lax ] angle-addr-lax
+        """
         start_pos = self.stream.position
 
         # optional displayname
@@ -428,10 +444,10 @@ class _AddressParser(object):
         return flanker.addresslib.address.EmailAddress(None, aaddr)
 
     def _display_name_lax(self):
-        '''
+        """
         Grammar: display-name-lax ->
-            [ whitespace ] word { whitespace word } whitespace"
-        '''
+            [ whitespace ] word { whitespace word } whitespace
+        """
 
         start_pos = self.stream.position
         wrds = []
@@ -482,7 +498,9 @@ class _AddressParser(object):
         return cleanup_display_name(''.join(wrds))
 
     def _angle_addr_lax(self):
-        "Grammar: angle-addr-lax -> addr-spec [ whitespace ]"
+        """
+        Grammar: angle-addr-lax -> addr-spec [ whitespace ]
+        """
         start_pos = self.stream.position
 
         # addr-spec
@@ -498,9 +516,9 @@ class _AddressParser(object):
         return aspec
 
     def _addr_spec(self, as_string=False):
-        '''
+        """
         Grammar: addr-spec -> [ whitespace ] local-part @ domain [ whitespace ]
-        '''
+        """
         start_pos = self.stream.position
 
         # optional whitespace
@@ -533,16 +551,22 @@ class _AddressParser(object):
         return flanker.addresslib.address.EmailAddress(None, aspec)
 
     def _local_part(self):
-        "Grammar: local-part -> dot-atom | quoted-string"
+        """
+        Grammar: local-part -> dot-atom | quoted-string
+        """
         return self.stream.get_token(DOT_ATOM) or \
             self.stream.get_token(QSTRING)
 
     def _domain(self):
-        "Grammar: domain -> dot-atom"
+        """
+        Grammar: domain -> dot-atom
+        """
         return self.stream.get_token(DOT_ATOM)
 
     def _word(self):
-        "Grammar: word -> word-ascii | word-unicode"
+        """
+        Grammar: word -> word-ascii | word-unicode
+        """
         start_pos = self.stream.position
 
         # ascii word
@@ -557,7 +581,9 @@ class _AddressParser(object):
         return self._word_unicode()
 
     def _word_ascii(self):
-        "Grammar: word-ascii -> atom | qstring"
+        """
+        Grammar: word-ascii -> atom | qstring
+        """
         wrd = self.stream.get_token(RELAX_ATOM) or self.stream.get_token(QSTRING)
         if wrd and not contains_control_chars(wrd):
             return wrd
@@ -565,7 +591,9 @@ class _AddressParser(object):
         return None
 
     def _word_unicode(self):
-        "Grammar: word-unicode -> unicode-atom | unicode-qstring"
+        """
+        Grammar: word-unicode -> unicode-atom | unicode-qstring
+        """
         start_pos = self.stream.position
 
         # unicode atom
@@ -584,15 +612,21 @@ class _AddressParser(object):
 
 
     def _whitespace(self):
-        "Grammar: whitespace -> whitespace-ascii | whitespace-unicode"
+        """
+        Grammar: whitespace -> whitespace-ascii | whitespace-unicode
+        """
         return self._whitespace_ascii() or self._whitespace_unicode()
 
     def _whitespace_ascii(self):
-        "Grammar: whitespace-ascii -> whitespace-ascii"
+        """
+        Grammar: whitespace-ascii -> whitespace-ascii
+        """
         return self.stream.get_token(WHITESPACE)
 
     def _whitespace_unicode(self):
-        "Grammar: whitespace-unicode -> whitespace-unicode"
+        """
+        Grammar: whitespace-unicode -> whitespace-unicode
+        """
         uwhite = self.stream.get_token(UNI_WHITE)
         if uwhite and not is_pure_ascii(uwhite):
             return uwhite
@@ -600,9 +634,9 @@ class _AddressParser(object):
 
 
 class ParserException(Exception):
-    '''
+    """
     Exception raised when the parser encounters some parsing exception.
-    '''
+    """
     def __init__(self, reason='Unknown parser error.'):
         self.reason = reason
 

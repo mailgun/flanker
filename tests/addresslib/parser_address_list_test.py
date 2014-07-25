@@ -53,17 +53,17 @@ def test_simple_valid():
     assert_equal(addrs[0].full_spec(), 'http://foo.com:8080')
 
     assert_equal(addrs[1].addr_type, 'email')
-    assert_equal(addrs[1].display_name, '"Ev K."')
+    assert_equal(addrs[1].display_name, 'Ev K.')
     assert_equal(addrs[1].address, 'ev@host.com')
     assert_equal(addrs[1].full_spec(), '"Ev K." <ev@host.com>')
 
     assert_equal(addrs[2].addr_type, 'email')
-    assert_equal(addrs[2].display_name, '"Alex K"')
+    assert_equal(addrs[2].display_name, 'Alex K')
     assert_equal(addrs[2].address, 'alex@yahoo.net')
-    assert_equal(addrs[2].full_spec(), '"Alex K" <alex@yahoo.net>')
+    assert_equal(addrs[2].full_spec(), 'Alex K <alex@yahoo.net>')
 
     assert_equal(addrs[3].addr_type, 'email')
-    assert_equal(addrs[3].display_name, '"Tom, S"')
+    assert_equal(addrs[3].display_name, 'Tom, S')
     assert_equal(addrs[3].address, '"tom+[a]"@s.com')
     assert_equal(addrs[3].full_spec(), '"Tom, S" <"tom+[a]"@s.com>')
 
@@ -74,14 +74,14 @@ def test_simple_valid():
     assert_equal(2, len(addrs))
 
     assert_equal(addrs[0].addr_type, 'email')
-    assert_equal(addrs[0].display_name, '"Allan G\'o"')
+    assert_equal(addrs[0].display_name, 'Allan G\'o')
     assert_equal(addrs[0].address, 'allan@example.com')
-    assert_equal(addrs[0].full_spec(), '"Allan G\'o" <allan@example.com>')
+    assert_equal(addrs[0].full_spec(), 'Allan G\'o <allan@example.com>')
 
     assert_equal(addrs[1].addr_type, 'email')
-    assert_equal(addrs[1].display_name, '"Os Wi"')
+    assert_equal(addrs[1].display_name, 'Os Wi')
     assert_equal(addrs[1].address, 'oswi@example.com')
-    assert_equal(addrs[1].full_spec(), '"Os Wi" <oswi@example.com>')
+    assert_equal(addrs[1].full_spec(), 'Os Wi <oswi@example.com>')
 
 
     s = u'''I am also A <a@HOST.com>, Zeka <EV@host.coM> ;Gonzalo Bañuelos<gonz@host.com>'''
@@ -111,18 +111,18 @@ def test_simple_valid():
     assert_equal(3, len(addrs))
 
     assert_equal(addrs[0].addr_type, 'email')
-    assert_equal(addrs[0].display_name, '"Escaped"')
+    assert_equal(addrs[0].display_name, 'Escaped')
     assert_equal(addrs[0].address, '"\e\s\c\\a\p\e\d"@sld.com')
-    assert_equal(addrs[0].full_spec(), '"Escaped" <"\e\s\c\\a\p\e\d"@sld.com>')
+    assert_equal(addrs[0].full_spec(), 'Escaped <"\e\s\c\\a\p\e\d"@sld.com>')
 
     assert_equal(addrs[1].addr_type, 'url')
     assert_equal(addrs[1].address, 'http://userid:password@example.com:8080')
     assert_equal(addrs[1].full_spec(), 'http://userid:password@example.com:8080')
 
     assert_equal(addrs[2].addr_type, 'email')
-    assert_equal(addrs[2].display_name, '"Dmitry"')
+    assert_equal(addrs[2].display_name, 'Dmitry')
     assert_equal(addrs[2].address, 'my|\'`!#_~%$&{}?^+-*@host.com')
-    assert_equal(addrs[2].full_spec(), '"Dmitry" <my|\'`!#_~%$&{}?^+-*@host.com>')
+    assert_equal(addrs[2].full_spec(), 'Dmitry <my|\'`!#_~%$&{}?^+-*@host.com>')
 
 
     s = "http://foo.com/blah_blah_(wikipedia)"

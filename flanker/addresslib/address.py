@@ -36,6 +36,7 @@ See the parser.py module for implementation details of the parser.
 
 import time
 import flanker.addresslib.parser
+from flanker.addresslib.quote import smart_unquote, smart_quote
 import flanker.addresslib.validate
 
 from flanker.addresslib.parser import MAX_ADDRESS_LENGTH
@@ -345,18 +346,19 @@ class EmailAddress(Address):
 
     __slots__ = ['display_name', 'mailbox', 'hostname', 'address']
 
-    def __init__(self, display_name, spec=None):
+    def __init__(self, display_name, spec=None, parsed_name=None):
         if spec is None:
             spec = display_name
             display_name = None
 
         assert(spec)
 
-        if display_name is None:
-            self.display_name = u''
+        if parsed_name:
+            self.display_name = smart_unquote(mime_to_unicode(parsed_name))
+        elif display_name:
+            self.display_name = display_name
         else:
-            self.display_name = encode_string(None, display_name,
-                                              maxlinelen=MAX_ADDRESS_LENGTH)
+            self.display_name = u''
 
         parts = spec.rsplit('@', 1)
         self.mailbox = parts[0]
@@ -385,16 +387,6 @@ class EmailAddress(Address):
         """
         return True
 
-    @property
-    def display_name(self):
-        if self._display_name is None:
-            return u''
-        return mime_to_unicode(self._display_name)
-
-    @display_name.setter
-    def display_name(self, value):
-        self._display_name = value
-
     def full_spec(self):
         """
         Returns a full spec of an email address. Always in ASCII, RFC-2822
@@ -405,8 +397,10 @@ class EmailAddress(Address):
            >>> EmailAddress("Жека", "ev@example.com").full_spec()
            '=?utf-8?b?0JbQtdC60LA=?= <ev@example.com>'
         """
-        if self._display_name:
-            return '{0} <{1}>'.format(self._display_name, self.address)
+        if self.display_name:
+            encoded_display_name = smart_quote(encode_string(
+                None, self.display_name, maxlinelen=MAX_ADDRESS_LENGTH))
+            return '{0} <{1}>'.format(encoded_display_name, self.address)
         return u'{0}'.format(self.address)
 
     def to_unicode(self):
@@ -534,7 +528,6 @@ class AddressList(object):
         if container is None:
             container = []
         self.container = container
-
 
     def append(self, n):
         self.container.append(n)

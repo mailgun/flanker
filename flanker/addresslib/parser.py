@@ -356,8 +356,9 @@ class _AddressParser(object):
             return None
 
         if dname:
-            return flanker.addresslib.address.EmailAddress(dname, aaddr)
-        return flanker.addresslib.address.EmailAddress(None, aaddr)
+            return flanker.addresslib.address.EmailAddress(aaddr,
+                                                           parsed_name=dname)
+        return flanker.addresslib.address.EmailAddress(aaddr)
 
     def _display_name_rfc(self):
         """
@@ -440,8 +441,9 @@ class _AddressParser(object):
             return None
 
         if dname:
-            return flanker.addresslib.address.EmailAddress(dname, aaddr)
-        return flanker.addresslib.address.EmailAddress(None, aaddr)
+            return flanker.addresslib.address.EmailAddress(aaddr,
+                                                           parsed_name=dname)
+        return flanker.addresslib.address.EmailAddress(aaddr)
 
     def _display_name_lax(self):
         """
@@ -548,7 +550,7 @@ class _AddressParser(object):
         aspec = cleanup_email(''.join([lpart, asym, domn]))
         if as_string:
             return aspec
-        return flanker.addresslib.address.EmailAddress(None, aspec)
+        return flanker.addresslib.address.EmailAddress(aspec)
 
     def _local_part(self):
         """

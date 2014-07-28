@@ -31,6 +31,9 @@ class FallbackMimePart(RichPartMixin):
 
     @property
     def content_type(self):
+        content_type = self._headers['Content-Type']
+        if isinstance(content_type, ContentType):
+            return content_type
         return ContentType(
             self._m.get_content_maintype(),
             self._m.get_content_subtype(),

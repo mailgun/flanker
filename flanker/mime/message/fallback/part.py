@@ -5,7 +5,7 @@ from flanker.mime.message.headers.headers import remove_newlines, MimeHeaders
 from flanker.mime.message.part import RichPartMixin
 from flanker.mime.message.scanner import ContentType
 from flanker.mime.message import utils, headers
-from flanker.mime.message.headers import parametrized, encodedword, normalize
+from flanker.mime.message.headers import parametrized, normalize
 
 log = logging.getLogger(__name__)
 
@@ -34,10 +34,9 @@ class FallbackMimePart(RichPartMixin):
         content_type = self._headers['Content-Type']
         if isinstance(content_type, ContentType):
             return content_type
-        return ContentType(
-            self._m.get_content_maintype(),
-            self._m.get_content_subtype(),
-            dict(self._m.get_params() or []))
+        return ContentType(self._m.get_content_maintype(),
+                           self._m.get_content_subtype(),
+                           dict(self._m.get_params() or []))
 
     @property
     def content_disposition(self):
@@ -152,8 +151,7 @@ def _try_decode(key, value):
         return value
     elif isinstance(value, str):
         try:
-            return encodedword.decode(
-                headers.parse_header_value(key, value))
+            return headers.parse_header_value(key, value)
         except Exception:
             return unicode(value, 'utf-8', 'ignore')
     elif isinstance(value, unicode):

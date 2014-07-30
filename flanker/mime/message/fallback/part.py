@@ -1,11 +1,11 @@
 import logging
 import email
 from flanker.mime.message.charsets import convert_to_unicode
-from flanker.mime.message.headers.headers import remove_newlines
+from flanker.mime.message.headers.headers import remove_newlines, MimeHeaders
 from flanker.mime.message.part import RichPartMixin
 from flanker.mime.message.scanner import ContentType
-from flanker.mime.message import utils, charsets, headers
-from flanker.mime.message.headers import parametrized, MimeHeaders, normalize
+from flanker.mime.message import utils, headers
+from flanker.mime.message.headers import parametrized, normalize
 
 log = logging.getLogger(__name__)
 
@@ -34,10 +34,9 @@ class FallbackMimePart(RichPartMixin):
         content_type = self._headers['Content-Type']
         if isinstance(content_type, ContentType):
             return content_type
-        return ContentType(
-            self._m.get_content_maintype(),
-            self._m.get_content_subtype(),
-            dict(self._m.get_params() or []))
+        return ContentType(self._m.get_content_maintype(),
+                           self._m.get_content_subtype(),
+                           dict(self._m.get_params() or []))
 
     @property
     def content_disposition(self):

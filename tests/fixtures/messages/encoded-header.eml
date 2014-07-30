@@ -1,0 +1,8 @@
+From: =?UTF-8?B?Rm9vLCBCYXI=?= <foo.bar@example.com>
+To: foo@example.com
+Message-ID: <1234567890-1234-4567@example.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Subject: hello
+
+hello, world

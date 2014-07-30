@@ -171,7 +171,6 @@ def headers_roundtrip_test():
         headers2['DKIM-Signature'])
 
 
-
 def test_folding_combinations():
     message = """From mrc@example.com Mon Feb  8 02:53:47 PST 1993\nTo: sasha\r\n  continued\n      line\nFrom: single line  \r\nSubject: hello, how are you\r\n today?"""
     headers = MimeHeaders.from_stream(StringIO(message))

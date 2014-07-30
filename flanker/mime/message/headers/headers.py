@@ -1,4 +1,6 @@
-from paste.util.multidict import MultiDict
+from webob.multidict import MultiDict
+
+from flanker.mime.message.headers import encodedword
 from flanker.mime.message.headers.parsing import normalize, parse_stream
 from flanker.mime.message.headers.encoding import to_mime
 from flanker.mime.message.errors import EncodingError
@@ -16,7 +18,10 @@ class MimeHeaders(object):
         self.changed = False
 
     def __getitem__(self, key):
-        return self._v.get(normalize(key), None)
+        v = self._v.get(normalize(key), None)
+        if v is not None:
+            return encodedword.decode(v)
+        return None
 
     def __len__(self):
         return len(self._v)
@@ -82,28 +87,42 @@ class MimeHeaders(object):
         """
         return list(self.iteritems())
 
-    def iteritems(self):
+    def iteritems(self, raw=False):
         """
         Returns iterator header,val pairs in the preserved order.
         """
-        return self._v.iteritems()
+        if raw:
+            return self._v.iteritems()
+
+        return iter([(x[0], encodedword.decode(x[1]))
+                     for x in self._v.iteritems()])
 
     def get(self, key, default=None):
         """
         Returns header value (case-insensitive).
         """
+        v = self._v.get(normalize(key), default)
+        if v is not None:
+            return encodedword.decode(v)
+        return None
+
+    def getraw(self, key, default=None):
+        """
+        Returns raw header value (case-insensitive, non-decoded.
+        """
         return self._v.get(normalize(key), default)
 
     def getall(self, key):
         """
-        Returns all header values by the given header name
-        (case-insensitive)
+        Returns all header values by the given header name (case-insensitive).
         """
-        return self._v.getall(normalize(key))
+        v = self._v.getall(normalize(key))
+        return [encodedword.decode(x) for x in v]
 
     def have_changed(self):
-        """Tells whether someone has altered the headers
-        after creation"""
+        """
+        Tells whether someone has altered the headers after creation.
+        """
         return self.changed
 
     def __str__(self):
@@ -111,15 +130,17 @@ class MimeHeaders(object):
 
     @classmethod
     def from_stream(cls, stream):
-        """Takes a stream and reads the headers,
-        decodes headers to unicode dict like object"""
+        """
+        Takes a stream and reads the headers, decodes headers to unicode dict
+        like object.
+        """
         return cls(parse_stream(stream))
 
     def to_stream(self, stream):
-        """Takes a stream and serializes headers
-        in a mime format"""
-
-        for h, v in self._v.iteritems():
+        """
+        Takes a stream and serializes headers in a mime format.
+        """
+        for h, v in self.iteritems(raw=True):
             try:
                 h = h.encode('ascii')
             except UnicodeDecodeError:

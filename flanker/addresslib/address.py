@@ -1,6 +1,6 @@
 # coding:utf-8
 
-'''
+"""
 Public interface for flanker address (email or url) parsing and validation
 capabilities.
 
@@ -32,10 +32,11 @@ When valid addresses are returned, they are returned as an instance of either
 EmailAddress or UrlAddress in flanker.addresslib.address.
 
 See the parser.py module for implementation details of the parser.
-'''
+"""
 
 import time
 import flanker.addresslib.parser
+from flanker.addresslib.quote import smart_unquote, smart_quote
 import flanker.addresslib.validate
 
 from flanker.addresslib.parser import MAX_ADDRESS_LENGTH
@@ -47,7 +48,7 @@ from urlparse import urlparse
 
 @metrics_wrapper()
 def parse(address, addr_spec_only=False, metrics=False):
-    '''
+    """
     Given an string, returns a scalar object representing a single full
     mailbox (display name and addr-spec), addr-spec, or a url.
 
@@ -69,7 +70,7 @@ def parse(address, addr_spec_only=False, metrics=False):
 
         >>> print address.parse('foo')
         None
-    '''
+    """
     mtimes = {'parsing': 0}
 
     parser = flanker.addresslib.parser._AddressParser(False)
@@ -95,7 +96,7 @@ def parse(address, addr_spec_only=False, metrics=False):
 
 @metrics_wrapper()
 def parse_list(address_list, strict=False, as_tuple=False, metrics=False):
-    '''
+    """
     Given an string or list of email addresses and/or urls seperated by a
     delimiter (comma (,) or semi-colon (;)), returns an AddressList object
     (an iterable list representing parsed email addresses and urls).
@@ -123,7 +124,7 @@ def parse_list(address_list, strict=False, as_tuple=False, metrics=False):
 
         >>> address.parse_list('A <a@b>, D <d@e>, http://localhost')
         [A <a@b>, D <d@e>, http://localhost]
-    '''
+    """
     mtimes = {'parsing': 0}
     parser = flanker.addresslib.parser._AddressParser(strict)
 
@@ -151,7 +152,7 @@ def parse_list(address_list, strict=False, as_tuple=False, metrics=False):
 
 @metrics_wrapper()
 def validate_address(addr_spec, metrics=False):
-    '''
+    """
     Given an addr-spec, runs the pre-parser, the parser, DNS MX checks,
     MX existence checks, and if available, ESP specific grammar for the
     local part.
@@ -168,7 +169,7 @@ def validate_address(addr_spec, metrics=False):
 
         >>> address.validate_address('user.1234@gmail.com')
         user.1234@gmail.com
-    '''
+    """
     mtimes = {'parsing': 0, 'mx_lookup': 0,
         'dns_lookup': 0, 'mx_conn':0 , 'custom_grammar':0}
 
@@ -211,7 +212,7 @@ def validate_address(addr_spec, metrics=False):
 
 @metrics_wrapper()
 def validate_list(addr_list, as_tuple=False, metrics=False):
-    '''
+    """
     Validates an address list, and returns a tuple of parsed and unparsed
     portions.
 
@@ -228,10 +229,9 @@ def validate_list(addr_list, as_tuple=False, metrics=False):
 
         >>> address.validate_address_list('a@b, c@d, e@example.com', as_tuple=True)
         ([a@mailgun.com, c@mailgun.com], ['e@example.com'])
-    '''
+    """
     mtimes = {'parsing': 0, 'mx_lookup': 0,
         'dns_lookup': 0, 'mx_conn':0 , 'custom_grammar':0}
-
 
     if addr_list is None:
         return None, mtimes
@@ -293,32 +293,33 @@ def is_email(string):
 
 
 class Address(object):
-    '''
+    """
     Base class that represents an address (email or URL). Use it to create
     concrete instances of different addresses:
-    '''
+    """
 
     @property
     def supports_routing(self):
-        "Indicates that by default this address cannot be routed"
+        """
+        Indicates that by default this address cannot be routed.
+        """
         return False
 
-
     class Type(object):
-        '''
+        """
         Enumerates the types of addresses we support:
             >>> parse('foo@example.com').addr_type
             'email'
 
             >>> parse('http://example.com').addr_type
             'url'
-        '''
+        """
         Email = 'email'
         Url   = 'url'
 
 
 class EmailAddress(Address):
-    '''
+    """
     Represents a fully parsed email address with built-in support for MIME
     encoding. Note, do not use EmailAddress class directly, use the parse()
     or parse_list() functions to return a scalar or iterable list respectively.
@@ -341,22 +342,23 @@ class EmailAddress(Address):
     And full email spec is 100% ASCII, encoded for MIME:
        >>> addr.full_spec()
        'Bob Silva <bob@host.com>'
-    '''
+    """
 
     __slots__ = ['display_name', 'mailbox', 'hostname', 'address']
 
-    def __init__(self, display_name, spec=None):
+    def __init__(self, display_name, spec=None, parsed_name=None):
         if spec is None:
             spec = display_name
             display_name = None
 
         assert(spec)
 
-        if display_name is None:
-            self.display_name = u''
+        if parsed_name:
+            self.display_name = smart_unquote(mime_to_unicode(parsed_name))
+        elif display_name:
+            self.display_name = display_name
         else:
-            self.display_name = encode_string(None, display_name,
-                                              maxlinelen=MAX_ADDRESS_LENGTH)
+            self.display_name = u''
 
         parts = spec.rsplit('@', 1)
         self.mailbox = parts[0]
@@ -365,36 +367,28 @@ class EmailAddress(Address):
         self.addr_type = self.Type.Email
 
     def __repr__(self):
-        '''
+        """
         >>> repr(EmailAddress("John Smith", "john@smith.com"))
         'John Smith <john@smith.com>'
-        '''
+        """
         return self.full_spec()
 
     def __str__(self):
-        '''
+        """
         >>> str(EmailAddress("boo@host.com"))
         'boo@host.com'
-        '''
+        """
         return self.address
 
     @property
     def supports_routing(self):
-        "Email addresses can be routed"
+        """
+        Email addresses can be routed.
+        """
         return True
 
-    @property
-    def display_name(self):
-        if self._display_name is None:
-            return u''
-        return mime_to_unicode(self._display_name)
-
-    @display_name.setter
-    def display_name(self, value):
-        self._display_name = value
-
     def full_spec(self):
-        '''
+        """
         Returns a full spec of an email address. Always in ASCII, RFC-2822
         compliant, safe to be included into MIME:
 
@@ -402,13 +396,17 @@ class EmailAddress(Address):
            'Ev K <ev@host.com>'
            >>> EmailAddress("Жека", "ev@example.com").full_spec()
            '=?utf-8?b?0JbQtdC60LA=?= <ev@example.com>'
-        '''
-        if self._display_name:
-            return '{0} <{1}>'.format(self._display_name, self.address)
+        """
+        if self.display_name:
+            encoded_display_name = smart_quote(encode_string(
+                None, self.display_name, maxlinelen=MAX_ADDRESS_LENGTH))
+            return '{0} <{1}>'.format(encoded_display_name, self.address)
         return u'{0}'.format(self.address)
 
     def to_unicode(self):
-        "Converts to unicode"
+        """
+        Converts to unicode.
+        """
         if self.display_name:
             return u'{0} <{1}>'.format(self.display_name, self.address)
         return u'{0}'.format(self.address)
@@ -417,7 +415,9 @@ class EmailAddress(Address):
         return True
 
     def __eq__(self, other):
-        "Allows comparison of two addresses"
+        """
+        Allows comparison of two addresses.
+        """
         if other:
             if isinstance(other, basestring):
                 other = parse(other)
@@ -427,7 +427,7 @@ class EmailAddress(Address):
         return False
 
     def __hash__(self):
-        '''
+        """
         Hashing allows using Address objects as keys in collections and compare
         them in sets
 
@@ -440,13 +440,12 @@ class EmailAddress(Address):
             >>> s.add(b)
             >>> len(s)
             1
-        '''
+        """
         return hash(self.address.lower())
 
 
-
 class UrlAddress(Address):
-    '''
+    """
     Represents a parsed URL:
         >>> url = UrlAddress("http://user@host.com:8080?q=a")
         >>> url.hostname
@@ -460,7 +459,7 @@ class UrlAddress(Address):
 
     Note: do not create UrlAddress class directly by passing raw "internet
     data", use the parse() and parse_list() functions instead.
-    '''
+    """
 
     __slots__ = ['address', 'parse_result']
 
@@ -496,9 +495,6 @@ class UrlAddress(Address):
     def to_unicode(self):
         return self.address
 
-    def __str__(self):
-        return self.address
-
     def __repr__(self):
         return self.address
 
@@ -514,7 +510,7 @@ class UrlAddress(Address):
 
 
 class AddressList(object):
-    '''
+    """
     Keeps the list of addresses. Each address is an EmailAddress or
     URLAddress objectAddress-derived object.
 
@@ -526,13 +522,12 @@ class AddressList(object):
         False
         >>> "bob@host.COM" in al
         True
-    '''
+    """
 
     def __init__(self, container=None):
         if container is None:
             container = []
         self.container = container
-
 
     def append(self, n):
         self.container.append(n)
@@ -550,19 +545,20 @@ class AddressList(object):
         return len(self.container)
 
     def __eq__(self, other):
-        "When comparing ourselves to other lists we must ignore order"
+        """
+        When comparing ourselves to other lists we must ignore order.
+        """
         if isinstance(other, list):
             other = parse_list(other)
         return set(self.container) == set(other.container)
-
-    def __str__(self):
-        return ''.join(['[', self.full_spec(), ']'])
 
     def __repr__(self):
         return ''.join(['[', self.full_spec(), ']'])
 
     def __add__(self, other):
-        "Adding two AddressLists together yields another AddressList"
+        """
+        Adding two AddressLists together yields another AddressList.
+        """
         if isinstance(other, list):
             result = self.container + parse_list(other).container
         else:
@@ -570,13 +566,13 @@ class AddressList(object):
         return AddressList(result)
 
     def full_spec(self, delimiter=", "):
-        '''
+        """
         Returns a full string which looks pretty much what the original was
         like
             >>> adl = AddressList("Foo <foo@host.com>, Bar <bar@host.com>")
             >>> adl.full_spec(delimiter='; ')
             'Foo <foo@host.com; Bar <bar@host.com>'
-        '''
+        """
         return delimiter.join(addr.full_spec() for addr in self.container)
 
     def to_unicode(self, delimiter=u", "):
@@ -587,12 +583,12 @@ class AddressList(object):
 
     @property
     def addresses(self):
-        '''
+        """
         Returns a list of just addresses, i.e. no names:
             >>> adl = AddressList("Foo <foo@host.com>, Bar <bar@host.com>")
             >>> adl.addresses
             ['foo@host.com', 'bar@host.com']
-        '''
+        """
         return [addr.address for addr in self.container]
 
     def __str__(self):
@@ -600,13 +596,14 @@ class AddressList(object):
 
     @property
     def hostnames(self):
-        "Returns a set of hostnames used in addresses in this list"
+        """
+        Returns a set of hostnames used in addresses in this list.
+        """
         return set([addr.hostname for addr in self.container])
 
     @property
     def addr_types(self):
-        "Returns a set of address types used in addresses in this list"
+        """
+        Returns a set of address types used in addresses in this list.
+        """
         return set([addr.addr_type for addr in self.container])
-
-
-

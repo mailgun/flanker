@@ -10,7 +10,7 @@ from flanker.mime.message.headers.encoding import (encode_unstructured,
                                                    encode_string)
 from flanker.mime.message import part
 from flanker.mime import create
-from tests import LONG_HEADER
+from tests import LONG_HEADER, ENCODED_HEADER
 
 
 def encodings_test():
@@ -47,8 +47,9 @@ def string_maxlinelen_test():
 @patch.object(part.MimePart, 'was_changed', Mock(return_value=True))        
 def max_header_length_test():
     message = create.from_string(LONG_HEADER)
+
     # this used to fail because exceeded max depth recursion
-    ok_(message.headers["Subject"].encode("utf-8") in message.to_string())
+    ok_(message.headers.getraw('subject').encode("utf-8") in message.to_string())
 
     unicode_subject = (u"Это сообщение с длинным сабжектом "
                        u"специально чтобы проверить кодировки")
@@ -73,3 +74,18 @@ def max_header_length_test():
 
         eq_(unicode_subject.encode("utf-8"),
             encode_unstructured("Subject", unicode_subject))
+
+def add_header_preserve_original_encoding_test():
+    message = create.from_string(ENCODED_HEADER)
+
+    # save original encoded from header
+    original_from = message.headers.getraw('from')
+
+    # check if the raw header was not decoded
+    ok_('=?UTF-8?B?Rm9vLCBCYXI=?=' in original_from)
+
+    # add a header
+    message.headers.add('foo', 'bar')
+
+    # check original encoded header is still in the mime string
+    ok_(original_from in message.to_string())

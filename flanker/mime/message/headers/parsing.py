@@ -44,9 +44,6 @@ def parse_header_value(name, val):
                 return ContentType(main, sub, params)
             else:
                 return WithParams(val, params)
-        elif "=?" in val:
-            # may be encoded word
-            return encodedword.decode(val)
         else:
             return val
 

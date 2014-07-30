@@ -1,6 +1,6 @@
 # coding:utf-8
 
-'''
+"""
 Validation module that that supports alternate spelling suggestions for
 domains, MX record lookup and query, as well as custom local-part grammar for
 large ESPs.
@@ -31,7 +31,7 @@ Public Functions in flanker.addresslib.validate module:
     * connect_to_mail_exchanger(mx_hosts)
 
       Attempts to connect to a given mail exchanger to see if it exists.
-'''
+"""
 
 import re
 import redis
@@ -44,7 +44,7 @@ from flanker.utils import metrics_wrapper
 
 
 def suggest_alternate(addr_spec):
-    '''
+    """
     Given an addr-spec, suggests a alternate addr-spec if common spelling
     mistakes are detected in the domain portion.
 
@@ -56,7 +56,7 @@ def suggest_alternate(addr_spec):
         None
         >>> validate.suggest_alternate('john@gmail..com')
         'john@gmail.com'
-    '''
+    """
     # sanity check
     if addr_spec is None:
         return None
@@ -78,9 +78,9 @@ def suggest_alternate(addr_spec):
 
 
 def preparse_address(addr_spec):
-    '''
+    """
     Preparses email addresses. Used to handle odd behavior by ESPs.
-    '''
+    """
     # sanity check, ensure we have both local-part and domain
     parts = addr_spec.split('@')
     if len(parts) < 2:
@@ -95,7 +95,7 @@ def preparse_address(addr_spec):
 
 
 def plugin_for_esp(mail_exchanger):
-    '''
+    """
     Checks if custom grammar exists for a particular mail exchanger. If
     a grammar is found, the plugin to validate an address for that particular
     email service provider is returned, otherwise None is returned.
@@ -103,7 +103,7 @@ def plugin_for_esp(mail_exchanger):
     If you are adding the grammar for a email service provider, add the module
     to the flanker.addresslib.plugins directory then update the
     flanker.addresslib package to add it to the known list of custom grammars.
-    '''
+    """
     for grammar in flanker.addresslib.CUSTOM_GRAMMAR_LIST:
         if grammar[0].match(mail_exchanger):
             return grammar[1]
@@ -113,11 +113,11 @@ def plugin_for_esp(mail_exchanger):
 
 @metrics_wrapper()
 def mail_exchanger_lookup(domain, metrics=False):
-    '''
+    """
     Looks up the mail exchanger for a domain. If MX records exist they will
     be returned, if not it will attempt to fallback to A records, if neither
     exist None will be returned.
-    '''
+    """
     mtimes = {'mx_lookup': 0, 'dns_lookup': 0, 'mx_conn': 0}
     mx_cache = flanker.addresslib.mx_cache
 
@@ -155,13 +155,13 @@ def mail_exchanger_lookup(domain, metrics=False):
 
 
 def lookup_exchanger_in_cache(domain):
-    '''
+    """
     Uses a cache to store the results of the mail exchanger lookup to speed
     up lookup times. The default is redis, but this can be overidden by your
     own cache as long as it conforms to the same interface as that of a dict.
     See the implimentation of the redis cache in the flanker.addresslib.driver
     package for more details if you wish to implement your own cache.
-    '''
+    """
     mx_cache = flanker.addresslib.mx_cache
 
     lookup = mx_cache[domain]
@@ -175,14 +175,14 @@ def lookup_exchanger_in_cache(domain):
 
 
 def lookup_domain(domain):
-    '''
+    """
     The dnspython package is used for dns lookups. The dnspython package uses
     the dns server specified by your operating system. Just like the cache,
     this can be overridden by your own dns lookup method of choice as long
     as it conforms to the same interface as that of a dict. See the the
     implimentation of the dnspython lookup in the flanker.addresslib.driver
     package for more details.
-    '''
+    """
 
     dns_lookup = flanker.addresslib.dns_lookup
 
@@ -195,10 +195,10 @@ def lookup_domain(domain):
 
 
 def connect_to_mail_exchanger(mx_hosts):
-    '''
+    """
     Given a list of MX hosts, attempts to connect to at least one on port 25.
     Returns the mail exchanger it was able to connect to or None.
-    '''
+    """
     for host in mx_hosts:
         try:
             s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)

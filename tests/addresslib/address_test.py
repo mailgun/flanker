@@ -99,13 +99,37 @@ def test_addresslist_with_apostrophe():
     s = '''"Allan G\'o"  <allan@example.com>, "Os Wi" <oswi@example.com>'''
     lst = parse_list(s)
     eq_ (2, len(lst))
-    eq_ ('"Allan G\'o" <allan@example.com>', lst[0].full_spec())
-    eq_ ('"Os Wi" <oswi@example.com>', lst[1].full_spec())
+    eq_ ('Allan G\'o <allan@example.com>', lst[0].full_spec())
+    eq_ ('Os Wi <oswi@example.com>', lst[1].full_spec())
     lst = parse_list("=?UTF-8?Q?Eugueny_=CF=8E_Kontsevoy?= <eugueny@gmail.com>")
-    eq_ ('=?UTF-8?Q?Eugueny_=CF=8E_Kontsevoy?= <eugueny@gmail.com>', lst.full_spec())
+    eq_ ('=?utf-8?q?Eugueny_=CF=8E_Kontsevoy?= <eugueny@gmail.com>', lst.full_spec())
     eq_ (u'Eugueny ώ Kontsevoy', lst[0].display_name)
 
 
 def test_edge_cases():
     email = EmailAddress('"foo.bar@"@example.com')
     eq_('"foo.bar@"@example.com', email.address)
+
+
+def test_display_name__to_full_spec():
+    eq_('"foo (\\"bar\\") blah" <foo@bar.com>',
+        EmailAddress('foo ("bar") blah', 'foo@bar.com').full_spec())
+    eq_('"foo. bar" <foo@bar.com>',
+        EmailAddress('foo. bar', 'foo@bar.com').full_spec())
+    eq_('"\\"\\"" <foo@bar.com>',
+        EmailAddress('""', 'foo@bar.com').full_spec()),
+    eq_('=?utf-8?b?0J/RgNC40LLQtdGCINCc0LXQtNCy0LXQtA==?= <foo@bar.com>',
+        EmailAddress(u'Привет Медвед', 'foo@bar.com').full_spec())
+
+
+def test_display_name__update():
+    # Given
+    a = EmailAddress('foo bar', 'foo@bar.com')
+    eq_('foo bar <foo@bar.com>', a.full_spec())
+
+    # When
+    a.display_name = u'Привет Медвед'
+
+    # Then
+    eq_('=?utf-8?b?0J/RgNC40LLQtdGCINCc0LXQtNCy0LXQtA==?= <foo@bar.com>',
+        a.full_spec())

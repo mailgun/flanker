@@ -42,6 +42,10 @@ def mime_to_unicode(header):
     >>> header_to_unicode("hello")
         u"Hello"
     """
+    # Only string header values need to be converted.
+    if not isinstance(header, basestring):
+        return header
+
     try:
         header = unfold(header)
         decoded = []  # decoded parts

@@ -1,5 +1,6 @@
 import logging
 import email
+from webob.multidict import MultiDict
 from flanker.mime.message.charsets import convert_to_unicode
 from flanker.mime.message.headers.headers import remove_newlines, MimeHeaders
 from flanker.mime.message.part import RichPartMixin
@@ -31,9 +32,6 @@ class FallbackMimePart(RichPartMixin):
 
     @property
     def content_type(self):
-        content_type = self._headers['Content-Type']
-        if isinstance(content_type, ContentType):
-            return content_type
         return ContentType(self._m.get_content_maintype(),
                            self._m.get_content_subtype(),
                            dict(self._m.get_params() or []))
@@ -142,8 +140,20 @@ class FallbackHeaders(MimeHeaders):
         self._m[key] = headers.to_mime(normalize(key), remove_newlines(value))
 
     def transform(self, func):
-        MimeHeaders.transform(self, func)
-        self._m._headers = self.items()
+        changed = [False]
+
+        def wrapped_func(key, value):
+            new_key, new_value = func(key, value)
+            if new_value != value or new_key != key:
+                changed[0] = True
+            return new_key, new_value
+
+        transformed_headers = [wrapped_func(k, v) for k, v in self._m.items()]
+        if changed[0]:
+            self._m._headers = transformed_headers
+            self._v = MultiDict([(normalize(k), remove_newlines(v))
+                                 for k, v in transformed_headers])
+            self.changed = True
 
 
 def _try_decode(key, value):

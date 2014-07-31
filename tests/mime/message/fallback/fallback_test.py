@@ -265,7 +265,7 @@ def message_headers_transform_test():
          ('X-Authentication-Results', 'm'),
          ('X-Dkim-Signature', 'a'),
          ('X-Domainkey-Signature', 'a'),
-         ('X-Content-Type', ('multipart/mixed',)),
+         ('X-Content-Type', 'm'),
          ('X-Mime-Version', '1'),
          ('X-Received', 'b'),
          ('X-Received', 'f'),

@@ -5,6 +5,7 @@ import zlib
 from nose.tools import *
 from mock import *
 from flanker.mime.message.headers import MimeHeaders
+from flanker.mime.message.headers import encoding
 from flanker.mime.message.errors import DecodingError
 from cStringIO import StringIO
 
@@ -119,6 +120,14 @@ def headers_transform_test():
 
     eq_([('X-Mime-Version', 't(1)'), ('X-Received', 't(2)'), ('X-Mime-Version', 't(3)'), ('X-Received', 't(4)')], h.items())
 
+def headers_transform_encodedword_test():
+    # Create a header with non-ascii characters that will be stored in encoded-word format.
+    headers = [('Subject', encoding.to_mime('Subject', u'Hello ✓'))]
+    h = MimeHeaders(headers)
+
+    # transform should decode it for us when we pass decode=True
+    h.transform(lambda key,val: (key, val.replace(u'✓', u'☃')), decode=True)
+    eq_(u'Hello ☃', h.get('Subject'))
 
 def headers_parsing_empty_test():
     h = MimeHeaders.from_stream(StringIO(""))

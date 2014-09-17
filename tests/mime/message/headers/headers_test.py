@@ -1,13 +1,14 @@
 # coding:utf-8
 
+from cStringIO import StringIO
 import zlib
 
-from nose.tools import *
 from mock import *
-from flanker.mime.message.headers import MimeHeaders
-from flanker.mime.message.headers import encoding
+from nose.tools import *
+
 from flanker.mime.message.errors import DecodingError
-from cStringIO import StringIO
+from flanker.mime.message.headers import encoding
+from flanker.mime.message.headers import MimeHeaders
 
 from .... import *
 

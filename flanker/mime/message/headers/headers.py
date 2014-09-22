@@ -62,7 +62,7 @@ class MimeHeaders(object):
         """
         return self._v.keys()
 
-    def transform(self, fn):
+    def transform(self, fn, decode=False):
         """Accepts a function, getting a key, val and returning
         a new pair of key, val and applies the function to all
         header, value pairs in the message.
@@ -76,7 +76,7 @@ class MimeHeaders(object):
                 changed[0] = True
             return new_key, new_val
 
-        v = MultiDict(tracking_fn(key, val) for key, val in self._v.iteritems())
+        v = MultiDict(tracking_fn(key, val) for key, val in self.iteritems(raw=not decode))
         if changed[0]:
             self._v = v
             self.changed = True

@@ -59,12 +59,12 @@ def invalid_localparts(strip_delimiters=False):
 def mock_exchanger_lookup(arg, metrics=False):
     mtimes = {'mx_lookup': 10, 'dns_lookup': 20, 'mx_conn': 30}
     if metrics is True:
-        if arg == 'ai' or arg == 'mailgun.org' or arg == 'fakecompany.mailgun.org':
+        if arg in ['ai', 'mailgun.org', 'fakecompany.mailgun.org']:
             return ('', mtimes)
         else:
             return (None, mtimes)
     else:
-        if arg == 'ai' or arg == 'mailgun.org' or arg == 'fakecompany.mailgun.org':
+        if arg in ['ai', 'mailgun.org', 'fakecompany.mailgun.org']:
             return ''
         else:
             return None
@@ -185,37 +185,35 @@ def test_parse_syntax_only_false():
         assert_equal(unpar, all_invalid_list)
 
 
-def test_mx_lookup():
-    # skip network tests during development
-    skip_if_asked()
-
+@patch('flanker.addresslib.validate.connect_to_mail_exchanger')
+@patch('flanker.addresslib.validate.lookup_domain')
+def test_mx_lookup(ld, cmx):
     # has MX, has MX server
+    ld.return_value = ['mx1.fake.mailgun.com', 'mx2.fake.mailgun.com']
+    cmx.return_value = 'mx1.fake.mailgun.com'
+
     addr = address.validate_address('username@mailgun.com')
     assert_not_equal(addr, None)
 
     # has fallback A, has MX server
+    ld.return_value = ['domain.com']
+    cmx.return_value = 'domain.com'
+
     addr = address.validate_address('username@domain.com')
     assert_not_equal(addr, None)
 
     # has MX, no server answers
+    ld.return_value = ['mx.example.com']
+    cmx.return_value = None
+
     addr = address.validate_address('username@example.com')
     assert_equal(addr, None)
 
     # no MX
+    ld.return_value = []
+    cmx.return_value = None
+
     addr = address.validate_address('username@no-dns-records-for-domain.com')
-    assert_equal(addr, None)
-
-
-def test_mx_connect():
-    # skip network tests during development
-    skip_if_asked()
-
-    # connect
-    addr = address.validate_address('username@mailgun.com')
-    assert_not_equal(addr, None)
-
-    # don't connect
-    addr = address.validate_address('username@example.com')
     assert_equal(addr, None)
 
 

@@ -1,4 +1,4 @@
-import regex as re
+import re
 from flanker.mime.message import errors
 from flanker.utils import to_utf8, to_unicode
 

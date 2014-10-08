@@ -1,6 +1,6 @@
 # coding:utf-8
 import logging
-import regex as re
+import re
 
 import email.quoprimime
 import email.base64mime

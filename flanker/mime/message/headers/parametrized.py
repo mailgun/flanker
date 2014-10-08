@@ -2,7 +2,7 @@
 encoded in accordance to rfc2231 (new style) or rfc1342 (old style)
 """
 import urllib
-import regex as re
+import re
 from flanker.mime.message.headers import encodedword
 from flanker.mime.message import charsets
 from collections import deque

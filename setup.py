@@ -27,8 +27,5 @@ setup(name='flanker',
           'expiringdict>=1.1.2',
           'WebOb>=0.9.8',
           'redis>=2.7.1',
-          # IMPORTANT! Newer regex versions are a lot slower for
-          # mime parsing (100x slower) so keep it as-is for now.
-          'regex>=0.1.20110315',
       ],
       )

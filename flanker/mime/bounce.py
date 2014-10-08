@@ -1,4 +1,4 @@
-import regex as re
+import re
 from collections import deque
 from contextlib import closing
 from cStringIO import StringIO

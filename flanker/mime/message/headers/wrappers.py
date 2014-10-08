@@ -2,7 +2,7 @@
 provide some convenience access methods
 """
 
-import regex as re
+import re
 import flanker.addresslib.address
 
 from email.utils import make_msgid

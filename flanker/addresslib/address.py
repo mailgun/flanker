@@ -49,7 +49,7 @@ from urlparse import urlparse
 @metrics_wrapper()
 def parse(address, addr_spec_only=False, metrics=False):
     """
-    Given an string, returns a scalar object representing a single full
+    Given a string, returns a scalar object representing a single full
     mailbox (display name and addr-spec), addr-spec, or a url.
 
     Returns an Address object and optionally metrics on processing

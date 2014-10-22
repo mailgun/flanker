@@ -88,7 +88,7 @@ from flanker.utils import to_utf8
 class _AddressParser(object):
     """
     Do not use _AddressParser directly because it heavily relies on other
-    private classes and methods and it's interface is not guarenteed, it
+    private classes and methods and its interface is not guaranteed. It
     will change in the future and possibly break your application.
 
     Instead use the parse() and parse_list() functions in the address.py

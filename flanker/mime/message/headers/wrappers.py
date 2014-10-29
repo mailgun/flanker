@@ -100,7 +100,11 @@ class ContentType(tuple):
             self.get_boundary(), "--" if final else "")
 
     def get_charset(self):
-        return self.params.get("charset", 'ascii').lower()
+        default = 'ascii' if self.main == 'text' else None
+        c = self.params.get("charset", default)
+        if c:
+            c = c.lower()
+        return c
 
     def set_charset(self, value):
         self.params["charset"] = value.lower()

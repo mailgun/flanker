@@ -5,7 +5,8 @@ from setuptools import setup, find_packages
 
 
 setup(name='flanker',
-      version='0.3.21',
+      version='0.3.22',
+      version='0.4.22',
       description='Mailgun Parsing Tools',
       long_description=open('README.rst').read(),
       classifiers=[],

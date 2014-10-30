@@ -48,7 +48,7 @@ Additional limitations on email addresses:
         * No more than 127 levels
         * Each level no more than 63 octets
         * Texual representation can not exceed 253 characters
-        * No level can being or end with -
+        * No level can begin or end with -
 
     3. Maximum mailbox length is len(local-part) + len('@') + len(domain) which
        is 64 + 1 + 253 = 318 characters. Allow 194 characters for a display
@@ -88,7 +88,7 @@ from flanker.utils import to_utf8
 class _AddressParser(object):
     """
     Do not use _AddressParser directly because it heavily relies on other
-    private classes and methods and it's interface is not guarenteed, it
+    private classes and methods and its interface is not guaranteed. It
     will change in the future and possibly break your application.
 
     Instead use the parse() and parse_list() functions in the address.py

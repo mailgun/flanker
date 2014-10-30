@@ -130,7 +130,7 @@ def parse_list(address_list, strict=False, as_tuple=False, metrics=False):
 
     # if we have a list, transform it into a string first
     if isinstance(address_list, list):
-        address_list = ', '.join([str(addr) for addr in address_list])
+        address_list = u', '.join(address_list)
 
     # parse
     try:

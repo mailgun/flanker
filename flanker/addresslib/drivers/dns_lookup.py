@@ -1,6 +1,7 @@
 import collections
 import dnsq
 
+DEFAULT_DNS = '8.8.8.8'
 
 class DNSLookup(collections.MutableMapping):
     "DNSLookup has the same interface as a dict, but talks to a DNS server"
@@ -10,7 +11,7 @@ class DNSLookup(collections.MutableMapping):
 
     def __getitem__(self, key):
         try:
-            return dnsq.mx_hosts_for(key)
+            return dnsq.mx_hosts_for(key, ns_server=DEFAULT_DNS)
         except:
             return []
 

@@ -53,8 +53,9 @@ def happy_mime_to_unicode_test():
 
 
 def lying_encodings_mime_to_unicode_test():
-    v = '''=?US-ASCII?Q?=D1=80=D1=83=D1=81=D1=81=D0=BA=D0=B8=D0=B9?=\n     =?unknonw?Q?_=D0=B8?= english112      =?UTF-8?Q?=D1=81=D0=B0=D0=B1=D0=B6?= subject'''
-    eq_(u'русский и english112      сабж subject', encodedword.mime_to_unicode(v))
+    v = '''=?US-ASCII?Q?=D1=80=D1=83=D1=81=D1=81=D0=BA=D0=B8=D0=B9?=\n  english112      =?UTF-8?Q?=D1=81=D0=B0=D0=B1=D0=B6?= subject'''
+    eq_(u'русский  english112      сабж subject', encodedword.mime_to_unicode(v))
+
 
 def missing_padding_mime_to_unicode_test():
     v = """   =?utf-8?B?U2ltcGxlIHRleHQuIEhvdyBhcmUgeW91PyDQmtCw0Log0YLRiyDQv9C+0LY?=\n     =?utf-8?B?0LjQstCw0LXRiNGMPw?="""

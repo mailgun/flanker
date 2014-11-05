@@ -144,8 +144,7 @@ def headers_parsing_ridiculously_long_line_test():
 def headers_parsing_binary_stuff_survives_test():
     value = zlib.compress("abcdefg")
     header = "Hello: {0}\r\n".format(value)
-    assert_raises(
-        DecodingError, MimeHeaders.from_stream, StringIO(header))
+    ok_(MimeHeaders.from_stream(StringIO(header)))
 
 
 def broken_sequences_test():

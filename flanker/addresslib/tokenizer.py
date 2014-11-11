@@ -47,6 +47,12 @@ DOT_ATOM   = re.compile(r'''
                         (\.[A-Za-z0-9!#$%&'*+\-/=?^_`{|}~]+)*   # (dot atext)*
                         ''', re.MULTILINE | re.VERBOSE)
 
+DOT_ATOM_LAX = re.compile(r'''
+                          \.*
+                          [A-Za-z0-9!#$%&'*+\-/=?^_`{|}~]     # atext
+                          [A-Za-z0-9!#$%&'*+\-/=?^_`{|}~\.]*   # (atext or dot)*
+                          ''', re.MULTILINE | re.VERBOSE)
+
 UNI_ATOM = re.compile(ur'''
                         ([^\s<>;,"]+)
                         ''', re.MULTILINE | re.VERBOSE | re.UNICODE)

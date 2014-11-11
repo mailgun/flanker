@@ -23,6 +23,25 @@ def test_addr_properties():
     eq_(str(adr), 'EV@host.com')
 
 
+def test_gmail_dots():
+    spec_only, full = True, False
+    valid = (('example.@gmail.com', spec_only),
+             ('...e.x.a.m.p.l.e...@gmail.com', spec_only),
+             ('ex...ample@gmail.com', spec_only),
+             ('example@gmail.com', spec_only),
+             ('Example Jones <example.jones...@gmail.com>', full))
+    invalid=(('.@gmail.com', spec_only),
+             ('example@.gmail.com', spec_only),
+             ('.........@gmail.com', spec_only),
+             ('@gmail.com', spec_only),
+             ('Example Jones <......@gmail.com>', full))
+
+    for v, b in valid:
+        eq_(v, parse(v, addr_spec_only=b))
+    for v, b in invalid:
+        eq_(None, parse(v, addr_spec_only=b))
+
+
 def test_address_compare():
     a = EmailAddress("a@host.com")
     b = EmailAddress("b@host.com")

@@ -22,9 +22,9 @@ first.last@sub.do,com
 first\@last@iana.org
 first.last
 01234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234@example.com
-.first.last@iana.org
-first.last.@iana.org
-first..last@iana.org
+#.first.last@iana.org                                                                  # Some email providers allow this.
+#first.last.@iana.org                                                                  # Some email providers allow this.
+#first..last@iana.org                                                                  # Some email providers allow this.
 "first"last"@iana.org
 """@iana.org
 "\"@iana.org
@@ -59,17 +59,17 @@ abc\@iana.org
 doug@
 "qu@iana.org
 ote"@iana.org
-.dot@iana.org
-dot.@iana.org
-two..dot@iana.org
+#.dot@iana.org                                                                          # Some email providers allow this.
+#dot.@iana.org                                                                          # Some email providers allow this.
+#two..dot@iana.org                                                                      # Some email providers allow this.
 "Doug "Ace" L."@iana.org
 Doug\ \"Ace\"\ L\.@iana.org
 hello world@iana.org                                                                    # lax parser picks up "hello" as display-name
 gatsby@f.sc.ot.t.f.i.tzg.era.l.d.
 test.iana.org
-test.@iana.org
-test..test@iana.org
-.test@iana.org
+#test.@iana.org                                                                         # Some email providers allow this.
+#test..test@iana.org                                                                    # Some email providers allow this.
+#.test@iana.org                                                                         # Some email providers allow this.
 test@test@iana.org
 test@@iana.org
 -- test --@iana.org                                                                     # lax parser picks up "-- test" as display-name
@@ -84,9 +84,9 @@ test@123.123.123.123]
 NotAnEmail
 @NotAnEmail
 "test"blah"@iana.org
-.wooly@iana.org
-wo..oly@iana.org
-pootietang.@iana.org
+#.wooly@iana.org                                                                        # Some email providers allow this.
+#wo..oly@iana.org                                                                       # Some email providers allow this.
+#pootietang.@iana.org                                                                   # Some email providers allow this.
 .@iana.org
 Ima Fool@iana.org                                                                       # lax parser picks up "Ima" as display-name
 phil.h\@\@ck@haacked.com

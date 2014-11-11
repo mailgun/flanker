@@ -30,13 +30,15 @@ Grammar:
     angle-addr-lax    ->    addr-spec [ whitespace ]
 
     addr-spec         ->    [ whitespace ] local-part @ domain [ whitespace ]
-    local-part        ->    dot-atom | quoted-string
+    local-part        ->    dot-atom-lax | quoted-string | dot-atom
     domain            ->    dot-atom
 
     word              ->    word-ascii | word-unicode
     word-ascii        ->    atom | quoted-string
     word-unicode      ->    unicode-atom | unicode-qstring
     whitespace        ->    whitespace-ascii | whitespace-unicode
+
+    ( dot-atom-lax = \.*[A-Za-z0-9!#$%&'*+\-/=?^_`{|}~][A-Za-z0-9!#$%&'*+\-/=?^_`{|}~.]* )
 
 
 Additional limitations on email addresses:
@@ -73,6 +75,7 @@ from flanker.addresslib.tokenizer import ATOM
 from flanker.addresslib.tokenizer import UNI_ATOM
 from flanker.addresslib.tokenizer import UNI_QSTR
 from flanker.addresslib.tokenizer import DOT_ATOM
+from flanker.addresslib.tokenizer import DOT_ATOM_LAX
 from flanker.addresslib.tokenizer import QSTRING
 from flanker.addresslib.tokenizer import URL
 
@@ -554,9 +557,9 @@ class _AddressParser(object):
 
     def _local_part(self):
         """
-        Grammar: local-part -> dot-atom | quoted-string
+        Grammar: local-part -> dot-atom-lax | quoted-string
         """
-        return self.stream.get_token(DOT_ATOM) or \
+        return self.stream.get_token(DOT_ATOM_LAX) or \
             self.stream.get_token(QSTRING)
 
     def _domain(self):

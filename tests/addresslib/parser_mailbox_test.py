@@ -528,7 +528,6 @@ def test_local_part():
     run_mailbox_test('steve"@apple.com', None)
     run_mailbox_test('steve jobs @apple.com', None)
     run_mailbox_test(' steve jobs @apple.com', None)
-    run_mailbox_test('steve..jobs@apple.com', None)
 
     # pass qtext
     for cnk in chunks(FULL_QTEXT, len(FULL_QTEXT)/2):

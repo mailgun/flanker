@@ -1,6 +1,7 @@
 """ This package is a set of utilities and methods for building mime messages """
 
 import uuid
+from flanker.mime import DecodingError
 from flanker.mime.message import ContentType, utils
 from flanker.mime.message.part import MimePart, Body, Part, adjust_content_type
 from flanker.mime.message import scanner
@@ -63,16 +64,18 @@ def attachment(content_type, body, filename=None,
         ContentType(main, sub), body, filename)
 
     if content_type.main == 'message':
-        message = message_container(from_string(body))
-        message.headers['Content-Disposition'] = WithParams(disposition)
-        return message
-    else:
-        return binary(
-            content_type.main,
-            content_type.sub,
-            body, filename,
-            disposition,
-            charset)
+        try:
+            message = message_container(from_string(body))
+            message.headers['Content-Disposition'] = WithParams(disposition)
+            return message
+        except DecodingError:
+            content_type = ContentType('text', 'plain')
+    return binary(
+        content_type.main,
+        content_type.sub,
+        body, filename,
+        disposition,
+        charset)
 
 
 def from_string(string):

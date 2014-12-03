@@ -69,7 +69,7 @@ def attachment(content_type, body, filename=None,
             message.headers['Content-Disposition'] = WithParams(disposition)
             return message
         except DecodingError:
-            content_type = ContentType('text', 'plain')
+            content_type = ContentType('application', 'octet-stream')
     return binary(
         content_type.main,
         content_type.sub,

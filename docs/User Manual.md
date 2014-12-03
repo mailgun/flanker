@@ -172,7 +172,7 @@ Exchanger responds, the domain is considered invalid.
     above two steps can be cached to improve performance. `flanker` by default uses Redis
     for this cache, but use of Redis is not required. Similar to the DNS lookup library,
     any cache can be used here, as long as the interface as the same as that of a `dict`.
-    See [flanker/addresslib/drivers/redis_cache.py](../flanker/addresslib/drivers/redis_cache.py)
+    See [flanker/addresslib/drivers/redis_driver.py](../flanker/addresslib/drivers/redis_driver.py)
     for an example.
 
 3. **Custom Grammar.** Large ESPs rarely if ever support the full grammar that the RFC allows
@@ -190,7 +190,7 @@ grammar, then the validator will run that additional check on the localpart of t
 domain portion of an email address. This can be used to correct common typos like `gmal.com`
 instead of `gmail.com`. The spelling corrector uses `difflib` which in turn uses the
 [Ratcliff-Obershelp](http://xlinux.nist.gov/dads/HTML/ratcliffObershelp.html) algorithm
-to compute the similarity of two strings. This is a very fast an accurate algorithm for
+to compute the similarity of two strings. This is a very fast and accurate algorithm for
 domain spelling correction.
 
 ###### Example: Validate a single email address

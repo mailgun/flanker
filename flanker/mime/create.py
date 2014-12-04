@@ -37,10 +37,11 @@ def text(subtype, body, charset=None, disposition=None, filename=None):
 
 
 def binary(maintype, subtype, body, filename=None,
-           disposition=None, charset=None):
+           disposition=None, charset=None, trust_ctype=False):
     return MimePart(
         container=Body(
             content_type=ContentType(maintype, subtype),
+            trust_ctype=trust_ctype,
             body=body,
             charset=charset,
             disposition=disposition,
@@ -75,7 +76,7 @@ def attachment(content_type, body, filename=None,
         content_type.sub,
         body, filename,
         disposition,
-        charset)
+        charset, True)
 
 
 def from_string(string):

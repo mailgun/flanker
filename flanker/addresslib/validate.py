@@ -138,7 +138,6 @@ def mail_exchanger_lookup(domain, metrics=False):
         mx_hosts = lookup_domain(domain)
         mtimes['dns_lookup'] += time.time() - bstart
         if mx_hosts is None:
-            mx_cache[domain] = False
             return None, mtimes
 
     # test connecting to the mx exchanger
@@ -146,7 +145,6 @@ def mail_exchanger_lookup(domain, metrics=False):
     mail_exchanger = connect_to_mail_exchanger(mx_hosts)
     mtimes['mx_conn'] = time.time() - bstart
     if mail_exchanger is None:
-        mx_cache[domain] = False
         return None, mtimes
 
     # valid mx records, connected to mail exchanger, return True

@@ -114,6 +114,16 @@ def test_addresslist_non_ascii_list_input():
     eq_('Os Wi <oswi@example.com>', lst[1].full_spec())
 
 
+def test_addresslist_address_obj_list_input():
+    al = [EmailAddress(u'Aurélien Berger  <ab@example.com>'),
+          UrlAddress('https://www.example.com')]
+    lst = parse_list(al)
+    eq_(2, len(lst))
+    eq_('=?utf-8?q?Aur=C3=A9lien_Berger?= <ab@example.com>',
+        lst[0].full_spec())
+    eq_('https://www.example.com', lst[1].full_spec())
+
+
 def test_edge_cases():
     email = EmailAddress('"foo.bar@"@example.com')
     eq_('"foo.bar@"@example.com', email.address)

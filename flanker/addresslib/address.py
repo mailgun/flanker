@@ -47,18 +47,6 @@ from flanker.mime.message.headers.encodedword import mime_to_unicode
 from urlparse import urlparse
 
 
-def _normalize_address_list(address_list):
-    parts = []
-
-    for addr in address_list:
-        if isinstance(addr, Address):
-            parts.append(unicode(addr))
-        if isinstance(addr, basestring):
-            parts.append(addr)
-
-    return parts
-
-
 @metrics_wrapper()
 def parse(address, addr_spec_only=False, metrics=False):
     """
@@ -620,3 +608,15 @@ class AddressList(object):
         Returns a set of address types used in addresses in this list.
         """
         return set([addr.addr_type for addr in self.container])
+
+
+def _normalize_address_list(address_list):
+    parts = []
+
+    for addr in address_list:
+        if isinstance(addr, Address):
+            parts.append(addr.to_unicode())
+        if isinstance(addr, basestring):
+            parts.append(addr)
+
+    return parts

@@ -46,6 +46,19 @@ from flanker.mime.message.headers.encoding import encode_string
 from flanker.mime.message.headers.encodedword import mime_to_unicode
 from urlparse import urlparse
 
+
+def _normalize_address_list(address_list):
+    parts = []
+
+    for addr in address_list:
+        if isinstance(addr, Address):
+            parts.append(unicode(addr))
+        if isinstance(addr, basestring):
+            parts.append(addr)
+
+    return parts
+
+
 @metrics_wrapper()
 def parse(address, addr_spec_only=False, metrics=False):
     """
@@ -130,7 +143,7 @@ def parse_list(address_list, strict=False, as_tuple=False, metrics=False):
 
     # if we have a list, transform it into a string first
     if isinstance(address_list, list):
-        address_list = ', '.join([str(addr) for addr in address_list])
+        address_list = ', '.join(_normalize_address_list(address_list))
 
     # parse
     try:

@@ -427,6 +427,13 @@ class EmailAddress(Address):
             return self.address.lower() == other.address.lower()
         return False
 
+    def __ne__(self, other):
+        """
+        Negative comparison support
+        """
+        return not (self == other)
+
+
     def __hash__(self):
         """
         Hashing allows using Address objects as keys in collections and compare

@@ -9,7 +9,7 @@ from flanker.mime.create import multipart, text
 from flanker.mime.message.scanner import scan
 from flanker.mime.message.errors import EncodingError, DecodingError
 from flanker.mime.message.part import encode_transfer_encoding
-from tests import (BILINGUAL, ENCLOSED, TORTURE, TORTURE_PART,
+from tests import (BILINGUAL, BZ2_ATTACHMENT, ENCLOSED, TORTURE, TORTURE_PART,
                    ENCLOSED_BROKEN_ENCODING, EIGHT_BIT, QUOTED_PRINTABLE,
                    TEXT_ONLY, ENCLOSED_BROKEN_BODY, RUSSIAN_ATTACH_YAHOO,
                    MAILGUN_PIC, MAILGUN_PNG, MULTIPART, IPHONE,
@@ -387,6 +387,13 @@ def content_types_test():
     eq_('image/png', attachment.detected_content_type)
     eq_('png', attachment.detected_subtype)
     eq_('image', attachment.detected_format)
+    ok_(not attachment.is_body())
+
+    part = scan(BZ2_ATTACHMENT)
+    attachment = part.parts[1]
+    eq_('application/x-bzip2', attachment.detected_content_type)
+    eq_('x-bzip2', attachment.detected_subtype)
+    eq_('application', attachment.detected_format)
     ok_(not attachment.is_body())
 
 

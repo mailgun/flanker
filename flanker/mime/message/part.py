@@ -91,6 +91,12 @@ def adjust_content_type(content_type, body=None, filename=None):
     """Adjust content type based on filename or body contents
     """
     if filename and str(content_type) == 'application/octet-stream':
+        # check if our internal guess returns anything
+        guessed = _guess_type(filename)
+        if guessed:
+            return guessed
+
+        # our internal attempt didn't return anything, use mimetypes
         guessed = mimetypes.guess_type(filename)[0]
         if guessed:
             main, sub = fix_content_type(
@@ -108,6 +114,21 @@ def adjust_content_type(content_type, body=None, filename=None):
             content_type = ContentType('audio', sub)
 
     return content_type
+
+
+def _guess_type(filename):
+    """
+    Internal content type guesser. This is used to hard code certain tricky content-types
+    that heuristic content type checker get wrong.
+    """
+
+    if filename.endswith(".bz2"):
+        return ContentType("application", "x-bzip2")
+
+    if filename.endswith(".gz"):
+        return ContentType("application", "x-gzip")
+
+    return None
 
 
 class Body(object):

@@ -1,0 +1,21 @@
+Content-Type: multipart/mixed; boundary="9ca4f9e3b740436bb761d3f9aae5fae9"
+Mime-Version: 1.0
+From: Alice <alice@example.com>
+To: Bob <bob@example.com>
+Subject: hello
+
+--9ca4f9e3b740436bb761d3f9aae5fae9
+Mime-Version: 1.0
+Content-Type: text/plain; charset="ascii"
+Content-Transfer-Encoding: 7bit
+
+hello, world
+
+--9ca4f9e3b740436bb761d3f9aae5fae9
+Mime-Version: 1.0
+Content-Type: application/octet-stream; name="foo.txt.bz2"
+Content-Disposition: attachment; filename="foo.txt.bz2"
+Content-Transfer-Encoding: base64
+
+QlpoOTFBWSZTWQ0xSP4AAAFBgAAQMAAQACAAIZpoM00XPF3JFOFCQDTFI/g=
+--9ca4f9e3b740436bb761d3f9aae5fae9--

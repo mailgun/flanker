@@ -164,7 +164,7 @@ A records. If neither MX or A records exist, the address is considered invalid.
     [flanker/addresslib/drivers/dns_lookup.py](../flanker/addresslib/drivers/dns_lookup.py)
     for an example.
 
-2. **MX Existance.** If the DNS lookup in the previous step returned a valid MX or A record
+2. **MX Existence.** If the DNS lookup in the previous step returned a valid MX or A record
 that address is checked to ensure that a Mail Exchanger responds on port `25`. If no Mail
 Exchanger responds, the domain is considered invalid.
 

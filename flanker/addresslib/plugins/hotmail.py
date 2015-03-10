@@ -6,7 +6,7 @@
     Notes:
 
         1-64 characters
-        must start with letter
+        must start with letter or number
         must end with letter, number, hyphen (-), or underscore (_)
         must use letters, numbers, periods (.), hypens (-), or underscores (_)
         only one plus (+) is allowed
@@ -16,7 +16,7 @@
 
         local-part      ->  main-part [ tags ]
         main-part       ->  hotmail-prefix hotmail-root hotmail-suffix
-        hotmail-prefix  ->  alpha
+        hotmail-prefix  ->  alpha | number
         hotmail-root    ->  alpha | number | period | hyphen | underscore
         hotmail-suffix  ->  alpha | number | hyphen | underscore
         tags            ->  + [ hotmail-root ]
@@ -33,7 +33,7 @@ import re
 from flanker.addresslib.tokenizer import TokenStream
 
 HOTMAIL_PREFIX  = re.compile(r'''
-                            [A-Za-z]+
+                            [A-Za-z0-9]+
                             ''', re.MULTILINE | re.VERBOSE)
 
 HOTMAIL_BASE    = re.compile(r'''
@@ -67,7 +67,7 @@ def validate(localpart):
     if l < 1 or l > 64:
         return False
 
-    # start can only be alpha
+    # start can only be alphanumeric
     if HOTMAIL_PREFIX.match(real_localpart[0]) is None:
         return False
 

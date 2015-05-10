@@ -378,7 +378,7 @@ _RE_TOKENIZER = re.compile(
 _CTYPE = 'ctype'
 _BOUNDARY = 'boundary'
 _END = End()
-_MAX_OPS = 500
+_MAX_OPS = 5000
 
 
 _SECTION_HEADERS = 'headers'

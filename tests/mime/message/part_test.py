@@ -223,7 +223,8 @@ def preserve_ascii_test():
 
 
 def preserve_formatting_with_new_headers_test():
-    """Make sure that we don't re-serialize a message and change its formatting when headers were added but nothing else was modified."""
+    """Make sure that we don't re-serialize a message and change its formatting
+    when headers were added but nothing else was modified."""
     # MULTIPART contains this header:
     #   Content-Type: multipart/alternative; boundary=bd1
     # which will change to this if it is re-serialized:

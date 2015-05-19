@@ -86,11 +86,6 @@ def preparse_address(addr_spec):
     if len(parts) < 2:
         return None
 
-    # if we add more esp specific checks, they should be done
-    # with a dns lookup not string matching domain
-    if parts[1] == 'gmail.com' or parts[1] == 'googlemail.com':
-        parts[0] = parts[0].replace('.', '')
-
     return parts
 
 

@@ -65,8 +65,8 @@ def test_gmail_pass():
             addr = address.validate_address(localpart + DOMAIN)
             assert_not_equal(addr, None)
 
-        # all dots (.) are ignored
-        for localpart in ['aaaaaa......', '......aaaaaa', 'aaa......aaa','aa...aa...aa']:
+        # non-consecutive dots (.) within an address are legal
+        for localpart in ['a.aaaaa', 'aa.aaaa', 'aaa.aaa','aa.aa.aa']:
             addr = address.validate_address(localpart + DOMAIN)
             assert_not_equal(addr, None)
 
@@ -106,8 +106,8 @@ def test_gmail_fail():
             addr = address.validate_address(localpart + DOMAIN)
             assert_equal(addr, None)
 
-        # all dots (.) are ignored
-        for localpart in ['aaaaa......', '......aaaaa', 'aaa......aa','aa...a...aa']:
+        # invalid consecutive dots (.)
+        for localpart in ['aaaaaa......', '......aaaaaa', 'aaa......aaa','aa...aa...aa']:
             addr = address.validate_address(localpart + DOMAIN)
             assert_equal(addr, None)
 

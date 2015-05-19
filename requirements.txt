@@ -1,10 +1,11 @@
 cchardet==0.3.5
-chardet==1.0.1
-Cython==0.21.1
+chardet==2.3.0
+Cython==0.22
+dnspython==1.11.1
 dnsq==1.1.3
-expiringdict==1.1.2
+expiringdict==1.1.3
 mock==1.0.1
 nose==1.3.6
-redis==2.7.1
+redis==2.10.3
 regex==0.1.20110315
-WebOb==0.9.8
+WebOb==1.4.1

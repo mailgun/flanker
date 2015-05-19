@@ -222,6 +222,20 @@ def preserve_ascii_test():
     eq_('7bit', message.content_encoding.value)
 
 
+def preserve_formatting_with_new_headers_test():
+    """Make sure that we don't re-serialize a message and change its formatting
+    when headers were added but nothing else was modified."""
+    # MULTIPART contains this header:
+    #   Content-Type: multipart/alternative; boundary=bd1
+    # which will change to this if it is re-serialized:
+    #   Content-Type: multipart/alternative; boundary="bd1"
+    message = scan(MULTIPART)
+    message.headers.prepend('X-New-Header', 'Added')
+    new_header, remaining_mime = message.to_string().split('\r\n', 1)
+    eq_('X-New-Header: Added', new_header)
+    eq_(MULTIPART, remaining_mime)
+
+
 def ascii_to_unicode_test():
     """Make sure that ascii uprades to unicode whenever needed"""
     # contains unicode chars

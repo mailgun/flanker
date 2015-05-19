@@ -80,8 +80,8 @@ class Stream(object):
         self._body_changed = True
 
 
-    def headers_changed(self):
-        return self._headers is not None and self._headers.have_changed()
+    def headers_changed(self, ignore_prepends=False):
+        return self._headers is not None and self._headers.have_changed(ignore_prepends)
 
     def body_changed(self):
         return self._body_changed
@@ -172,7 +172,7 @@ class Body(object):
     def content_type(self):
         return self.headers['Content-Type']
 
-    def headers_changed(self):
+    def headers_changed(self, ignore_prepends=False):
         return True
 
     def body_changed(self):
@@ -192,7 +192,7 @@ class Part(object):
     def content_type(self):
         return self.headers['Content-Type']
 
-    def headers_changed(self):
+    def headers_changed(self, ignore_prepends=False):
         return True
 
     def body_changed(self):
@@ -463,10 +463,13 @@ class MimePart(RichPartMixin):
         Returns a MIME representation of the message.
         """
         # this optimisation matters *A LOT*
+        # when there are no prepended headers
         # we submit the original string,
         # no copying, no alternation, yeah!
-        if self.is_root() and not self.was_changed():
-            return self._container.string
+        if self.is_root() and not self.was_changed(ignore_prepends=True):
+            with closing(StringIO()) as out:
+                self.headers.to_stream(out, prepends_only=True)
+                return out.getvalue() + self._container.string
         else:
             with closing(StringIO()) as out:
                 self.to_stream(out)
@@ -486,8 +489,8 @@ class MimePart(RichPartMixin):
                 out.seek(original_position)
                 out.write(self._container.read_message())
 
-    def was_changed(self):
-        if self._container.headers_changed():
+    def was_changed(self, ignore_prepends=False):
+        if self._container.headers_changed(ignore_prepends):
             return True
 
         if self.content_type.is_singlepart():

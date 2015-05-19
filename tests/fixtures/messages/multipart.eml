@@ -2,7 +2,7 @@ From: "Administrator" <administrator@example.com>
 To: "Bob Sample" <bob@example.com>
 Subject: Welcome
 MIME-Version: 1.0
-Content-Type: multipart/alternative; boundary="bd1"
+Content-Type: multipart/alternative; boundary=bd1
 
 --bd1
 Content-Type: text/plain; charset="UTF-8"

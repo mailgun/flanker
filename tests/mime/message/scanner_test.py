@@ -112,7 +112,7 @@ def mailbox_full_test():
 def test_uservoice_case():
     message = scan(LONG_LINKS)
     html = message.body
-    message.body = html
+    message._container._body_changed = True
     val = message.to_string()
     for line in val.splitlines():
         print line

@@ -227,8 +227,8 @@ def message_headers_mutation_test():
 
 def message_headers_append_test():
     """
-    `prepend` and `add` add a header to the beginning and the end of the header
-    list respectively.
+    `prepend` and `add` both insert a header at the beginning and the end of the
+    header list.
     """
     # Given
     orig = create.from_string(ENCLOSED)
@@ -239,8 +239,8 @@ def message_headers_append_test():
     restored = create.from_python(orig.to_python_message())
 
     # Then
-    eq_(('Foo-Bar', 'hello'), restored.headers.items()[0])
-    eq_(('Blah', 'kitty'), restored.headers.items()[-1])
+    eq_(('Blah', 'kitty'), restored.headers.items()[0])
+    eq_(('Foo-Bar', 'hello'), restored.headers.items()[1])
 
 
 def message_headers_transform_test():

@@ -76,8 +76,9 @@ class Stream(object):
                 self.stream.read(self.end - self._body_start + 1))
 
     def _set_body(self, value):
-        self._body = value
-        self._body_changed = True
+        if value != self._body:
+            self._body = value
+            self._body_changed = True
 
 
     def headers_changed(self, ignore_prepends=False):
@@ -479,7 +480,8 @@ class MimePart(RichPartMixin):
         """
         Serializes the message using a file like object.
         """
-        if not self.was_changed():
+        if not self.was_changed(ignore_prepends=True):
+            self.headers.to_stream(out, prepends_only=True)
             out.write(self._container.read_message())
         else:
             try:

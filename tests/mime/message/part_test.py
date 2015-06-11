@@ -14,7 +14,7 @@ from tests import (BILINGUAL, BZ2_ATTACHMENT, ENCLOSED, TORTURE, TORTURE_PART,
                    TEXT_ONLY, ENCLOSED_BROKEN_BODY, RUSSIAN_ATTACH_YAHOO,
                    MAILGUN_PIC, MAILGUN_PNG, MULTIPART, IPHONE,
                    SPAM_BROKEN_CTYPE, BOUNCE, NDN, NO_CTYPE, RELATIVE,
-                   MULTI_RECEIVED_HEADERS)
+                   MULTI_RECEIVED_HEADERS, OUTLOOK_EXPRESS)
 from tests.mime.message.scanner_test import TORTURE_PARTS, tree_to_string
 
 
@@ -234,6 +234,16 @@ def preserve_formatting_with_new_headers_test():
     new_header, remaining_mime = message.to_string().split('\r\n', 1)
     eq_('X-New-Header: Added', new_header)
     eq_(MULTIPART, remaining_mime)
+
+
+def parse_then_serialize_malformed_message_test():
+    """
+    We don't have to fully parse message headers if they are never accessed.
+    Thus we should be able to parse then serialize a message with malformed
+    headers without crashing, even though we would crash if we fully parsed it.
+    """
+    serialized = scan(OUTLOOK_EXPRESS).to_string()
+    eq_(OUTLOOK_EXPRESS, serialized)
 
 
 def ascii_to_unicode_test():

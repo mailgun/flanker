@@ -65,6 +65,7 @@ QUOTED_PRINTABLE = open(
 TEXT_ONLY = open(fixture_file("messages/text-only.eml")).read()
 MAILGUN_PIC = open(fixture_file("messages/mailgun-pic.eml")).read()
 BZ2_ATTACHMENT  = open(fixture_file("messages/bz2-attachment.eml")).read()
+OUTLOOK_EXPRESS = open(fixture_file("messages/outlook-express.eml")).read()
 
 AOL_FBL = open(fixture_file("messages/complaints/aol.eml")).read()
 YAHOO_FBL = open(fixture_file("messages/complaints/yahoo.eml")).read()

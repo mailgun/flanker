@@ -58,12 +58,12 @@ def headers_multiple_values_test():
     eq_(['5'], h.getall('Mime-Version'))
 
     # use add to add more values
-    h.add('Received', '6')
-    eq_(['2', '4', '6'], h.getall('Received'))
+    h.add('Received', '1')
+    eq_(['1', '2', '4'], h.getall('Received'))
 
     # use prepend to insert header in the begining of the list
     h.prepend('Received', '0')
-    eq_(['0', '2', '4', '6'], h.getall('Received'))
+    eq_(['0', '1', '2', '4'], h.getall('Received'))
 
     # delete removes it all!
     del h['RECEIVED']

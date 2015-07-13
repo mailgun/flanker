@@ -76,9 +76,13 @@ class Stream(object):
                 self.stream.read(self.end - self._body_start + 1))
 
     def _set_body(self, value):
-        self._body = value
-        self._body_changed = True
+        if value != self._body:
+            self._body = value
+            self._body_changed = True
 
+    def _stream_prepended_headers(self, out):
+        if self._headers:
+            self._headers.to_stream(out, prepends_only=True)
 
     def headers_changed(self, ignore_prepends=False):
         return self._headers is not None and self._headers.have_changed(ignore_prepends)
@@ -178,6 +182,9 @@ class Body(object):
     def body_changed(self):
         return True
 
+    def _stream_prepended_headers(self, out):
+        self.headers.to_stream(out, prepends_only=True)
+
 
 class Part(object):
 
@@ -197,6 +204,9 @@ class Part(object):
 
     def body_changed(self):
         return True
+
+    def _stream_prepended_headers(self, out):
+        self.headers.to_stream(out, prepends_only=True)
 
 
 class RichPartMixin(object):
@@ -468,7 +478,7 @@ class MimePart(RichPartMixin):
         # no copying, no alternation, yeah!
         if self.is_root() and not self.was_changed(ignore_prepends=True):
             with closing(StringIO()) as out:
-                self.headers.to_stream(out, prepends_only=True)
+                self._container._stream_prepended_headers(out)
                 return out.getvalue() + self._container.string
         else:
             with closing(StringIO()) as out:
@@ -479,7 +489,8 @@ class MimePart(RichPartMixin):
         """
         Serializes the message using a file like object.
         """
-        if not self.was_changed():
+        if not self.was_changed(ignore_prepends=True):
+            self._container._stream_prepended_headers(out)
             out.write(self._container.read_message())
         else:
             try:

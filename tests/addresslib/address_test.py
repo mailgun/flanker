@@ -46,6 +46,13 @@ def test_address_compare():
     s.add(u)
     eq_(2, len(s))
 
+    # test string comparison
+    ok_(a == a.address)
+    ok_(not (a != a.address))
+
+    ok_(b != a.address)
+    ok_(not (b == a.address))
+
 
 def test_local_url():
     u = UrlAddress('http:///foo/bar')

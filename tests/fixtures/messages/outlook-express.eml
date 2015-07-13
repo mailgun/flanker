@@ -1,0 +1,28 @@
+X-Envelope-From: <bob@example.com>
+Received: from hwmail1.mailset.cn (hwmail1.mailset.cn [106.186.124.194]) by
+ mxa.mailgun.org with ESMTP id 53c3560e.7fe658457ed8-in3; Mon, 14 Jul 2014
+ 04:01:18 -0000 (UTC)
+Received: (ce send program); Mon, 14 Jul 2014 12:01:03 +0800
+Received: from 121.14.7.230 (HELO etcsmtp.xinnetdns.com) (121.14.7.230) by
+ 106.186.124.194 with SMTP; Mon, 14 Jul 2014 12:01:03 +0800
+Received: (ce send program); Mon, 14 Jul 2014 11:49:09 +0800
+X-Ce-Autoforward: etcsmtp.xinnetdns.com
+Message-Id: <EFOOJNZYKZFPXKXDZPRSCFMBVCHB.bob@example.com>
+Received: (ce send program); Mon, 14 Jul 2014 11:49:07 +0800
+Received: from 123.100.1.157 (HELO sink-gdmm.com) (123.100.1.157) by
+ 121.14.68.74 with SMTP; Mon, 14 Jul 2014 11:49:07 +0800
+Return-Path: <bob@example.com>
+Received: from [110.230.143.217] by 121.14.68.114 with surfront esmtp id
+ 9885528886420;	Mon, 14 Jul 2014 12:00:56 +0800 (CST)
+From: Bobby <bob@example.com>
+Subject: Sup?
+To: "Ally" <ally@example.com>
+Content-Type: application/octet-stream;
+        name="�½� �ı��ĵ�.txt"
+Content-Transfer-Encoding: base64
+Mime-Version: 1.0
+Date: Tue, 14 Jul 2015 12:19:08 +0800
+X-Mailer: Microsoft Outlook Express 6.00.2800.1106
+X-Mailgun-Incoming: Yes
+
+0YLQtdC60YHRgtC+0LLQvtC1INCy0LvQvtC20LXQvdC40LU=

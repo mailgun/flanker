@@ -34,8 +34,12 @@ class MimeHeaders(object):
         return normalize(key) in self._v
 
     def __setitem__(self, key, value):
-        self._v[normalize(key)] = remove_newlines(value)
-        self.changed = True
+        key = normalize(key)
+        if key in self._v:
+            self._v[key] = remove_newlines(value)
+            self.changed = True
+        else:
+            self.prepend(key, remove_newlines(value))
 
     def __delitem__(self, key):
         del self._v[normalize(key)]
@@ -51,9 +55,7 @@ class MimeHeaders(object):
     def add(self, key, value):
         """Adds header without changing the
         existing headers with same name"""
-
-        self._v.add(normalize(key), remove_newlines(value))
-        self.changed = True
+        self.prepend(key, value)
 
     def keys(self):
         """

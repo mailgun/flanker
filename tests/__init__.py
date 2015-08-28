@@ -53,6 +53,8 @@ ENCLOSED_BROKEN_BODY = open(
     fixture_file("messages/enclosed-broken-body.eml")).read()
 ENCLOSED_BROKEN_ENCODING = open(
     fixture_file("messages/enclosed-bad-encoding.eml")).read()
+FALSE_MULTIPART = open(
+    fixture_file("messages/false-multipart.eml")).read()
 ENCODED_HEADER = open(
     fixture_file("messages/encoded-header.eml")).read()
 MESSAGE_EXTERNAL_BODY= open(
@@ -66,6 +68,7 @@ QUOTED_PRINTABLE = open(
 TEXT_ONLY = open(fixture_file("messages/text-only.eml")).read()
 MAILGUN_PIC = open(fixture_file("messages/mailgun-pic.eml")).read()
 BZ2_ATTACHMENT  = open(fixture_file("messages/bz2-attachment.eml")).read()
+OUTLOOK_EXPRESS = open(fixture_file("messages/outlook-express.eml")).read()
 
 AOL_FBL = open(fixture_file("messages/complaints/aol.eml")).read()
 YAHOO_FBL = open(fixture_file("messages/complaints/yahoo.eml")).read()

@@ -46,8 +46,8 @@ def test_hotmail_pass():
             addr = address.validate_address(localpart + DOMAIN)
             assert_not_equal(addr, None)
 
-        # start must be letter
-        for i in string.ascii_letters:
+        # start must be letter or number
+        for i in string.ascii_letters + string.digits:
             localpart = str(i) + 'a'
             addr = address.validate_address(localpart + DOMAIN)
             assert_not_equal(addr, None)
@@ -87,7 +87,7 @@ def test_hotmail_fail():
             assert_equal(addr, None)
 
         # invalid start char (must start with letter)
-        for i in string.punctuation + string.digits:
+        for i in string.punctuation:
             localpart = str(i) + 'a'
             addr = address.validate_address(localpart + DOMAIN)
             assert_equal(addr, None)

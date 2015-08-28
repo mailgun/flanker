@@ -246,7 +246,7 @@ headerValue = re.compile(r"""
        # don't care about the spaces
        ^[\ \t]*
        #main type and sub type or any other value
-       ([a-z0-9\-/\.]+)
+       ([a-z0-9\-/\.\*]+)
        # grab the trailing spaces, colons
        [\ \t;]*""", re.IGNORECASE | re.VERBOSE)
 

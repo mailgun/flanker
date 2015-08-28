@@ -16,6 +16,7 @@ class MimeHeaders(object):
         self._v = MultiDict([(normalize(key), remove_newlines(val))
                              for (key, val) in items])
         self.changed = False
+        self.num_prepends = 0
 
     def __getitem__(self, key):
         v = self._v.get(normalize(key), None)
@@ -33,8 +34,12 @@ class MimeHeaders(object):
         return normalize(key) in self._v
 
     def __setitem__(self, key, value):
-        self._v[normalize(key)] = remove_newlines(value)
-        self.changed = True
+        key = normalize(key)
+        if key in self._v:
+            self._v[key] = remove_newlines(value)
+            self.changed = True
+        else:
+            self.prepend(key, remove_newlines(value))
 
     def __delitem__(self, key):
         del self._v[normalize(key)]
@@ -45,14 +50,12 @@ class MimeHeaders(object):
 
     def prepend(self, key, value):
         self._v._items.insert(0, (normalize(key), remove_newlines(value)))
-        self.changed = True
+        self.num_prepends += 1
 
     def add(self, key, value):
         """Adds header without changing the
         existing headers with same name"""
-
-        self._v.add(normalize(key), remove_newlines(value))
-        self.changed = True
+        self.prepend(key, value)
 
     def keys(self):
         """
@@ -119,11 +122,11 @@ class MimeHeaders(object):
         v = self._v.getall(normalize(key))
         return [encodedword.decode(x) for x in v]
 
-    def have_changed(self):
+    def have_changed(self, ignore_prepends=False):
         """
         Tells whether someone has altered the headers after creation.
         """
-        return self.changed
+        return self.changed or (self.num_prepends > 0 and not ignore_prepends)
 
     def __str__(self):
         return str(self._v)
@@ -136,11 +139,15 @@ class MimeHeaders(object):
         """
         return cls(parse_stream(stream))
 
-    def to_stream(self, stream):
+    def to_stream(self, stream, prepends_only=False):
         """
         Takes a stream and serializes headers in a mime format.
         """
+        i = 0
         for h, v in self.iteritems(raw=True):
+            if prepends_only and i == self.num_prepends:
+                break
+            i += 1
             try:
                 h = h.encode('ascii')
             except UnicodeDecodeError:

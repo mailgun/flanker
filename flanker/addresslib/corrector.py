@@ -39,6 +39,7 @@ MOST_COMMON_DOMAINS = [
     'yahoo.ca',
     'yahoo.co.jp',
     'yahoo.co.uk',
+    'yahoo.com.br',
     'ymail.com',
     'hotmail.com',
     'hotmail.ca',

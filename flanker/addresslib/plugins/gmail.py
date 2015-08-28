@@ -9,7 +9,8 @@
         must start with letter or number
         must end with letter or number
         must use letters, numbers, or dots (.)
-        all dots (.) are ignored
+        consecutive dots (..) are not permitted
+        dots (.) at the beginning or end are not permitted
         case is ignored
         plus (+) is allowed, everything after + is ignored
       1. All characters prefixing the plus symbol (+) and stripping all dot
@@ -18,12 +19,13 @@
 
     Grammar:
 
-        local-part      ->      main-part [ tags ]
-        main-part       ->      gmail-prefix gmail-root gmail-suffix
-        tags            ->      { + [ gmail-root ] }
-        gmail-prefix    ->      alpha | num
-        gmail-root      ->      alpha | num | dot
-        gmail-suffix    ->      alpha | num
+        local-part       ->      main-part [ tags ]
+        main-part        ->      alphanum { [dot] alphanum }
+        tags             ->      { + [ dot-atom ] }
+        dot-atom    	 ->      atom { [ dot   atom ] }
+        atom             ->      { A-Za-z0-9!#$%&'*+\-/=?^_`{|}~ }
+        alphanum         ->      alpha | num
+        dot              ->      .
 '''
 import re
 from flanker.addresslib.tokenizer import TokenStream
@@ -39,7 +41,10 @@ ALPHANUM   = re.compile(r'''
                         ''', re.MULTILINE | re.VERBOSE)
 
 PLUS       = re.compile(r'''
-                        [\+]+
+                        [\+]
+                        ''', re.MULTILINE | re.VERBOSE)
+DOT        = re.compile(r'''
+                        [\.]
                         ''', re.MULTILINE | re.VERBOSE)
 
 
@@ -48,23 +53,21 @@ def validate(localpart):
     if not localpart:
         return False
 
-    slpart = localpart.replace('.', '')
-    lparts = slpart.split('+')
+    lparts = localpart.split('+')
     real_localpart = lparts[0]
+    stripped_localpart = real_localpart.replace('.', '')
 
     # length check
-    l = len(real_localpart)
+    l = len(stripped_localpart)
     if l < 6 or l > 30:
         return False
 
    # must start with letter or num
     if ALPHANUM.match(real_localpart[0]) is None:
         return False
-
     # must end with letter or num
     if ALPHANUM.match(real_localpart[-1]) is None:
         return False
-
     # grammar check
     return _validate(real_localpart)
 
@@ -72,10 +75,15 @@ def validate(localpart):
 def _validate(localpart):
     stream = TokenStream(localpart)
 
-    # get the gmail base (alpha, num, or dot)
-    mpart = stream.get_token(GMAIL_BASE)
-    if mpart is None:
-        return False
+    while True:
+        # get alphanumeric portion
+        mpart = stream.get_token(ALPHANUM)
+        if mpart is None:
+            return False
+        # get optional dot, must be followed by more alphanumerics
+        mpart = stream.get_token(DOT)
+        if mpart is None:
+            break
 
     # optional tags
     tgs = _tags(stream)

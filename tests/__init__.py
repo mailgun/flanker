@@ -38,6 +38,7 @@ TORTURE_PART = open(fixture_file("messages/torture-part.eml")).read()
 BILINGUAL = open(fixture_file("messages/bilingual-simple.eml")).read()
 RELATIVE = open(fixture_file("messages/relative.eml")).read()
 IPHONE = open(fixture_file("messages/iphone.eml")).read()
+NO_FILENAME = open(fixture_file("messages/no-filename.eml")).read()
 
 MULTIPART = open(fixture_file("messages/multipart.eml")).read()
 FROM_ENCODING = open(fixture_file("messages/from-encoding.eml")).read()

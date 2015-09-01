@@ -96,7 +96,8 @@ SPAM_BROKEN_CTYPE = open(
 LONG_HEADER = open(
     fixture_file("messages/long-header.eml")).read()
 ATTACHED_PDF = open(fixture_file("messages/attached-pdf.eml")).read()
-
+APPLE_MAIL_INLINE_ATTACHMENT = open(
+    fixture_file("messages/apple-mail-inline-attachment.eml")).read()
 
 
 # addresslib fixture files

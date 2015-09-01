@@ -426,6 +426,8 @@ def content_types_test():
     part = scan(APPLE_MAIL_INLINE_ATTACHMENT)
     eq_(u"Capture d'e\u0301cran 2015-08-13 20.58.24.png",
         part.parts[1].parts[1].detected_file_name)
+    assert_false(part.parts[1].parts[1].is_attachment())
+    ok_(part.parts[1].parts[1].is_inline())
 
 
 def test_is_body():

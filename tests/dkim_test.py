@@ -24,7 +24,7 @@ We lost the game.  Are you hungry yet?
 Joe.
 """.strip()
 
-DUMMY_RSA_KEY = serialization.load_pem_pkcs8_private_key(b"""
+DUMMY_RSA_KEY = serialization.load_pem_private_key(b"""
 -----BEGIN RSA PRIVATE KEY-----
 MIICXgIBAAKBgQDn09PV9KPE7Q+N5K5UtNLT1DLl8z/pKM2pP5tXqWx2OsEw00lC
 kDHdHESwzS050s/8rtkERKKyusCzCm9+vC1pQzUlmtibfF4PQAQc1pJL6KHqlidg

@@ -52,6 +52,8 @@ ENCLOSED_BROKEN_BODY = open(
     fixture_file("messages/enclosed-broken-body.eml")).read()
 ENCLOSED_BROKEN_ENCODING = open(
     fixture_file("messages/enclosed-bad-encoding.eml")).read()
+FALSE_MULTIPART = open(
+    fixture_file("messages/false-multipart.eml")).read()
 ENCODED_HEADER = open(
     fixture_file("messages/encoded-header.eml")).read()
 MESSAGE_EXTERNAL_BODY= open(

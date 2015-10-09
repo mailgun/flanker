@@ -1,11 +1,10 @@
 # coding:utf-8
 
-import sys
 from setuptools import setup, find_packages
 
 
 setup(name='flanker',
-      version='0.3.36',
+      version='0.3.37',
       description='Mailgun Parsing Tools',
       long_description=open('README.rst').read(),
       classifiers=[],
@@ -24,6 +23,7 @@ setup(name='flanker',
       install_requires=[
           'chardet>=1.0.1',
           'cchardet>=0.3.5',
+          'cryptography>=0.5',
           'cython>=0.21.1',
           'dnsq>=1.1.6',
           'expiringdict>=1.1.2',
@@ -33,4 +33,4 @@ setup(name='flanker',
           # mime parsing (100x slower) so keep it as-is for now.
           'regex==0.1.20110315',
       ],
-      )
+)

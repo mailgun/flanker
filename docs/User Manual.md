@@ -14,6 +14,9 @@
     * [Drawbacks](#drawbacks)
     * [Parsing MIME Messages](#parsing-mime-messages)
     * [Creating MIME Messages](#creating-mime-messages)
+* [DKIM](#dkim)
+    * [Signing](#signing)
+    * [Verification](#verification)
 
 ### Introduction
 
@@ -633,3 +636,66 @@ Content-Transfer-Encoding: 7bit
 
 --13f551bddf2e4759b125f70674288048--
 ```
+
+### DKIM
+
+DKIM (DomainKey Identified Mail) is an IETF standard that allows MTAs to attach
+signatures to emails they send which allows an MTA receiving the email to
+verify that the sender was allowed to send mail for that domain. flanker
+provides support for generating DKIM signatures, as well as DomainKey
+signatures (a previous standard for doing the same thing).
+
+#### Signing
+
+To sign a message, you need a few things:
+
+* `key`: An RSA private key. This should be an instance of
+  `cryptography.hazmat.primitives.interfaces.RSAPrivateKey`, you can consult
+  the [PyCA Cryptography documentation](https://cryptography.io/en/latest/hazma
+  t/primitives/asymmetric/rsa/) for more information on how to generate and
+  load keys.
+* `selector`: A string which identifies a particular public key that the
+  receiving MTA should used to verify senders. It corresponds to a specific DNS
+  record.
+* `domain`: A string which specifies the domain the message is from.
+* `header_canonicalization` and `body_canonicalization` (optional): These
+  specify which of the canonicalization rules from the RFC can be used. Valid
+  values are `flanker.dkim.SimpleCanonicalization` (the default) and
+  `flanker.dkim.RelaxedCanonicalization`.
+* `signed_headers` (optional): A list of strings which specify which headers
+  should be signed. If this argument is not supplied, all of the message's
+  headers will be supplied.
+
+Finally, you need a `message`, which is a string containing an RFC 822
+formatted email.
+
+
+```pycon
+>>> from flanker.dkim import DKIMSigner
+>>> example_message = """
+... From: Joe SixPack <joe@football.example.com>
+... To: Suzie Q <suzie@shopping.example.net>
+... Subject: Is dinner ready?
+... Date: Fri, 11 Jul 2003 21:00:37 -0700 (PDT)
+... Message-ID: <20030712040037.46341.5F8J@football.example.com>
+...
+... Hi.
+...
+... We lost the game.  Are you hungry yet?
+...
+... Joe.
+... """.strip()
+>>> signer = DKIMSigner(rsa_key, selector="mx", domain="mailgun.net")
+>>> signer.sign(example_message)
+"DKIM-Signature: ..."
+```
+
+`sign()` will return the complete header line which can be added to the email
+before sending.
+
+`flanker.dkim.DomainKeySigner` works similarly, except it does not allow
+specifying the canonicalization rules.
+
+#### Verification
+
+flanker does not currently support verifying DKIM signatures, but it will soon.

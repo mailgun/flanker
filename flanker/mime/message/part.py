@@ -137,7 +137,7 @@ def _guess_type(filename):
 
 class Body(object):
     def __init__(
-        self, content_type, body, charset=None, disposition=None, filename=None):
+        self, content_type, body, charset=None, disposition=None, filename=None, trust_ctype=False):
         self.headers = headers.MimeHeaders()
         self.body = body
         self.disposition = disposition or ('attachment' if filename else None)
@@ -147,7 +147,8 @@ class Body(object):
         if self.filename:
             self.filename = path.basename(self.filename)
 
-        content_type = adjust_content_type(content_type, body, filename)
+        if not trust_ctype:
+            content_type = adjust_content_type(content_type, body, filename)
 
         if content_type.main == 'text':
             # the text should have a charset

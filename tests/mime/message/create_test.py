@@ -261,6 +261,13 @@ def attaching_emails_test():
     eq_("message/rfc822", attachment.content_type)
 
 
+def attaching_broken_emails_test():
+    attachment = create.attachment(
+        "application/octet-stream", FALSE_MULTIPART, "message.eml", "attachment")
+    ok_(attachment.is_attachment())
+    eq_("application/octet-stream", attachment.content_type)
+
+
 def attaching_images_test():
     attachment = create.attachment(
         "application/octet-stream", MAILGUN_PNG, "/home/alex/mailgun.png")

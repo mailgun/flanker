@@ -1,0 +1,5 @@
+From: <joe@example.net>
+Subject: This line has trailing spaces     
+Comment: This line has leading and trailing tabs	
+
+Plain line of body text

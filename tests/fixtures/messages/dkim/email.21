@@ -1,0 +1,6 @@
+From: <joe@example.net>
+Subject: This subject that wraps
+ onto a new line with a space
+	and then onto another line indented by a tab
+
+Single line of text

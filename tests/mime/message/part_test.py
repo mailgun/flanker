@@ -14,7 +14,8 @@ from tests import (BILINGUAL, BZ2_ATTACHMENT, ENCLOSED, TORTURE, TORTURE_PART,
                    TEXT_ONLY, ENCLOSED_BROKEN_BODY, RUSSIAN_ATTACH_YAHOO,
                    MAILGUN_PIC, MAILGUN_PNG, MULTIPART, IPHONE,
                    SPAM_BROKEN_CTYPE, BOUNCE, NDN, NO_CTYPE, RELATIVE,
-                   MULTI_RECEIVED_HEADERS, OUTLOOK_EXPRESS)
+                   MULTI_RECEIVED_HEADERS, OUTLOOK_EXPRESS,
+                   APPLE_MAIL_INLINE_ATTACHMENT)
 from tests.mime.message.scanner_test import TORTURE_PARTS, tree_to_string
 
 
@@ -419,6 +420,14 @@ def content_types_test():
     eq_('x-bzip2', attachment.detected_subtype)
     eq_('application', attachment.detected_format)
     ok_(not attachment.is_body())
+
+    # APPLE_MAIL_INLINE_ATTACHMENT is a message with an inline attachment
+    # with a file name.
+    part = scan(APPLE_MAIL_INLINE_ATTACHMENT)
+    eq_(u"Capture d'e\u0301cran 2015-08-13 20.58.24.png",
+        part.parts[1].parts[1].detected_file_name)
+    assert_false(part.parts[1].parts[1].is_attachment())
+    ok_(part.parts[1].parts[1].is_inline())
 
 
 def test_is_body():

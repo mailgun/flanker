@@ -261,7 +261,7 @@ class RichPartMixin(object):
         file_name = ctype.params.get('name', '') or ctype.params.get('filename', '')
 
         value, params = self.content_disposition
-        if value == 'attachment':
+        if value == 'attachment' or value == 'inline':
             file_name = params.get('filename', '') or file_name
 
         # filenames can be presented as tuples, like:

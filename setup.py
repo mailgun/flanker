@@ -32,5 +32,6 @@ setup(name='flanker',
           # mime parsing (100x slower) so keep it as-is for now.
           'regex>=0.1.20110315',
           'cryptography>=0.5',
+          'six>=1.10.0',
       ],
 )

@@ -566,7 +566,7 @@ class AddressList(object):
         return set(self.container) == set(other.container)
 
     def __repr__(self):
-        return ''.join(['[', self.full_spec(), ']'])
+        return b''.join([b'[', self.full_spec(), b']'])
 
     def __add__(self, other):
         """

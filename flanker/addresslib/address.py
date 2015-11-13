@@ -457,6 +457,7 @@ class EmailAddress(Address):
         return hash(self.address.lower())
 
 
+# TODO: Non-ASCII addresses compliancy
 class UrlAddress(Address):
     """
     Represents a parsed URL:

@@ -402,7 +402,7 @@ class EmailAddress(Address):
             encoded_display_name = smart_quote(encode_string(
                 None, self.display_name, maxlinelen=MAX_ADDRESS_LENGTH))
             return '{0} <{1}>'.format(encoded_display_name, self.address)
-        return u'{0}'.format(self.address)
+        return '{0}'.format(self.address)
 
     def to_unicode(self):
         """

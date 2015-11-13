@@ -319,6 +319,7 @@ class Address(object):
         Url   = 'url'
 
 
+# TODO: RFC 6530 (Internationalizaion of address, etc) compliancy
 class EmailAddress(Address):
     """
     Represents a fully parsed email address with built-in support for MIME

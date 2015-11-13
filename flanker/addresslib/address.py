@@ -503,10 +503,10 @@ class UrlAddress(Address):
         return self.address
 
     def full_spec(self):
-        return self.address
+        return self.address if isinstance(self.address, bytes) else self.address.encode('idna')
 
     def to_unicode(self):
-        return self.address
+        return self.address if isinstance(self.address, unicode) else self.address.decode('idna')
 
     def __repr__(self):
         return self.address

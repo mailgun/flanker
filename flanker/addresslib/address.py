@@ -406,8 +406,8 @@ class EmailAddress(Address):
         if self.display_name:
             encoded_display_name = smart_quote(encode_string(
                 None, self.display_name, maxlinelen=MAX_ADDRESS_LENGTH))
-            return '{0} <{1}>'.format(encoded_display_name, self.address)
-        return '{0}'.format(self.address)
+            return b'{0} <{1}>'.format(encoded_display_name, self.address)
+        return b'{0}'.format(self.address)
 
     def to_unicode(self):
         """

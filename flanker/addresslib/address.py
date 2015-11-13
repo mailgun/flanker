@@ -364,6 +364,8 @@ class EmailAddress(Address):
         else:
             self.display_name = u''
 
+        self.display_name = self.display_name if isinstance(self.display_name, unicode) else self.display_name.decode('ascii')
+
         parts = spec.rsplit(b'@', 1)
         self.mailbox = parts[0]
         self.hostname = parts[1].lower()

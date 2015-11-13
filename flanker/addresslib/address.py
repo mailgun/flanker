@@ -573,12 +573,12 @@ class AddressList(object):
             result = self.container + other.container
         return AddressList(result)
 
-    def full_spec(self, delimiter=", "):
+    def full_spec(self, delimiter=b", "):
         """
         Returns a full string which looks pretty much what the original was
         like
             >>> adl = AddressList("Foo <foo@host.com>, Bar <bar@host.com>")
-            >>> adl.full_spec(delimiter='; ')
+            >>> adl.full_spec(delimiter=b'; ')
             'Foo <foo@host.com; Bar <bar@host.com>'
         """
         return delimiter.join(addr.full_spec() for addr in self.container)

@@ -414,8 +414,8 @@ class EmailAddress(Address):
         Converts to unicode.
         """
         if self.display_name:
-            return u'{0} <{1}>'.format(self.display_name, self.address)
-        return u'{0}'.format(self.address)
+            return u'{0} <{1}>'.format(self.display_name, self.address.decode('ascii'))
+        return u'{0}'.format(self.address.decode('ascii'))
 
     def __cmp__(self, other):
         return True

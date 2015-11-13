@@ -187,7 +187,7 @@ def validate_address(addr_spec, metrics=False):
 
     # run parser against address
     bstart = time.time()
-    paddr = parse('@'.join(addr_parts), addr_spec_only=True)
+    paddr = parse(b'@'.join(addr_parts), addr_spec_only=True)
     mtimes['parsing'] = time.time() - bstart
     if paddr is None:
         return None, mtimes
@@ -354,6 +354,8 @@ class EmailAddress(Address):
 
         assert(spec)
 
+        spec = spec if isinstance(spec, str) else spec.encode('ascii')
+
         if parsed_name:
             self.display_name = smart_unquote(mime_to_unicode(parsed_name))
         elif display_name:
@@ -361,10 +363,10 @@ class EmailAddress(Address):
         else:
             self.display_name = u''
 
-        parts = spec.rsplit('@', 1)
+        parts = spec.rsplit(b'@', 1)
         self.mailbox = parts[0]
         self.hostname = parts[1].lower()
-        self.address = self.mailbox + "@" + self.hostname
+        self.address = self.mailbox + b"@" + self.hostname
         self.addr_type = self.Type.Email
 
     def __repr__(self):

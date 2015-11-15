@@ -1,4 +1,4 @@
-from StringIO import StringIO
+from io import StringIO, BytesIO
 import re
 from flanker.addresslib.tokenizer import ATOM, WHITESPACE
 
@@ -27,7 +27,14 @@ def smart_unquote(s):
     quoted regions in there. If there are no quoted regions in the input string
     then output string is identical to the input string.
     """
-    unquoted = StringIO()
+    if isinstance(s, unicode):
+        quote_char = u'"'
+        escape_char = u'\\'
+        unquoted = StringIO()
+    else:
+        quote_char = b'"'
+        escape_char = b'\\'
+        unquoted = BytesIO()
     escaped_char = False
     is_quoted_section = False
     for c in s:
@@ -35,14 +42,14 @@ def smart_unquote(s):
             if escaped_char:
                 escaped_char = False
             else:
-                if c == '"':
+                if c == quote_char:
                     is_quoted_section = False
                     continue
-                elif c == '\\':
+                elif c == escape_char:
                     escaped_char = True
                     continue
         else:
-            if c == '"':
+            if c == quote_char:
                 is_quoted_section = True
                 continue
 

@@ -4,7 +4,7 @@ from flanker.addresslib.tokenizer import ATOM, WHITESPACE
 
 
 _RE_ATOM_PHRASE = re.compile(
-    r'({atom}({whitespace}{atom})*)|^$'
+    br'({atom}({whitespace}{atom})*)|^$'
     .format(atom=ATOM.pattern, whitespace=WHITESPACE.pattern),
     re.MULTILINE | re.VERBOSE)
 
@@ -18,7 +18,7 @@ def smart_quote(s):
     if _contains_atoms_only(s):
         return s
 
-    return '"' + s.replace('\\', '\\\\').replace('"', '\\"') + '"'
+    return b'"' + s.replace(b'\\', b'\\\\').replace(b'"', b'\\"') + b'"'
 
 
 def smart_unquote(s):

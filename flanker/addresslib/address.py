@@ -131,7 +131,7 @@ def parse_list(address_list, strict=False, as_tuple=False, metrics=False):
 
     # if we have a list, transform it into a string first
     if isinstance(address_list, list):
-        address_list = ', '.join(_normalize_address_list(address_list))
+        address_list = u', '.join(_normalize_address_list(address_list))
 
     # parse
     try:
@@ -629,7 +629,9 @@ def _normalize_address_list(address_list):
     for addr in address_list:
         if isinstance(addr, Address):
             parts.append(addr.to_unicode())
-        if isinstance(addr, basestring):
+        elif isinstance(addr, unicode):
             parts.append(addr)
+        elif isinstance(addr, str):
+            parts.append(addr.decode('ascii'))
 
     return parts

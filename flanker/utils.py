@@ -114,14 +114,14 @@ def cleanup_display_name(name):
     if isinstance(name, unicode):
         return name.strip(u''';,'\r\n ''')
     else:
-        return name.strip(''';,'\r\n ''')
+        return name.strip(b''';,'\r\n ''')
 
 
 def cleanup_email(email):
     if isinstance(email, unicode):
         return email.strip(u"<>;, ")
     else:
-        return email.strip("<>;, ")
+        return email.strip(b"<>;, ")
 
 
 def contains_control_chars(s):

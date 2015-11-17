@@ -41,7 +41,7 @@ UNI_WHITE  = re.compile(ur'''
 
 RELAX_ATOM = re.compile(r'''
                         ([^\s<>;,"]+)
-                        ''', re.MULTILINE | re.VERBOSE)
+                        ''', re.MULTILINE | re.VERBOSE | ASCII_FLAG)
 
 ATOM       = re.compile(r'''
                         [A-Za-z0-9!#$%&'*+\-/=?^_`{|}~]+        # atext

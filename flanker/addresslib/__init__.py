@@ -30,12 +30,12 @@ from flanker.addresslib.plugins import google
 mx_cache = RedisCache()
 dns_lookup = DNSLookup()
 
-YAHOO_PATTERN = re.compile(r'''mta[0-9]+\.am[0-9]+\.yahoodns\.net$''')
-GMAIL_PATTERN = re.compile(r'''.*gmail-smtp-in\.l\.google.com$''')
-AOL_PATTERN = re.compile(r'''.*\.mx\.aol\.com$''')
-ICLOUD_PATTERN = re.compile(r'''.*\.mail\.icloud\.com$''')
-HOTMAIL_PATTERN = re.compile(r'''mx[0-9]\.hotmail\.com''')
-GOOGLE_PATTERN = re.compile(r'''(.*aspmx\.l\.google\.com$)|(aspmx.*\.googlemail.com$)''', re.IGNORECASE)
+YAHOO_PATTERN = re.compile(br'''mta[0-9]+\.am[0-9]+\.yahoodns\.net$''')
+GMAIL_PATTERN = re.compile(br'''.*gmail-smtp-in\.l\.google.com$''')
+AOL_PATTERN = re.compile(br'''.*\.mx\.aol\.com$''')
+ICLOUD_PATTERN = re.compile(br'''.*\.mail\.icloud\.com$''')
+HOTMAIL_PATTERN = re.compile(br'''mx[0-9]\.hotmail\.com''')
+GOOGLE_PATTERN = re.compile(br'''(.*aspmx\.l\.google\.com$)|(aspmx.*\.googlemail.com$)''', re.IGNORECASE)
 
 CUSTOM_GRAMMAR_LIST = [
     (YAHOO_PATTERN, yahoo),

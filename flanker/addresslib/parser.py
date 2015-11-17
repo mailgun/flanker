@@ -185,7 +185,7 @@ class _AddressParser(object):
         """
         Additional post processing checks to ensure mailbox is valid.
         """
-        parts = address.split('@')
+        parts = address.split(b'@')
 
         # check if local part is less than 1024 octets, the actual
         # limit is 64 octets but we allow 16x that size here because
@@ -200,7 +200,7 @@ class _AddressParser(object):
             return False
 
         # number of labels can not be over 127
-        labels = domn.split('.')
+        labels = domn.split(b'.')
         if len(labels) > 127:
             return False
 

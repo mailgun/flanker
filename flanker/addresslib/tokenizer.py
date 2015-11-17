@@ -8,11 +8,8 @@ compiled regular expressions or strings.
 """
 
 import re
+from flanker.addresslib import ASCII_FLAG
 
-try:
-    ASCII_FLAG = re.ASCII
-except AttributeError:
-    ASCII_FLAG = 0
 
 LBRACKET   = b'<'
 AT_SYMBOL  = b'@'

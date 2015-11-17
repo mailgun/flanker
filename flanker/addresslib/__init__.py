@@ -11,6 +11,12 @@ set_dns_lookup and set_mx_cache methods. For more details, see the User Manual.
 '''
 import re
 
+try:
+    ASCII_FLAG = re.ASCII
+except AttributeError:
+    ASCII_FLAG = 0
+
+
 from flanker.addresslib.drivers.redis_driver import RedisCache
 from flanker.addresslib.drivers.dns_lookup import DNSLookup
 
@@ -20,7 +26,6 @@ from flanker.addresslib.plugins import gmail
 from flanker.addresslib.plugins import icloud
 from flanker.addresslib.plugins import hotmail
 from flanker.addresslib.plugins import google
-
 
 mx_cache = RedisCache()
 dns_lookup = DNSLookup()

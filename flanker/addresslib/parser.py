@@ -550,7 +550,7 @@ class _AddressParser(object):
         # optional whitespace
         self._whitespace()
 
-        aspec = cleanup_email(''.join([lpart, asym, domn]))
+        aspec = cleanup_email(lpart + asym + domn)
         if as_string:
             return aspec
         return flanker.addresslib.address.EmailAddress(aspec)

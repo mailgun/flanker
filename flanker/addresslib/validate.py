@@ -74,7 +74,7 @@ def suggest_alternate(addr_spec):
     if sugg_domain == addr_parts[-1]:
         return None
 
-    return '@'.join([addr_parts[0], sugg_domain])
+    return b'@'.join([addr_parts[0], sugg_domain])
 
 
 def preparse_address(addr_spec):

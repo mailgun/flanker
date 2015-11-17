@@ -125,6 +125,8 @@ def cleanup_email(email):
 
 
 def contains_control_chars(s):
+    if isinstance(s, str):
+        s = s.decode('iso-8859-1')
     if CONTROL_CHAR_RE.match(s):
         return True
     return False
@@ -153,5 +155,7 @@ def metrics_wrapper():
 
 
 # allows, \t\n\v\f\r (0x09-0x0d)
-CONTROL_CHARS = ''.join(map(unichr, range(0, 9) + range(14, 32) + range(127, 160)))
-CONTROL_CHAR_RE = re.compile('[%s]' % re.escape(CONTROL_CHARS))
+CONTROL_CHARS = u''.join(map(unichr, range(0, 9) + range(14, 32) + range(127, 160)))
+CONTROL_CHAR_RE = re.compile(u'[%s]' % re.escape(CONTROL_CHARS), re.UNICODE)
+
+

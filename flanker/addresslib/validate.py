@@ -82,7 +82,7 @@ def preparse_address(addr_spec):
     Preparses email addresses. Used to handle odd behavior by ESPs.
     """
     # sanity check, ensure we have both local-part and domain
-    parts = addr_spec.split('@')
+    parts = addr_spec.split(b'@')
     if len(parts) < 2:
         return None
 

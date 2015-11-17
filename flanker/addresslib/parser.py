@@ -389,7 +389,8 @@ class _AddressParser(object):
                 break
             wrds.append(wrd)
 
-        return cleanup_display_name(''.join(wrds))
+        concatenator = b'' if isinstance(self.stream, str) else u''
+        return cleanup_display_name(concatenator.join(wrds))
 
     def _angle_addr_rfc(self):
         """
@@ -500,7 +501,8 @@ class _AddressParser(object):
                 wrds.pop()
                 break
 
-        return cleanup_display_name(''.join(wrds))
+        concatenator = b'' if isinstance(self.stream, str) else u''
+        return cleanup_display_name(concatenator.join(wrds))
 
     def _angle_addr_lax(self):
         """

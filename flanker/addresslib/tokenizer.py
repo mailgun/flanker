@@ -16,15 +16,15 @@ AT_SYMBOL  = b'@'
 RBRACKET   = b'>'
 DQUOTE     = b'"'
 
-BAD_DOMAIN = re.compile(r'''                                    # start or end
+BAD_DOMAIN = re.compile(br'''                                    # start or end
                         ^-|-$                                   # with -
                         ''', re.MULTILINE | re.VERBOSE | ASCII_FLAG)
 
-DELIMITER  = re.compile(r'''
+DELIMITER  = re.compile(br'''
                         [,;][,;\s]*                             # delimiter
                         ''', re.MULTILINE | re.VERBOSE | ASCII_FLAG)
 
-WHITESPACE = re.compile(r'''
+WHITESPACE = re.compile(br'''
                         (\ |\t)+                                # whitespace
                         ''', re.MULTILINE | re.VERBOSE | ASCII_FLAG)
 
@@ -36,15 +36,15 @@ UNI_WHITE  = re.compile(ur'''
                         ]*
                         ''', re.MULTILINE | re.VERBOSE | re.UNICODE)
 
-RELAX_ATOM = re.compile(r'''
+RELAX_ATOM = re.compile(br'''
                         ([^\s<>;,"]+)
                         ''', re.MULTILINE | re.VERBOSE | ASCII_FLAG)
 
-ATOM       = re.compile(r'''
+ATOM       = re.compile(br'''
                         [A-Za-z0-9!#$%&'*+\-/=?^_`{|}~]+        # atext
                         ''', re.MULTILINE | re.VERBOSE | ASCII_FLAG)
 
-DOT_ATOM   = re.compile(r'''
+DOT_ATOM   = re.compile(br'''
                         [A-Za-z0-9!#$%&'*+\-/=?^_`{|}~]+        # atext
                         (\.[A-Za-z0-9!#$%&'*+\-/=?^_`{|}~]+)*   # (dot atext)*
                         ''', re.MULTILINE | re.VERBOSE | ASCII_FLAG)
@@ -59,7 +59,7 @@ UNI_QSTR   = re.compile(ur'''
                         "
                         ''', re.MULTILINE | re.VERBOSE | re.UNICODE)
 
-QSTRING    = re.compile(r'''
+QSTRING    = re.compile(br'''
                         "                                       # dquote
                         (\s*                                    # whitespace
                         ([\x21\x23-\x5b\x5d-\x7e]               # qtext
@@ -69,7 +69,7 @@ QSTRING    = re.compile(r'''
                         "                                       # dquote
                         ''', re.MULTILINE | re.VERBOSE | ASCII_FLAG)
 
-URL        = re.compile(r'''
+URL        = re.compile(br'''
                         (?:http|https)://
                         [^\s<>{}|\^~\[\]`;,]+
                         ''', re.MULTILINE | re.VERBOSE | ASCII_FLAG)

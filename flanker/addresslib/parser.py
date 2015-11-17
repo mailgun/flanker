@@ -59,7 +59,7 @@ Additional limitations on email addresses:
 import re
 import flanker.addresslib.address
 
-from flanker.addresslib.tokenizer import TokenStream
+from flanker.addresslib.tokenizer import TokenStream, UNI_URL
 from flanker.addresslib.tokenizer import LBRACKET
 from flanker.addresslib.tokenizer import AT_SYMBOL
 from flanker.addresslib.tokenizer import RBRACKET
@@ -335,7 +335,7 @@ class _AddressParser(object):
         """
         Grammar: url -> url
         """
-        earl = self.stream.get_token(URL)
+        earl = self.stream.get_token(URL) or self.stream.get_token(UNI_URL)
         if earl is None:
             return None
         #TODO: Better handle non-ascii urls, specially in hostname part
@@ -468,8 +468,9 @@ class _AddressParser(object):
 
         # peek to see if we have a whitespace,
         # if we don't, we have a invalid display-name
-        if self.stream.peek(WHITESPACE) is None or \
-            self.stream.peek(UNI_WHITE) is None:
+        ws = self.stream.peek(WHITESPACE)
+        uws = self.stream.peek(UNI_WHITE)
+        if (ws is None or len(ws) == 0) and (uws is None or len(uws) == 0):
             self.stream.position = start_pos
             return None
 
@@ -491,8 +492,9 @@ class _AddressParser(object):
 
             # peek to see if we have a whitespace
             # if we don't pop off the last word break
-            if self.stream.peek(WHITESPACE) is None or \
-                self.stream.peek(UNI_WHITE) is None:
+            ws = self.stream.peek(WHITESPACE)
+            uws = self.stream.peek(UNI_WHITE)
+            if (ws is None or len(ws) == 0) and (uws is None or len(uws) == 0):
                 # roll back last word
                 self.stream.position = start_pos
                 wrds.pop()

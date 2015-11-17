@@ -9,22 +9,27 @@ compiled regular expressions or strings.
 
 import re
 
-LBRACKET   = '<'
-AT_SYMBOL  = '@'
-RBRACKET   = '>'
-DQUOTE     = '"'
+try:
+    ASCII_FLAG = re.ASCII
+except AttributeError:
+    ASCII_FLAG = 0
+
+LBRACKET   = b'<'
+AT_SYMBOL  = b'@'
+RBRACKET   = b'>'
+DQUOTE     = b'"'
 
 BAD_DOMAIN = re.compile(r'''                                    # start or end
                         ^-|-$                                   # with -
-                        ''', re.MULTILINE | re.VERBOSE)
+                        ''', re.MULTILINE | re.VERBOSE | ASCII_FLAG)
 
 DELIMITER  = re.compile(r'''
                         [,;][,;\s]*                             # delimiter
-                        ''', re.MULTILINE | re.VERBOSE)
+                        ''', re.MULTILINE | re.VERBOSE | ASCII_FLAG)
 
 WHITESPACE = re.compile(r'''
                         (\ |\t)+                                # whitespace
-                        ''', re.MULTILINE | re.VERBOSE)
+                        ''', re.MULTILINE | re.VERBOSE | ASCII_FLAG)
 
 UNI_WHITE  = re.compile(ur'''
                         [
@@ -40,12 +45,12 @@ RELAX_ATOM = re.compile(r'''
 
 ATOM       = re.compile(r'''
                         [A-Za-z0-9!#$%&'*+\-/=?^_`{|}~]+        # atext
-                        ''', re.MULTILINE | re.VERBOSE)
+                        ''', re.MULTILINE | re.VERBOSE | ASCII_FLAG)
 
 DOT_ATOM   = re.compile(r'''
                         [A-Za-z0-9!#$%&'*+\-/=?^_`{|}~]+        # atext
                         (\.[A-Za-z0-9!#$%&'*+\-/=?^_`{|}~]+)*   # (dot atext)*
-                        ''', re.MULTILINE | re.VERBOSE)
+                        ''', re.MULTILINE | re.VERBOSE | ASCII_FLAG)
 
 UNI_ATOM = re.compile(ur'''
                         ([^\s<>;,"]+)
@@ -65,9 +70,14 @@ QSTRING    = re.compile(r'''
                         \\[\x21-\x7e\t\ ]))*                    # quoted-pair
                         \s*                                     # whitespace
                         "                                       # dquote
-                        ''', re.MULTILINE | re.VERBOSE)
+                        ''', re.MULTILINE | re.VERBOSE | ASCII_FLAG)
 
 URL        = re.compile(r'''
+                        (?:http|https)://
+                        [^\s<>{}|\^~\[\]`;,]+
+                        ''', re.MULTILINE | re.VERBOSE | ASCII_FLAG)
+
+UNI_URL        = re.compile(ur'''
                         (?:http|https)://
                         [^\s<>{}|\^~\[\]`;,]+
                         ''', re.MULTILINE | re.VERBOSE | re.UNICODE)
@@ -91,11 +101,29 @@ class TokenStream(object):
         be either a compiled regex or a string.
         """
         # match single character
-        if isinstance(token, basestring) and len(token) == 1:
+        if isinstance(token, str) and len(token) == 1:
+            if isinstance(self.stream, unicode):
+                token = token.decode('iso-8859-1')
             if self.peek() == token:
                 self.position += 1
                 return token
             return None
+
+        if isinstance(token, unicode) and len(token) == 1:
+            if isinstance(self.stream, str):
+                token = token.encode('iso-8859-1')
+            if self.peek() == token:
+                self.position += 1
+                return token
+            return None
+
+        # do not match a unicode pattern against bytes stream
+        if isinstance(token.pattern, unicode) and isinstance(self.stream, str):
+            return None
+
+        # convert bytes pattern to unicode when matching against a unicode stream
+        if isinstance(token.pattern, str) and isinstance(self.stream, unicode):
+            token = re.compile(token.pattern.decode('iso-8859-1'), token.flags)
 
         # match a pattern
         match = token.match(self.stream, self.position)
@@ -154,6 +182,14 @@ class TokenStream(object):
                 return None
         # peek for a specific token
         else:
+            # do not match a unicode pattern against bytes stream
+            if isinstance(token.pattern, unicode) and isinstance(self.stream, str):
+                return None
+
+            # convert bytes pattern to unicode when matching against a unicode stream
+            if isinstance(token.pattern, str) and isinstance(self.stream, unicode):
+                token = re.compile(token.pattern.decode('iso-8859-1'), token.flags)
+
             match = token.match(self.stream, self.position)
             if match:
                 return self.stream[match.start():match.end()]

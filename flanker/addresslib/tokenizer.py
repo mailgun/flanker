@@ -120,7 +120,7 @@ class TokenStream(object):
 
         # convert bytes pattern to unicode when matching against a unicode stream
         if isinstance(token.pattern, str) and isinstance(self.stream, unicode):
-            token = re.compile(token.pattern.decode('iso-8859-1'), token.flags)
+            token = re.compile(token.pattern.decode('iso-8859-1'), token.flags | ASCII_FLAG)
 
         # match a pattern
         match = token.match(self.stream, self.position)
@@ -161,7 +161,7 @@ class TokenStream(object):
             self.position = end_pos
 
         skip = self.stream[start_pos:end_pos]
-        if skip.strip() == '':
+        if len(skip.strip()) == 0:
             return None
 
         return skip

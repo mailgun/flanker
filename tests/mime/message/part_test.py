@@ -16,6 +16,7 @@ from tests import (BILINGUAL, BZ2_ATTACHMENT, ENCLOSED, TORTURE, TORTURE_PART,
                    SPAM_BROKEN_CTYPE, BOUNCE, NDN, NO_CTYPE, RELATIVE,
                    MULTI_RECEIVED_HEADERS, OUTLOOK_EXPRESS)
 from tests.mime.message.scanner_test import TORTURE_PARTS, tree_to_string
+from flanker.mime import recover
 
 
 def readonly_immutability_test():
@@ -411,6 +412,7 @@ def content_types_test():
     eq_('image/png', attachment.detected_content_type)
     eq_('png', attachment.detected_subtype)
     eq_('image', attachment.detected_format)
+    eq_('mailgun.png', attachment.detected_file_name)
     ok_(not attachment.is_body())
 
     part = scan(BZ2_ATTACHMENT)
@@ -419,6 +421,53 @@ def content_types_test():
     eq_('x-bzip2', attachment.detected_subtype)
     eq_('application', attachment.detected_format)
     ok_(not attachment.is_body())
+
+
+def test_attachments():
+    """Content-Type and file name are properly detected
+    """
+    # pdf attachment, file name in Content-Disposition
+    data = """Content-Type: application/octet-stream; name="J_S III_W-2.pdf"
+Content-Disposition: attachment; filename*="J_S III_W-2.pdf"
+Content-Transfer-Encoding: base64
+
+YmxhaGJsYWhibGFo
+"""
+    part = scan(data)
+    eq_('application/pdf', part.detected_content_type)
+    eq_('J_S III_W-2.pdf', part.detected_file_name)
+
+    # no attachment
+    data = """Content-Type: text; charset=ISO-8859-1
+
+some plain text here
+"""
+    part = scan(data)
+    eq_('text/plain', part.detected_content_type)
+    eq_('', part.detected_file_name)
+
+    # inline attachment, file name in Content-Disposition
+    data = """Content-Type: image/png
+Content-Transfer-Encoding: base64
+Content-Disposition: inline; filename=2.png
+Content-ID: <FN2JbofqmRT7zIMt8uzW>
+
+YmxhaGJsYWhibGFo
+"""
+    part = scan(data)
+    eq_('image/png', part.detected_content_type)
+    eq_('2.png', part.detected_file_name)
+
+    # broken mime
+    data = """Content-Type: Нельзя это распарсить адекватно"
+Content-Disposition: Да и это тоже
+Content-Transfer-Encoding: base64
+
+YmxhaGJsYWhibGFo
+"""
+    part = recover(data)
+    eq_('text/plain', part.detected_content_type)
+    eq_('', part.detected_file_name)
 
 
 def test_is_body():

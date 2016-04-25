@@ -4,9 +4,13 @@ class MimeError(Exception):
 
 class DecodingError(MimeError):
     """Thrown when there is an encoding error."""
-    pass
+
+    def __str__(self):
+        return self.message[:256]
 
 
 class EncodingError(MimeError):
     """Thrown when there is an decoding error."""
-    pass
+
+    def __str__(self):
+        return self.message[:256]

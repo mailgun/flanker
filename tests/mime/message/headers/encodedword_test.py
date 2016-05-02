@@ -131,6 +131,12 @@ def various_encodings_test():
     v = u'=?utf-8?Q?Evaneos-Concepci=C3=B3n.pdf?='
     eq_(u'Evaneos-Concepción.pdf', encodedword.mime_to_unicode(v))
 
+    v = u'=?gb2312?Q?Hey_There=D7=B2=D8=B0?='
+    eq_(u'Hey There撞匕', encodedword.mime_to_unicode(v))
+
+    v = u'=?gb18030?Q?Hey_There=D7=B2=D8=B0?='
+    eq_(u'Hey There撞匕', encodedword.mime_to_unicode(v))
+
 
 @patch.object(utils, '_guess_and_convert', Mock(side_effect=errors.EncodingError()))
 def test_convert_to_utf8_unknown_encoding():

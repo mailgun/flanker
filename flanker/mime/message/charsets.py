@@ -7,7 +7,9 @@ from flanker.mime.message.utils import to_unicode
 _ALIASES = {
     'sjis': 'shift_jis',
     'windows-874': 'cp874',
-    'koi8-r': 'koi8_r'
+    'koi8-r': 'koi8_r',
+    'gb2312': 'gb2312',
+    'gb18030': 'gb18030',
 }
 
 

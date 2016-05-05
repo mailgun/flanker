@@ -152,7 +152,7 @@ def parse_list(address_list, strict=False, as_tuple=False, metrics=False):
 
 
 @metrics_wrapper()
-def validate_address(addr_spec, metrics=False):
+def validate_address(addr_spec, metrics=False, mx_lookup=True):
     """
     Given an addr-spec, runs the pre-parser, the parser, DNS MX checks,
     MX existence checks, and if available, ESP specific grammar for the
@@ -192,9 +192,15 @@ def validate_address(addr_spec, metrics=False):
     if paddr is None:
         return None, mtimes
 
+    # Here, we can set an option to discover MX from DNS, but not connect
+    # it is more fast
+    connect_to_mx = True
+    if not mx_lookup:
+        connect_to_mx = False
+
     # lookup if this domain has a mail exchanger
     exchanger, mx_metrics = \
-        flanker.addresslib.validate.mail_exchanger_lookup(addr_parts[-1], metrics=True)
+        flanker.addresslib.validate.mail_exchanger_lookup(addr_parts[-1], metrics=True, connect_to_mx=connect_to_mx)
     mtimes['mx_lookup'] = mx_metrics['mx_lookup']
     mtimes['dns_lookup'] = mx_metrics['dns_lookup']
     mtimes['mx_conn'] = mx_metrics['mx_conn']

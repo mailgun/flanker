@@ -107,7 +107,7 @@ def plugin_for_esp(mail_exchanger):
 
 
 @metrics_wrapper()
-def mail_exchanger_lookup(domain, metrics=False):
+def mail_exchanger_lookup(domain, metrics=False, connect_to_mx=True):
     """
     Looks up the mail exchanger for a domain. If MX records exist they will
     be returned, if not it will attempt to fallback to A records, if neither
@@ -135,12 +135,15 @@ def mail_exchanger_lookup(domain, metrics=False):
         if mx_hosts is None:
             return None, mtimes
 
-    # test connecting to the mx exchanger
-    bstart = time.time()
-    mail_exchanger = connect_to_mail_exchanger(mx_hosts)
-    mtimes['mx_conn'] = time.time() - bstart
-    if mail_exchanger is None:
-        return None, mtimes
+    if connect_to_mx:
+        # test connecting to the mx exchanger
+        bstart = time.time()
+        mail_exchanger = connect_to_mail_exchanger(mx_hosts)
+        mtimes['mx_conn'] = time.time() - bstart
+        if mail_exchanger is None:
+            return None, mtimes
+    else:
+        mail_exchanger = mx_hosts[0]
 
     # valid mx records, connected to mail exchanger, return True
     mx_cache[domain] = mail_exchanger

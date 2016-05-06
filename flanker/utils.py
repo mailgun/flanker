@@ -5,8 +5,12 @@ Utility functions and classes used by flanker.
 import logging
 import re
 
-import cchardet
-import chardet
+try:
+    import cchardet as detector
+    import chardet as detector_fallback
+except ImportError:
+    import chardet as detector_fallback
+    detector = detector_fallback
 
 from flanker.mime.message import errors
 from functools import wraps
@@ -26,10 +30,10 @@ def _guess_and_convert(value):
         return _guess_and_convert_with(value)
     except:
         log.warn("Fallback to chardet")
-        return _guess_and_convert_with(value, detector=chardet)
+        return _guess_and_convert_with(value, detector=detector_fallback)
 
 
-def _guess_and_convert_with(value, detector=cchardet):
+def _guess_and_convert_with(value, detector=detector):
     """
     Try to guess the encoding of the passed value with the provided detector
     and decode it.

@@ -34,7 +34,6 @@ Public Functions in flanker.addresslib.validate module:
 """
 
 import re
-import redis
 import socket
 import time
 import flanker.addresslib

@@ -2,7 +2,6 @@
 """
 Utility functions and classes used by flanker.
 """
-import logging
 import re
 
 import cchardet
@@ -10,9 +9,6 @@ import chardet
 
 from flanker.mime.message import errors
 from functools import wraps
-
-
-log = logging.getLogger(__name__)
 
 
 def _guess_and_convert(value):
@@ -23,9 +19,8 @@ def _guess_and_convert(value):
     back to chardet which is much slower.
     """
     try:
-        return _guess_and_convert_with(value)
+        return _guess_and_convert_with(value, detector=cchardet)
     except:
-        log.warn("Fallback to chardet")
         return _guess_and_convert_with(value, detector=chardet)
 
 
@@ -39,7 +34,7 @@ def _guess_and_convert_with(value, detector=cchardet):
     charset = detector.detect(value)
 
     if not charset["encoding"]:
-        raise errors.DecodingError("Failed to guess encoding for %s" % (value,))
+        raise errors.DecodingError("Failed to guess encoding")
 
     try:
         value = value.decode(charset["encoding"], "replace")
@@ -53,16 +48,9 @@ def _make_unicode(value, charset=None):
     if isinstance(value, unicode):
         return value
 
+    charset = charset or "utf-8"
     try:
-        # if charset is provided, try decoding with it
-        if charset:
-            value = value.decode(charset, "strict")
-
-        # if charset is not provided, assume UTF-8
-        else:
-            value = value.decode("utf-8", "strict")
-
-    # last resort: try to guess the encoding
+        value = value.decode(charset, "strict")
     except (UnicodeError, LookupError):
         value = _guess_and_convert(value)
 
@@ -70,8 +58,7 @@ def _make_unicode(value, charset=None):
 
 
 def to_unicode(value, charset=None):
-    value = _make_unicode(value, charset)
-    return unicode(value.encode("utf-8", "strict"), "utf-8", "strict")
+    return _make_unicode(value, charset)
 
 
 def to_utf8(value, charset=None):

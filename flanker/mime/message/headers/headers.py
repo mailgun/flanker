@@ -132,12 +132,12 @@ class MimeHeaders(object):
         return str(self._v)
 
     @classmethod
-    def from_stream(cls, stream):
+    def from_stream(cls, stream, charset=None):
         """
         Takes a stream and reads the headers, decodes headers to unicode dict
         like object.
         """
-        return cls(parse_stream(stream))
+        return cls(parse_stream(stream, charset))
 
     def to_stream(self, stream, prepends_only=False):
         """

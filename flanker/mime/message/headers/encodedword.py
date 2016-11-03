@@ -25,11 +25,11 @@ def unfold(value):
     return re.sub(foldingWhiteSpace, r"\2", value)
 
 
-def decode(header):
-    return mime_to_unicode(header)
+def decode(header, mimepart_charset=None):
+    return mime_to_unicode(header, mimepart_charset)
 
 
-def mime_to_unicode(header):
+def mime_to_unicode(header, mimepart_charset=None):
     """
     Takes a header value and returns a fully decoded unicode string.
     It differs from standard Python's mail.header.decode_header() because:
@@ -49,9 +49,9 @@ def mime_to_unicode(header):
     try:
         header = unfold(header)
         decoded = []  # decoded parts
-
         while header:
             match = encodedWord.search(header)
+            print match
             if match:
                 start = match.start()
                 if start != 0:
@@ -61,7 +61,7 @@ def mime_to_unicode(header):
                         decoded.append(value)
                 # decode a header =?...?= of encoding
                 charset, value = decode_part(
-                    match.group('charset').lower(),
+                    match.group('charset').lower() if match.group('charset') else mimepart_charset,
                     match.group('encoding').lower(),
                     match.group('encoded'))
                 decoded.append(charsets.convert_to_unicode(charset, value))

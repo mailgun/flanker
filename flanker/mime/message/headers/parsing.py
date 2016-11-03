@@ -13,29 +13,29 @@ def normalize(header):
     return string.capwords(header.lower(), '-')
 
 
-def parse_stream(stream):
+def parse_stream(stream, charset=None):
     """Reads the incoming stream and returns list of tuples"""
     out = deque()
     for header in unfold(split(stream)):
-        out.append(parse_header(header))
+        out.append(parse_header(header, charset))
     return out
 
 
-def parse_header(header):
+def parse_header(header, charset=None):
     """ Accepts a raw header with name, colons and newlines
     and returns it's parsed value
     """
     name, val = split2(header)
     if not is_pure_ascii(name):
         raise DecodingError("Non-ascii header name")
-    return name, parse_header_value(name, encodedword.unfold(val))
+    return name, parse_header_value(name, encodedword.unfold(val), charset)
 
 
-def parse_header_value(name, val):
+def parse_header_value(name, val, charset=None):
     if not is_pure_ascii(val):
         if parametrized.is_parametrized(name, val):
             raise DecodingError("Unsupported value in content- header")
-        return to_unicode(val)
+        return to_unicode(val, charset)
     else:
         if parametrized.is_parametrized(name, val):
             val, params = parametrized.decode(val)

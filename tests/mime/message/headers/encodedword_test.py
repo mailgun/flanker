@@ -116,6 +116,9 @@ def various_encodings_test():
     v = '"=?utf-8?b?6ICD5Y+W5YiG5Lqr?=" <foo@example.com>'
     eq_(u'"考取分享" <foo@example.com>', encodedword.mime_to_unicode(v))
 
+    v = '=?utf-8?Q?=e7=99=be=e5=ba=a6=e5=bc=80=e5=8f=91=e8=80=85=e5=b9=b3=e5=8f?=\n =?utf-8?Q?=b0?= <app_notice@baidu.com>'
+    eq_(u'百度开发者平台 <app_notice@baidu.com>', encodedword.mime_to_unicode(v))
+
     v = """=?UTF-8?B?0JbQtdC60LA=?= <ev@mailgun.net>, =?UTF-8?B?0JrQvtC90YbQtdCy0L7QuQ==?= <eugueny@gmail.com>"""
     eq_(u"Жека <ev@mailgun.net>, Концевой <eugueny@gmail.com>", encodedword.mime_to_unicode(v))
 

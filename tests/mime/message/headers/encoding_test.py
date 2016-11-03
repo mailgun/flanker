@@ -10,7 +10,8 @@ from flanker.mime.message.headers.encoding import (encode_unstructured,
                                                    encode_string)
 from flanker.mime.message import part
 from flanker.mime import create
-from tests import LONG_HEADER, ENCODED_HEADER
+from flanker import mime
+from tests import LONG_HEADER, ENCODED_HEADER, CHARSET_GB2312
 
 
 def encodings_test():
@@ -44,7 +45,7 @@ def string_maxlinelen_test():
         encode_string(None, "very loooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooong", maxlinelen=78))
 
 
-@patch.object(part.MimePart, 'was_changed', Mock(return_value=True))        
+@patch.object(part.MimePart, 'was_changed', Mock(return_value=True))
 def max_header_length_test():
     message = create.from_string(LONG_HEADER)
 
@@ -89,3 +90,13 @@ def add_header_preserve_original_encoding_test():
 
     # check original encoded header is still in the mime string
     ok_(original_from in message.to_string())
+
+def gb2312_encoding_test():
+    message = create.from_string(CHARSET_GB2312)
+
+    subject = u'提示：您的企业成员暂时无法登录邮件客户端'
+    from_addr = u'"腾讯企业邮箱" <10000@qq.com>'
+
+    print message.subject
+    eq_(message.subject, subject)
+    eq_(message.headers.getraw('from'), from_addr)

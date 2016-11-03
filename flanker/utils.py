@@ -37,6 +37,7 @@ def _guess_and_convert_with(value, detector=cchardet):
         raise errors.DecodingError("Failed to guess encoding")
 
     try:
+        print 'decode by guesss '+ charset["encoding"]
         value = value.decode(charset["encoding"], "replace")
         return value
 

@@ -63,7 +63,7 @@ class Stream(object):
     def _load_headers(self):
         if self._headers is None:
             self.stream.seek(self.start)
-            self._headers = headers.MimeHeaders.from_stream(self.stream)
+            self._headers = headers.MimeHeaders.from_stream(self.stream, self.content_type.get_charset())
             self._body_start = self.stream.tell()
 
     def _load_body(self):

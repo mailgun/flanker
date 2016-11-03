@@ -97,6 +97,5 @@ def gb2312_encoding_test():
     subject = u'提示：您的企业成员暂时无法登录邮件客户端'
     from_addr = u'"腾讯企业邮箱" <10000@qq.com>'
 
-    print message.subject
     eq_(message.subject, subject)
     eq_(message.headers.getraw('from'), from_addr)

@@ -55,7 +55,6 @@ def mime_to_unicode(header, mimepart_charset=None):
         acc_str_encoding = None
         while header:
             match = encodedWord.search(header)
-            print match
             if match:
                 start = match.start()
                 if start != 0:

@@ -60,10 +60,10 @@ def create_singlepart_ascii_test():
     eq_("Hello", message.body)
 
 
-def create_singlepart_unicode_test():
+def create_singlepart_unicode_qp_test():
     message = create.text("plain", u"Привет, курилка")
     message = create.from_string(message.to_string())
-    eq_("base64", message.content_encoding.value)
+    eq_("quoted-printable", message.content_encoding.value)
     eq_(u"Привет, курилка", message.body)
 
 
@@ -127,7 +127,8 @@ def create_multipart_with_attachment_test():
 
 
 def create_multipart_with_text_non_unicode_attachment_test():
-    """Make sure we encode text attachment in base64
+    """
+    Make sure we encode text attachment in base64
     """
     message = create.multipart("mixed")
     filename = "text-attachment.txt"

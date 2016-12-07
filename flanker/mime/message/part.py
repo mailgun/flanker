@@ -1,21 +1,25 @@
 import email.utils
 import email.encoders
+import imghdr
 import logging
 import mimetypes
-import imghdr
+import os
+import quopri
+import random
 from contextlib import closing
 from cStringIO import StringIO
 
 from os import path
 from email.mime import audio
 
-from flanker.utils import is_pure_ascii
+from flanker import metrics
 from flanker.mime import bounce
 from flanker.mime.message import headers, charsets
 from flanker.mime.message.headers import (WithParams, ContentType, MessageId,
                                           Subject)
 from flanker.mime.message.headers.parametrized import fix_content_type
 from flanker.mime.message.errors import EncodingError, DecodingError
+from flanker.utils import is_pure_ascii
 
 
 log = logging.getLogger(__name__)
@@ -582,7 +586,7 @@ def decode_transfer_encoding(encoding, body):
     if encoding == 'base64':
         return email.utils._bdecode(body)
     elif encoding == 'quoted-printable':
-        return email.utils._qdecode(body)
+        return quopri.decodestring(body)
     else:
         return body
 
@@ -611,8 +615,11 @@ def encode_body(part):
     charset = content_type.get_charset()
     if content_type.main == 'text':
         charset, body = encode_charset(charset, body)
-        content_encoding = choose_text_encoding(
-            charset, content_encoding, body)
+        if not part.is_attachment():
+            content_encoding = choose_text_encoding(
+                charset, content_encoding, body)
+        else:
+            content_encoding = 'base64'
     else:
         content_encoding = 'base64'
 
@@ -632,7 +639,7 @@ def encode_charset(preferred_charset, text):
 
 def encode_transfer_encoding(encoding, body):
     if encoding == 'quoted-printable':
-        return email.encoders._qencode(body)
+        return quopri.encodestring(body, quotetabs=False)
     elif encoding == 'base64':
         return email.encoders._bencode(body)
     else:
@@ -646,7 +653,17 @@ def choose_text_encoding(charset, preferred_encoding, body):
         else:
             return preferred_encoding
     else:
-        return stronger_encoding(preferred_encoding, 'base64')
+        qp_encoding_chance = os.environ.get('QP_ENCODING_PER_1000', 0)
+        try:
+            qp_encoding_chance = int(qp_encoding_chance)
+        except ValueError:
+            qp_encoding_chance = 0
+        if random.randrange(0, 1000) < qp_encoding_chance:
+            encoding = stronger_encoding(preferred_encoding, 'quoted-printable')
+        else:
+            encoding = stronger_encoding(preferred_encoding, 'base64')
+        metrics.incr('encoding.' + encoding)
+        return encoding
 
 
 def stronger_encoding(a, b):

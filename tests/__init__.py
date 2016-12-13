@@ -98,6 +98,7 @@ LONG_HEADER = open(
 ATTACHED_PDF = open(fixture_file("messages/attached-pdf.eml")).read()
 
 CHARSET_GB2312 = open(fixture_file("messages/charset-gb2312.eml")).read()
+CHARSET_GB2312_1 = open(fixture_file("messages/charset-gb2312-1.eml")).read()
 
 # addresslib fixture files
 MAILBOX_VALID_TESTS = open(fixture_file("mailbox_valid.txt")).read()

@@ -11,7 +11,7 @@ from flanker.mime.message.headers.encoding import (encode_unstructured,
 from flanker.mime.message import part
 from flanker.mime import create
 from flanker import mime
-from tests import LONG_HEADER, ENCODED_HEADER, CHARSET_GB2312
+from tests import LONG_HEADER, ENCODED_HEADER, CHARSET_GB2312, CHARSET_GB2312_1
 
 
 def encodings_test():

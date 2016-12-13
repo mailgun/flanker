@@ -1,0 +1,199 @@
+From: "��Ѷ��ҵ����" <10000@qq.com>
+To: <heatherm@jianxinapp.com>
+Subject: ��ʱ�ػ���������һ����һ�꣬�������ͣ�
+X-QQ-STYLE: 1
+Mime-Version: 1.0
+Content-Type: text/html;charset="gb18030"
+Content-Transfer-Encoding: 7bit
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>��ʱ�ػ���������һ����һ��</title>
+    <style type="text/css">
+        body{margin:0; padding:0;
+            font-family: PingFangSC-Regular,BlinkMacSystemFont,Helvetica,"lucida Grande","PingFang SC",SCHeiti,"Microsoft YaHei";}
+        p{margin:0 0;}
+        h1, h2, th{
+            font-weight: normal;
+        }
+        .promotion_container{
+
+            font-weight: normal;
+            color: #5A7184;
+            font-size: 14px;
+            margin: 0 auto;
+            text-align: center;
+        }
+        .promotion_container a {
+            text-decoration: none;
+            color: #5A7184;
+            cursor: pointer;
+            outline: none;
+        }
+        .promotion_container a:hover {
+            text-decoration: none;
+        }
+        .act_detail{width: 143px;height: 44px;position: absolute;margin-top: 202px;margin-left: -71px;margin-left:176px\0;}
+        .promotion_container .promotion_img{
+            background-image: url('https://exmail.qq.com/zh_CN/htmledition/images/promotion/edm_promotion.png');
+            background-size: 496px 498px ;
+            width: 496px;
+            height: 498px;
+            margin:0px auto;
+            background-repeat: no-repeat;
+            display: inline-block;
+        }
+        @media only screen and (-webkit-min-device-pixel-ratio: 2), only screen and (min--moz-device-pixel-ratio: 2), only screen and (-o-min-device-pixel-ratio: 2), only screen and (min-device-pixel-ratio: 2), only screen and (min-resolution: 2dppx), only screen and (min-resolution: 192dpi) {
+            .promotion_container .promotion_img {
+                background-image: url('https://exmail.qq.com/zh_CN/htmledition/images/promotion/edm_promotion_2x.png');
+            }
+        }
+        .promotion_container .promotion_banner{
+            background-position:  0 -192px;
+            width: 496px;
+            height: 306px;
+        }
+        .promotion_container .ico_capacity {
+            background-position: 0 0;
+            width: 36px;
+            height: 37px;
+            margin-right: 11px;
+        }
+        .promotion_container .ico_approval {
+            background-position: 0 -45px;
+            width: 36px;
+            height: 36px;
+            margin-right: 8px;
+        }
+        .promotion_container .ico_save {
+            background-position: 0 -89px;
+            width: 36px;
+            height: 36px;
+            margin-right: 9px;
+        }
+        .promotion_container .ico_more {
+            background-position: 0 -133px;
+            width: 33px;
+            height: 33px;
+            margin-right: 13px;
+        }
+        .promotion_container .p_icos{
+            float: left;
+            margin-top: 4px;
+        }
+        .promotion_container .arrow_ico {
+            background-position: 0 -174px;
+            width: 6px;
+            height: 10px;
+            margin-left: 5px;
+        }
+        .promotion_container .h1_title{
+            text-align: center;
+            font-size: 22px;
+            margin-top: 15px;
+            line-height: 1;
+        }
+        .promotion_container .functions{
+            width: 747px;
+            margin: 0 auto;
+        }
+        .promotion_container .p_list{
+            overflow: hidden;
+            width: 600px;
+            margin: 40px auto 0;
+            border-bottom: 1px solid #DBDBDB;
+            padding-left: 0px;
+        }
+        .promotion_container .p_list li{
+            width: 275px;
+            float: left;
+            margin-left: 20px;
+            margin-bottom: 37px;
+            list-style: none;
+            text-align: left;
+
+        }
+        .promotion_container .p_info{
+            font-size: 12px;
+            margin-top: 3px;
+
+        }
+        .promotion_container .p_caption{
+            font-size: 15px;
+        }
+
+
+        .btm{
+            text-align: left;
+            margin-top: 14px;
+            color: #989898;
+            margin-left: 75px;}
+    </style>
+</head>
+<body>
+<div style="padding:35px;">
+    <div style="margin:0 auto; width:780px; overflow:hidden; _zoom:1;">
+
+        <div style="background:#fff; padding:5px 15px 70px; font-size:14px; line-height:1.5;">
+
+            <div class="promotion_container">
+                <div class="promotion_img promotion_banner">
+                    <a  id="jumpToAdmin" class="act_detail" href="https://exmail.qq.com/cgi-bin/loginpage?origin=mailedm"></a>
+                </div>
+				<script>
+				if( getTop().g_sid){
+					document.getElementById("jumpToAdmin").href="";
+					document.getElementById("jumpToAdmin").onclick=function(){
+						var _sid = getTop().g_sid;
+						var _uin = getTop().g_owneruin;
+						window.open("https://exmail.qq.com/cgi-bin/login?vt=relate&uin=" + _uin + "&old_sid=" + _sid+ "&target=bizmail_admin&origin=mailedm");
+                    }
+				}
+				</script>
+                <div class="functions">
+                    <h1 class="h1_title">�����������շѰ�ר������</h1>
+                    <ul class="p_list">
+                        <li>
+                            <div class="p_item">
+                                <span class="p_icos promotion_img ico_capacity"></span>
+                                <span class="p_caption">������������</span>
+                                <p class="p_info">ͻ��2G�������������ƣ�����������</p>
+                            </div>
+                        </li>
+                        <li style="margin-left: 30px;">
+                            <div class="p_item">
+                                <span class="p_icos promotion_img ico_approval"></span>
+                                <span class="p_caption">�ʼ�����</span>
+                                <p class="p_info">���ܺ���Ҫ�ʼ���Ҫ�������ܷ��ͣ�����ȫ</p>
+                            </div>
+                        </li>
+                        <li style="margin-bottom: 43px;">
+                            <div class="p_item">
+                                <span class="p_icos promotion_img ico_save"></span>
+                                <span class="p_caption">��ɾ���ʼ�����</span>
+                                <p class="p_info">��ɾ�����ʼ������ʺſ�һ���һ�</p>
+                            </div>
+                        </li>
+                        <li style="margin-bottom: 43px;margin-left: 30px;">
+                            <div class="p_item">
+                                <span class="p_icos promotion_img ico_more" style="margin-top: 6px;"></span>
+                                <span class="p_caption">������ҵ��������</span>
+                                <p  class="p_info">
+                                    <a href="http://service.exmail.qq.com/cgi-bin/help?subtype=1&no=1001307&id=20078
+">�˽�����<span class="promotion_img arrow_ico"></span></a>
+                                </p>
+                            </div>
+                        </li>
+                    </ul>
+                    <div class="btm">
+                        ��Ѷ��ҵ���Ŷ�
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

@@ -26,10 +26,13 @@ def init():
     _client = statsd.StatsClient(statsd_host, statsd_port, prefix=statsd_prfx)
 
 
-def incr(key):
+def incr(key, increment=1):
     global _client
     if _client:
-        _client.incr(key)
+        if increment < 0:
+            _client.decr(key, increment)
+        else:
+            _client.incr(key, increment)
     else:
         # This hacky way of trying to initialize client, because flanker
         # gets imported way before the application has a chance to set the
@@ -37,7 +40,7 @@ def incr(key):
         if _client is None:
             _client = False
             init()
-            incr(key)
+            incr(key, increment)
 
 
 @contextmanager

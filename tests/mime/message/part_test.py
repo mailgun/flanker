@@ -1,4 +1,5 @@
 # coding:utf-8
+import os
 from email import message_from_string
 from contextlib import closing
 from cStringIO import StringIO
@@ -257,6 +258,20 @@ def ascii_to_unicode_test():
     eq_('base64', message.content_encoding.value)
     eq_('utf-8', message.content_type.get_charset())
     eq_(unicode_value, message.body)
+
+
+def ascii_to_quoted_printable_test():
+    """Make sure that ascii uprades to quoted-printable whenever needed"""
+    # contains unicode chars
+    os.environ['QP_ENCODING_PER_1000'] = '1000'
+    message = scan(TEXT_ONLY)
+    unicode_value = u'☯Привет! Как дела? Что делаешь?,\n Что новенького?☯'
+    message.body = unicode_value
+    message = scan(message.to_string())
+    eq_('quoted-printable', message.content_encoding.value)
+    eq_('utf-8', message.content_type.get_charset())
+    eq_(unicode_value, message.body)
+    del os.environ['QP_ENCODING_PER_1000']
 
 
 def correct_charset_test():

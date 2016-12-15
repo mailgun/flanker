@@ -1,5 +1,6 @@
 # coding:utf-8
 
+import os
 from nose.tools import *
 from mock import *
 
@@ -60,11 +61,20 @@ def create_singlepart_ascii_test():
     eq_("Hello", message.body)
 
 
-def create_singlepart_unicode_test():
+def create_singlepart_unicode_base64_test():
     message = create.text("plain", u"Привет, курилка")
     message = create.from_string(message.to_string())
     eq_("base64", message.content_encoding.value)
     eq_(u"Привет, курилка", message.body)
+
+
+def create_singlepart_unicode_qp_test():
+    os.environ['QP_ENCODING_PER_1000'] = '1000'
+    message = create.text("plain", u"Привет, курилка")
+    message = create.from_string(message.to_string())
+    eq_("quoted-printable", message.content_encoding.value)
+    eq_(u"Привет, курилка", message.body)
+    del os.environ['QP_ENCODING_PER_1000']
 
 
 def create_singlepart_ascii_long_lines_test():
@@ -127,7 +137,8 @@ def create_multipart_with_attachment_test():
 
 
 def create_multipart_with_text_non_unicode_attachment_test():
-    """Make sure we encode text attachment in base64
+    """
+    Make sure we encode text attachment in base64
     """
     message = create.multipart("mixed")
     filename = "text-attachment.txt"
@@ -145,6 +156,31 @@ def create_multipart_with_text_non_unicode_attachment_test():
     ok_(attachment.is_attachment())
     eq_("base64", attachment.content_encoding.value)
     eq_(u"Саша с уралмаша", attachment.body)
+
+
+def create_multipart_with_text_non_unicode_attachment_still_base64_test():
+    """
+    With quoted-printable enabled, make sure we still encode text attachment in
+    base64
+    """
+    os.environ['QP_ENCODING_PER_1000'] = '1000'
+    message = create.multipart("mixed")
+    filename = "text-attachment.txt"
+    message.append(
+        create.text("plain", "Hello"),
+        create.text("html", "<html>Hello</html>"),
+        create.binary(
+            "text", "plain", u"Саша с уралмаша".encode("koi8-r"),
+            filename, "attachment"))
+
+    message2 = create.from_string(message.to_string())
+
+    eq_(3, len(message2.parts))
+    attachment = message2.parts[2]
+    ok_(attachment.is_attachment())
+    eq_("base64", attachment.content_encoding.value)
+    eq_(u"Саша с уралмаша", attachment.body)
+    del os.environ['QP_ENCODING_PER_1000']
 
 
 def create_multipart_with_text_non_unicode_attachment_preserve_encoding_test():
@@ -171,6 +207,34 @@ def create_multipart_with_text_non_unicode_attachment_preserve_encoding_test():
     eq_("base64", attachment.content_encoding.value)
     eq_("koi8-r", attachment.charset)
     eq_(u"Саша с уралмаша 2", attachment.body)
+
+
+def create_multipart_with_text_non_unicode_attachment_qp_preserve_encoding_test():
+    """Make sure we encode text attachment in base64
+    and also preserve charset information
+    """
+    os.environ['QP_ENCODING_PER_1000'] = '1000'
+    message = create.multipart("mixed")
+    filename = "text-attachment.txt"
+    message.append(
+        create.text("plain", "Hello"),
+        create.text("html", "<html>Hello</html>"),
+        create.text(
+            "plain",
+            u"Саша с уралмаша 2".encode("koi8-r"),
+            "koi8-r",
+            "attachment",
+            filename))
+
+    message2 = create.from_string(message.to_string())
+
+    eq_(3, len(message2.parts))
+    attachment = message2.parts[2]
+    ok_(attachment.is_attachment())
+    eq_("base64", attachment.content_encoding.value)
+    eq_("koi8-r", attachment.charset)
+    eq_(u"Саша с уралмаша 2", attachment.body)
+    del os.environ['QP_ENCODING_PER_1000']
 
 
 def create_multipart_nested_test():

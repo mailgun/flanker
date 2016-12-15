@@ -630,6 +630,10 @@ def encode_body(part):
         len_old = len(body_prev_encoded)
         len_new = len(body)
         metrics.incr('encoding.saved-size', len_old - len_new)
+        if len_old > len_new:
+            metrics.incr('encoding.diff.saved')
+        elif len_old < len_new:
+            metrics.incr('encoding.diff.penalty')
     return charset, content_encoding, body
 
 

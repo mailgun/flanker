@@ -295,7 +295,8 @@ class RichPartMixin(object):
                                    filename=self.detected_file_name)
 
     def is_body(self):
-        return (not self.detected_file_name and
+        return (not self.is_attachment() and
+                not self.detected_file_name and
                 (self.content_type.format_type == 'text' or
                  self.content_type.format_type == 'message'))
 

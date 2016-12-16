@@ -1,0 +1,49 @@
+From: Joe Smith <joe.smith@example.com>
+To: "to@example.com" <to@example.com>
+Subject: Test attachment eml
+Content-Type: multipart/mixed;
+	boundary="_004_D1DD52AF13485joesmithEXAMPLECOM_"
+
+--_004_D1DD52AF13485joesmithEXAMPLECOM_
+Content-Type: multipart/alternative;
+	boundary="_000_D1DD52AF13485joesmithEXAMPLECOM_"
+
+--_000_D1DD52AF13485joesmithEXAMPLECOM_
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+
+Test
+
+--_000_D1DD52AF13485joesmithEXAMPLECOM_
+Content-Type: text/html; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+
+<html>
+<head>
+<meta http-equiv=3D"Content-Type" content=3D"text/html; charset=3Dus-ascii"=
+>
+</head>
+<body style=3D"word-wrap: break-word; -webkit-nbsp-mode: space; -webkit-lin=
+e-break: after-white-space; color: rgb(0, 0, 0); font-size: 14px; font-fami=
+ly: Calibri, sans-serif;">
+<div>Test</div>
+</body>
+</html>
+
+--_000_D1DD52AF13485joesmithEXAMPLECOM_--
+
+--_004_D1DD52AF13485joesmithEXAMPLECOM_
+Content-Type: message/rfc822
+Content-Disposition: attachment;
+	creation-date="Tue, 28 Jul 2015 20:39:30 GMT";
+	modification-date="Tue, 28 Jul 2015 20:39:30 GMT"
+Content-ID: <6DF578E1987984448F8796FBAFEAFB14@example.com>
+
+Content-Type: text/plain
+MIME-Version: 1.0
+
+Subject:Hi
+
+Hello
+
+--_004_D1DD52AF13485joesmithEXAMPLECOM_--

@@ -14,7 +14,8 @@ from tests import (BILINGUAL, BZ2_ATTACHMENT, ENCLOSED, TORTURE, TORTURE_PART,
                    TEXT_ONLY, ENCLOSED_BROKEN_BODY, RUSSIAN_ATTACH_YAHOO,
                    MAILGUN_PIC, MAILGUN_PNG, MULTIPART, IPHONE,
                    SPAM_BROKEN_CTYPE, BOUNCE, NDN, NO_CTYPE, RELATIVE,
-                   MULTI_RECEIVED_HEADERS, OUTLOOK_EXPRESS)
+                   MULTI_RECEIVED_HEADERS, NO_FILENAME, OUTLOOK_EXPRESS)
+
 from tests.mime.message.scanner_test import TORTURE_PARTS, tree_to_string
 from flanker.mime import recover
 
@@ -473,6 +474,14 @@ YmxhaGJsYWhibGFo
 def test_is_body():
     part = scan(IPHONE)
     ok_(part.parts[0].is_body())
+
+
+def test_attachment_without_filename_not_body():
+    part = scan(NO_FILENAME)
+    disposition, params = part.parts[1].content_disposition
+    eq_(disposition, 'attachment')
+    assert_false('filename' in params)
+    assert_false(part.parts[1].is_body())
 
 
 def message_attached_test():

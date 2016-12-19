@@ -247,14 +247,14 @@ def parse_then_serialize_malformed_message_test():
     eq_(OUTLOOK_EXPRESS, serialized)
 
 
-def ascii_to_unicode_test():
-    """Make sure that ascii uprades to unicode whenever needed"""
+def ascii_to_quoted_printable_test():
+    """Make sure that ascii uprades to quoted-printable whenever needed"""
     # contains unicode chars
     message = scan(TEXT_ONLY)
     unicode_value = u'☯Привет! Как дела? Что делаешь?,\n Что новенького?☯'
     message.body = unicode_value
     message = scan(message.to_string())
-    eq_('base64', message.content_encoding.value)
+    eq_('quoted-printable', message.content_encoding.value)
     eq_('utf-8', message.content_type.get_charset())
     eq_(unicode_value, message.body)
 

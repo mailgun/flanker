@@ -7,8 +7,8 @@ import re
 import cchardet
 import chardet
 
-from flanker.mime.message import errors
 from functools import wraps
+from flanker.mime.message import errors
 
 
 def _guess_and_convert(value):

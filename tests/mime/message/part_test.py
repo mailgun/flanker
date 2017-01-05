@@ -19,10 +19,9 @@ from tests.mime.message.scanner_test import TORTURE_PARTS, tree_to_string
 from flanker.mime import recover
 
 
+# We can read the headers and access the body without changing a single
+# char inside the message.
 def readonly_immutability_test():
-    """We can read the headers and access the body without changing a single
-    char inside the message"""
-
     message = scan(BILINGUAL)
     eq_(u"Simple text. How are you? Как ты поживаешь?",
         message.headers['Subject'])
@@ -47,8 +46,8 @@ def readonly_immutability_test():
     eq_(ENCLOSED, message.to_string())
 
 
+# We can change the headers without changing the body.
 def top_level_headers_immutability_test():
-    """We can change the headers without changing the body"""
     message = scan(ENCLOSED)
     message.headers['Subject'] = u'☯Привет! Как дела? Что делаешь?☯'
     out = message.to_string()
@@ -57,9 +56,9 @@ def top_level_headers_immutability_test():
     eq_(a, b, "Bodies should not be changed in any way")
 
 
+# We can read the headers without changing a single
+# char inside the message.
 def immutability_test():
-    """We can read the headers without changing a single
-    char inside the message"""
     message = scan(BILINGUAL)
     eq_(u"Simple text. How are you? Как ты поживаешь?",
         message.headers['Subject'])
@@ -76,8 +75,8 @@ def immutability_test():
         eq_(TORTURE.rstrip(), out.getvalue().rstrip())
 
 
+# We've changed one part of the message only, the rest was not changed.
 def enclosed_first_part_alternation_test():
-    """We've changed one part of the message only, the rest was not changed"""
     message = scan(ENCLOSED)
     message.parts[0].body = 'Hey!\n'
     out = message.to_string()
@@ -92,9 +91,9 @@ def enclosed_first_part_alternation_test():
         message2.parts[1].enclosed.parts[1].body)
 
 
+# We've changed the headers in the inner part of the message only,
+# the rest was not changed.
 def enclosed_header_alternation_test():
-    """We've changed the headers in the inner part of the message only,
-    the rest was not changed"""
     message = scan(ENCLOSED)
 
     enclosed = message.parts[1].enclosed
@@ -109,9 +108,9 @@ def enclosed_header_alternation_test():
     eq_(a, b)
 
 
+# We've changed the headers in the inner part of the message only,
+# the rest was not changed.
 def enclosed_header_inner_alternation_test():
-    """We've changed the headers in the inner part of the message only,
-    the rest was not changed"""
     message = scan(ENCLOSED)
 
     unicode_value = u'☯Привет! Как дела? Что делаешь?☯'
@@ -127,9 +126,9 @@ def enclosed_header_inner_alternation_test():
 
 
 
+# We've changed the body in the inner part of the message only,
+# the rest was not changed.
 def enclosed_body_alternation_test():
-    """We've changed the body in the inner part of the message only,
-    the rest was not changed"""
     message = scan(ENCLOSED)
 
     value = u'☯Привет! Как дела? Что делаешь?, \r\n\r Что новенького?☯'
@@ -142,9 +141,9 @@ def enclosed_body_alternation_test():
     eq_(value, enclosed.parts[0].body)
 
 
+# We've changed the inner part of the entity that has no headers,
+# make sure that it was processed correctly.
 def enclosed_inner_part_no_headers_test():
-    """We've changed the inner part of the entity that has no headers,
-    make sure that it was processed correctly"""
     message = scan(TORTURE_PART)
 
     enclosed = message.parts[1].enclosed
@@ -158,10 +157,9 @@ def enclosed_inner_part_no_headers_test():
     ok_(no_headers.body.endswith("Mailgun!"))
 
 
+# Make sure we can serialize the message even in case of Decoding errors,
+# in this case fallback happens.
 def enclosed_broken_encoding_test():
-    """ Make sure we can serialize the message even in case of Decoding errors,
-    in this case fallback happens"""
-
     message = scan(ENCLOSED_BROKEN_ENCODING)
     for p in message.walk():
         try:
@@ -187,8 +185,8 @@ def double_serialization_test():
     eq_(b, c)
 
 
+# Make sure that content encoding will be preserved if possible.
 def preserve_content_encoding_test_8bit():
-    """ Make sure that content encoding will be preserved if possible"""
     # 8bit messages
     unicode_value = u'☯Привет! Как дела? Что делаешь?,\n Что новенького?☯'
 
@@ -201,8 +199,8 @@ def preserve_content_encoding_test_8bit():
     eq_('8bit', message.parts[0].content_encoding.value)
 
 
+# Make sure that quoted-printable remains quoted-printable.
 def preserve_content_encoding_test_quoted_printable():
-    """ Make sure that quoted-printable remains quoted-printable"""
     # should remain 8bit
     unicode_value = u'☯Привет! Как дела? Что делаешь?,\n Что новенького?☯'
     message = scan(QUOTED_PRINTABLE)
@@ -214,8 +212,8 @@ def preserve_content_encoding_test_quoted_printable():
     eq_('quoted-printable', message.parts[0].content_encoding.value)
 
 
+# Make sure that ascii remains ascii whenever possible.
 def preserve_ascii_test():
-    """Make sure that ascii remains ascii whenever possible"""
     # should remain ascii
     message = scan(TEXT_ONLY)
     message.body = u'Hello, how is it going?'
@@ -223,9 +221,9 @@ def preserve_ascii_test():
     eq_('7bit', message.content_encoding.value)
 
 
+# Make sure that we don't re-serialize a message and change its formatting
+# when headers were added but nothing else was modified.
 def preserve_formatting_with_new_headers_test():
-    """Make sure that we don't re-serialize a message and change its formatting
-    when headers were added but nothing else was modified."""
     # MULTIPART contains this header:
     #   Content-Type: multipart/alternative; boundary=bd1
     # which will change to this if it is re-serialized:
@@ -237,18 +235,16 @@ def preserve_formatting_with_new_headers_test():
     eq_(MULTIPART, remaining_mime)
 
 
+# We don't have to fully parse message headers if they are never accessed.
+# Thus we should be able to parse then serialize a message with malformed
+# headers without crashing, even though we would crash if we fully parsed it.
 def parse_then_serialize_malformed_message_test():
-    """
-    We don't have to fully parse message headers if they are never accessed.
-    Thus we should be able to parse then serialize a message with malformed
-    headers without crashing, even though we would crash if we fully parsed it.
-    """
     serialized = scan(OUTLOOK_EXPRESS).to_string()
     eq_(OUTLOOK_EXPRESS, serialized)
 
 
+# Make sure that ascii uprades to quoted-printable whenever needed.
 def ascii_to_quoted_printable_test():
-    """Make sure that ascii uprades to quoted-printable whenever needed"""
     # contains unicode chars
     message = scan(TEXT_ONLY)
     unicode_value = u'☯Привет! Как дела? Что делаешь?,\n Что новенького?☯'
@@ -282,8 +278,8 @@ def set_message_id_test():
         set(message.references))
 
 
+# Make sure that ascii uprades to quoted-printable if it has long lines.
 def ascii_to_quoted_printable_test():
-    """Make sure that ascii uprades to quoted-printable if it has long lines"""
     # contains unicode chars
     message = scan(TEXT_ONLY)
     value = u'Hello, how is it going?' * 100
@@ -295,8 +291,8 @@ def ascii_to_quoted_printable_test():
     eq_(value, message.body)
 
 
+# Make sure we can't create a message without headers.
 def create_message_without_headers_test():
-    """Make sure we can't create a message without headers"""
     message = scan(TEXT_ONLY)
     for h,v in message.headers.items():
         del message.headers[h]
@@ -305,17 +301,16 @@ def create_message_without_headers_test():
     assert_raises(EncodingError, message.to_string)
 
 
+# Make sure we can't create a message without headers.
 def create_message_without_body_test():
-    """Make sure we can't create a message without headers"""
     message = scan(TEXT_ONLY)
     message.body = ""
     message = scan(message.to_string())
     eq_('', message.body)
 
 
+# Alter the complex message, make sure that the structure remained the same.
 def torture_alter_test():
-    """Alter the complex message, make sure that the structure
-    remained the same"""
     message = scan(TORTURE)
     unicode_value = u'☯Привет! Как дела? Что делаешь?,\n Что новенького?☯'
     message.parts[5].enclosed.parts[0].parts[0].body = unicode_value
@@ -361,8 +356,8 @@ def broken_body_test():
     assert_raises(DecodingError, message.parts[1].enclosed.parts[0]._container._load_body)
 
 
+# Yahoo fails with russian attachments.
 def broken_ctype_test():
-    """Yahoo fails with russian attachments"""
     message = scan(RUSSIAN_ATTACH_YAHOO)
     assert_raises(
         DecodingError, lambda x: [p.headers for p in message.walk()], 1)
@@ -423,9 +418,8 @@ def content_types_test():
     ok_(not attachment.is_body())
 
 
+# Content-Type and file name are properly detected.
 def test_attachments():
-    """Content-Type and file name are properly detected
-    """
     # pdf attachment, file name in Content-Disposition
     data = """Content-Type: application/octet-stream; name="J_S III_W-2.pdf"
 Content-Disposition: attachment; filename*="J_S III_W-2.pdf"
@@ -578,9 +572,9 @@ def message_is_delivery_notification_test():
     assert_false(message.is_delivery_notification())
 
 
+# Make sure we've set up boundaries correctly and
+# methods that read raw bodies work fine.
 def read_body_test():
-    """ Make sure we've set up boundaries correctly and
-    methods that read raw bodies work fine """
     part = scan(MULTIPART)
     eq_(MULTIPART, part._container.read_message())
 
@@ -622,15 +616,15 @@ def test_encode_transfer_encoding():
     assert_less(max([len(l) for l in encoded_body.splitlines()]), 79)
 
 
+# Test base64 decoder.
 def test__base64_decode():
-    """Test base64 decoder."""
     eq_("hello", _base64_decode("aGVs\r\nbG8="))  # valid base64
     eq_("hello!", _base64_decode("aGVsbG8\r\nhx"))  # trim last character
     eq_("hello", _base64_decode("aGVsb\r\nG8"))  # recover single byte padding
     eq_("hello!!", _base64_decode("aGVs\rbG8h\nIQ")) # recover 2 bytes padding
 
 
+# Make sure broken base64 part gets recovered.
 def test_broke_base64():
-    """Make sure broken base64 part gets recovered."""
     part = scan(SPAM_BROKEN_BASE64)
     ok_("Here goes some text" in part.body)

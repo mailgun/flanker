@@ -93,6 +93,8 @@ SPAM_BROKEN_HEADERS = open(
     fixture_file("messages/spam/broken-headers.eml")).read()
 SPAM_BROKEN_CTYPE = open(
     fixture_file("messages/spam/broken-ctype.eml")).read()
+SPAM_BROKEN_BASE64 = open(
+    fixture_file("messages/spam/broken-base64.eml")).read()
 LONG_HEADER = open(
     fixture_file("messages/long-header.eml")).read()
 ATTACHED_PDF = open(fixture_file("messages/attached-pdf.eml")).read()

@@ -8,13 +8,13 @@ from nose.tools import eq_, ok_, assert_false, assert_raises, assert_less
 from flanker.mime.create import multipart, text
 from flanker.mime.message.scanner import scan
 from flanker.mime.message.errors import EncodingError, DecodingError
-from flanker.mime.message.part import encode_transfer_encoding
+from flanker.mime.message.part import encode_transfer_encoding, _base64_decode
 from tests import (BILINGUAL, BZ2_ATTACHMENT, ENCLOSED, TORTURE, TORTURE_PART,
                    ENCLOSED_BROKEN_ENCODING, EIGHT_BIT, QUOTED_PRINTABLE,
                    TEXT_ONLY, ENCLOSED_BROKEN_BODY, RUSSIAN_ATTACH_YAHOO,
                    MAILGUN_PIC, MAILGUN_PNG, MULTIPART, IPHONE,
                    SPAM_BROKEN_CTYPE, BOUNCE, NDN, NO_CTYPE, RELATIVE,
-                   MULTI_RECEIVED_HEADERS, OUTLOOK_EXPRESS)
+                   MULTI_RECEIVED_HEADERS, OUTLOOK_EXPRESS, SPAM_BROKEN_BASE64)
 from tests.mime.message.scanner_test import TORTURE_PARTS, tree_to_string
 from flanker.mime import recover
 
@@ -620,3 +620,17 @@ def test_encode_transfer_encoding():
     encoded_body = encode_transfer_encoding('base64', body)
     # according to  RFC 5322 line "SHOULD be no more than 78 characters"
     assert_less(max([len(l) for l in encoded_body.splitlines()]), 79)
+
+
+def test__base64_decode():
+    """Test base64 decoder."""
+    eq_("hello", _base64_decode("aGVs\r\nbG8="))  # valid base64
+    eq_("hello!", _base64_decode("aGVsbG8\r\nhx"))  # trim last character
+    eq_("hello", _base64_decode("aGVsb\r\nG8"))  # recover single byte padding
+    eq_("hello!!", _base64_decode("aGVs\rbG8h\nIQ")) # recover 2 bytes padding
+
+
+def test_broke_base64():
+    """Make sure broken base64 part gets recovered."""
+    part = scan(SPAM_BROKEN_BASE64)
+    ok_("Here goes some text" in part.body)

@@ -1,4 +1,4 @@
-import email.utils
+import base64
 import email.encoders
 import imghdr
 import logging
@@ -582,7 +582,7 @@ def decode_body(content_type, content_encoding, body):
 
 def decode_transfer_encoding(encoding, body):
     if encoding == 'base64':
-        return email.utils._bdecode(body)
+        return _base64_decode(body)
     elif encoding == 'quoted-printable':
         return quopri.decodestring(body)
     else:
@@ -665,17 +665,34 @@ def stronger_encoding(a, b):
 
 
 def has_long_lines(text, max_line_len=599):
-    '''
+    """
     Returns True if text contains lines longer than a certain length.
     Some SMTP servers (Exchange) refuse to accept messages "wider" than
     certain length.
-    '''
+    """
     if not text:
         return False
     for line in text.splitlines():
         if len(line) >= max_line_len:
             return True
     return False
+
+
+def _base64_decode(s):
+    """Recover base64 if it is broken."""
+    try:
+        return base64.b64decode(s)
+
+    except TypeError:
+        s = s.replace("\n", "").replace("\r", "")
+        tail_size = len(s) & 3
+        if tail_size == 1:
+            # crop last character as adding padding does not help
+            return base64.b64decode(s[:-1])
+
+        # add padding
+        return base64.b64decode(s + "=" * (4 - tail_size))
+
 
 CRLF = "\r\n"
 

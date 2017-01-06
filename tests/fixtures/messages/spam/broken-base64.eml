@@ -1,0 +1,15 @@
+Received: from example.com (example.com [127.0.0.1])
+ by mxa.mailgun.org with ESMTP id abcd;
+ Tue, 03 Jan 2017 21:42:28 -0000 (UTC)
+MIME-Version: 1.0
+Date: Tue, 03 Jan 2017 20:41:25 -0100
+From: Alice <alice@example.com>
+Subject: This is my best offer
+To: bob@example.com
+Message-Id: <123.456@example.com>
+Content-Type: text/html;
+Content-Transfer-Encoding: base64
+
+
+PGh0bWw+PGJvZHk+SGVyZSBnb2VzIHNvbWUgdGV4dCB0aGF0IHNob3VsZCBiZSBsb25nIGVu
+b3VnaCB0byBjcmVhdGUgbGluZSBicmVhazwvYm9keT48L2h0bWw+I

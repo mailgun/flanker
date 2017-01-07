@@ -571,10 +571,7 @@ class MimePart(RichPartMixin):
 
 def decode_body(content_type, content_encoding, body):
     # decode the transfer encoding
-    try:
-        body = decode_transfer_encoding(content_encoding, body)
-    except Exception:
-        raise DecodingError("Failed to decode body")
+    body = decode_transfer_encoding(content_encoding, body)
 
     # decode the charset next
     return decode_charset(content_type, body)
@@ -684,7 +681,7 @@ def _base64_decode(s):
         return base64.b64decode(s)
 
     except TypeError:
-        s = s.replace("\n", "").replace("\r", "")
+        s = s.translate(None, _b64_invalid_chars)
         tail_size = len(s) & 3
         if tail_size == 1:
             # crop last character as adding padding does not help
@@ -693,8 +690,6 @@ def _base64_decode(s):
         # add padding
         return base64.b64decode(s + "=" * (4 - tail_size))
 
-
-CRLF = "\r\n"
 
 class _CounterIO(object):
     def __init__(self):
@@ -709,3 +704,14 @@ class _CounterIO(object):
         return self.length
     def close(self):
         pass
+
+
+CRLF = "\r\n"
+
+
+# To recover base64 we need to translate the part to the base64 alphabet.
+_b64_alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
+_b64_invalid_chars = ""
+for ch in range(256):
+    if chr(ch) not in _b64_alphabet:
+        _b64_invalid_chars += chr(ch)

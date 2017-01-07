@@ -14,7 +14,7 @@ from tests import (BILINGUAL, BZ2_ATTACHMENT, ENCLOSED, TORTURE, TORTURE_PART,
                    TEXT_ONLY, ENCLOSED_BROKEN_BODY, RUSSIAN_ATTACH_YAHOO,
                    MAILGUN_PIC, MAILGUN_PNG, MULTIPART, IPHONE,
                    SPAM_BROKEN_CTYPE, BOUNCE, NDN, NO_CTYPE, RELATIVE,
-                   MULTI_RECEIVED_HEADERS, OUTLOOK_EXPRESS, SPAM_BROKEN_BASE64)
+                   MULTI_RECEIVED_HEADERS, OUTLOOK_EXPRESS)
 from tests.mime.message.scanner_test import TORTURE_PARTS, tree_to_string
 from flanker.mime import recover
 
@@ -351,11 +351,6 @@ def to_string_test():
     ok_(str(scan(TORTURE)))
 
 
-def broken_body_test():
-    message = scan(ENCLOSED_BROKEN_BODY)
-    assert_raises(DecodingError, message.parts[1].enclosed.parts[0]._container._load_body)
-
-
 # Yahoo fails with russian attachments.
 def broken_ctype_test():
     message = scan(RUSSIAN_ATTACH_YAHOO)
@@ -619,12 +614,12 @@ def test_encode_transfer_encoding():
 # Test base64 decoder.
 def test__base64_decode():
     eq_("hello", _base64_decode("aGVs\r\nbG8="))  # valid base64
-    eq_("hello!", _base64_decode("aGVsbG8\r\nhx"))  # trim last character
+    eq_("hello!", _base64_decode("a\x00GVsbG8\t*hx"))  # trim last character
     eq_("hello", _base64_decode("aGVsb\r\nG8"))  # recover single byte padding
     eq_("hello!!", _base64_decode("aGVs\rbG8h\nIQ")) # recover 2 bytes padding
 
 
 # Make sure broken base64 part gets recovered.
-def test_broke_base64():
-    part = scan(SPAM_BROKEN_BASE64)
-    ok_("Here goes some text" in part.body)
+def broken_body_test():
+    message = scan(ENCLOSED_BROKEN_BODY)
+    ok_(message.parts[1].enclosed.parts[0].body.startswith("dudes..."))

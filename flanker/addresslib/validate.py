@@ -74,7 +74,7 @@ def suggest_alternate(addr_spec):
     if sugg_domain == addr_parts[-1]:
         return None
 
-    return '@'.join([addr_parts[0], sugg_domain])
+    return b'@'.join([addr_parts[0], sugg_domain])
 
 
 def preparse_address(addr_spec):
@@ -82,7 +82,7 @@ def preparse_address(addr_spec):
     Preparses email addresses. Used to handle odd behavior by ESPs.
     """
     # sanity check, ensure we have both local-part and domain
-    parts = addr_spec.split('@')
+    parts = addr_spec.split(b'@')
     if len(parts) < 2:
         return None
 

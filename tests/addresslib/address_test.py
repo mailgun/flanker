@@ -122,6 +122,7 @@ def test_addresslist_non_ascii_list_input():
 
 
 def test_addresslist_address_obj_list_input():
+    skip_if_asked()  # Bad direct EmailAddress creation, spec is not valid
     al = [EmailAddress(u'Aurélien Berger  <ab@example.com>'),
           UrlAddress('https://www.example.com')]
     lst = parse_list(al)

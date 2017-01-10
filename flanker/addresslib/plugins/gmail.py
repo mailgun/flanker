@@ -32,18 +32,18 @@ from flanker.addresslib.tokenizer import TokenStream
 from flanker.addresslib.tokenizer import ATOM
 
 
-GMAIL_BASE = re.compile(r'''
+GMAIL_BASE = re.compile(br'''
                         [A-Za-z0-9\.]+
                         ''', re.MULTILINE | re.VERBOSE)
 
-ALPHANUM   = re.compile(r'''
+ALPHANUM   = re.compile(br'''
                         [A-Za-z0-9]+
                         ''', re.MULTILINE | re.VERBOSE)
 
-PLUS       = re.compile(r'''
+PLUS       = re.compile(br'''
                         [\+]
                         ''', re.MULTILINE | re.VERBOSE)
-DOT        = re.compile(r'''
+DOT        = re.compile(br'''
                         [\.]
                         ''', re.MULTILINE | re.VERBOSE)
 
@@ -53,9 +53,9 @@ def validate(localpart):
     if not localpart:
         return False
 
-    lparts = localpart.split('+')
+    lparts = localpart.split(b'+')
     real_localpart = lparts[0]
-    stripped_localpart = real_localpart.replace('.', '')
+    stripped_localpart = real_localpart.replace(b'.', b'')
 
     # length check
     l = len(stripped_localpart)

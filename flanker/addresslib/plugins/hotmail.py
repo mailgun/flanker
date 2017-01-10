@@ -32,23 +32,23 @@
 import re
 from flanker.addresslib.tokenizer import TokenStream
 
-HOTMAIL_PREFIX  = re.compile(r'''
+HOTMAIL_PREFIX  = re.compile(br'''
                             [A-Za-z0-9]+
                             ''', re.MULTILINE | re.VERBOSE)
 
-HOTMAIL_BASE    = re.compile(r'''
+HOTMAIL_BASE    = re.compile(br'''
                             [A-Za-z0-9\.\-\_]+
                             ''', re.MULTILINE | re.VERBOSE)
 
-HOTMAIL_SUFFIX  = re.compile(r'''
+HOTMAIL_SUFFIX  = re.compile(br'''
                             [A-Za-z0-9\-\_]+
                             ''', re.MULTILINE | re.VERBOSE)
 
-PLUS            = re.compile(r'''
+PLUS            = re.compile(br'''
                             \+
                             ''', re.MULTILINE | re.VERBOSE)
 
-PERIODS         = re.compile(r'''
+PERIODS         = re.compile(br'''
                             \.{2,}
                             ''', re.MULTILINE | re.VERBOSE)
 
@@ -59,7 +59,7 @@ def validate(localpart):
         return False
 
     # remove tag if it exists
-    lparts = localpart.split('+')
+    lparts = localpart.split(b'+')
     real_localpart = lparts[0]
 
     # length check
@@ -76,7 +76,7 @@ def validate(localpart):
         return False
 
     # no more than one plus (+)
-    if localpart.count('+') > 1:
+    if localpart.count(b'+') > 1:
         return False
 
     # no consecutive periods (..)

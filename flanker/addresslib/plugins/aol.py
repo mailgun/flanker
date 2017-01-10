@@ -21,23 +21,23 @@
 import re
 from flanker.addresslib.tokenizer import TokenStream
 
-ALPHA      = re.compile(r'''
+ALPHA      = re.compile(br'''
                         [A-Za-z]+
                         ''', re.MULTILINE | re.VERBOSE)
 
-NUMERIC    = re.compile(r'''
+NUMERIC    = re.compile(br'''
                         [0-9]+
                         ''', re.MULTILINE | re.VERBOSE)
 
-ALPHANUM   = re.compile(r'''
+ALPHANUM   = re.compile(br'''
                         [A-Za-z0-9]+
                         ''', re.MULTILINE | re.VERBOSE)
 
-DOT        = re.compile(r'''
+DOT        = re.compile(br'''
                         \.
                         ''', re.MULTILINE | re.VERBOSE)
 
-UNDERSCORE = re.compile(r'''
+UNDERSCORE = re.compile(br'''
                         \_
                         ''', re.MULTILINE | re.VERBOSE)
 

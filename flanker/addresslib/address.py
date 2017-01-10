@@ -131,7 +131,7 @@ def parse_list(address_list, strict=False, as_tuple=False, metrics=False):
 
     # if we have a list, transform it into a string first
     if isinstance(address_list, list):
-        address_list = ', '.join(_normalize_address_list(address_list))
+        address_list = u', '.join(_normalize_address_list(address_list))
 
     # parse
     try:
@@ -187,7 +187,7 @@ def validate_address(addr_spec, metrics=False):
 
     # run parser against address
     bstart = time.time()
-    paddr = parse('@'.join(addr_parts), addr_spec_only=True)
+    paddr = parse(b'@'.join(addr_parts), addr_spec_only=True)
     mtimes['parsing'] = time.time() - bstart
     if paddr is None:
         return None, mtimes
@@ -319,6 +319,7 @@ class Address(object):
         Url   = 'url'
 
 
+# TODO: RFC 6530 (Internationalizaion of address, etc) compliancy
 class EmailAddress(Address):
     """
     Represents a fully parsed email address with built-in support for MIME
@@ -354,6 +355,8 @@ class EmailAddress(Address):
 
         assert(spec)
 
+        spec = spec if isinstance(spec, str) else spec.encode('ascii')
+
         if parsed_name:
             self.display_name = smart_unquote(mime_to_unicode(parsed_name))
         elif display_name:
@@ -361,10 +364,12 @@ class EmailAddress(Address):
         else:
             self.display_name = u''
 
-        parts = spec.rsplit('@', 1)
+        self.display_name = self.display_name if isinstance(self.display_name, unicode) else self.display_name.decode('ascii')
+
+        parts = spec.rsplit(b'@', 1)
         self.mailbox = parts[0]
         self.hostname = parts[1].lower()
-        self.address = self.mailbox + "@" + self.hostname
+        self.address = self.mailbox + b"@" + self.hostname
         self.addr_type = self.Type.Email
 
     def __repr__(self):
@@ -401,16 +406,16 @@ class EmailAddress(Address):
         if self.display_name:
             encoded_display_name = smart_quote(encode_string(
                 None, self.display_name, maxlinelen=MAX_ADDRESS_LENGTH))
-            return '{0} <{1}>'.format(encoded_display_name, self.address)
-        return u'{0}'.format(self.address)
+            return b'{0} <{1}>'.format(encoded_display_name, self.address)
+        return b'{0}'.format(self.address)
 
     def to_unicode(self):
         """
         Converts to unicode.
         """
         if self.display_name:
-            return u'{0} <{1}>'.format(self.display_name, self.address)
-        return u'{0}'.format(self.address)
+            return u'{0} <{1}>'.format(self.display_name, self.address.decode('ascii'))
+        return u'{0}'.format(self.address.decode('ascii'))
 
     def __cmp__(self, other):
         return True
@@ -452,6 +457,7 @@ class EmailAddress(Address):
         return hash(self.address.lower())
 
 
+# TODO: Non-ASCII addresses compliancy
 class UrlAddress(Address):
     """
     Represents a parsed URL:
@@ -498,10 +504,10 @@ class UrlAddress(Address):
         return self.address
 
     def full_spec(self):
-        return self.address
+        return self.address if isinstance(self.address, bytes) else self.address.encode('idna')
 
     def to_unicode(self):
-        return self.address
+        return self.address if isinstance(self.address, unicode) else self.address.decode('idna')
 
     def __repr__(self):
         return self.address
@@ -561,7 +567,7 @@ class AddressList(object):
         return set(self.container) == set(other.container)
 
     def __repr__(self):
-        return ''.join(['[', self.full_spec(), ']'])
+        return b''.join([b'[', self.full_spec(), b']'])
 
     def __add__(self, other):
         """
@@ -573,12 +579,12 @@ class AddressList(object):
             result = self.container + other.container
         return AddressList(result)
 
-    def full_spec(self, delimiter=", "):
+    def full_spec(self, delimiter=b", "):
         """
         Returns a full string which looks pretty much what the original was
         like
             >>> adl = AddressList("Foo <foo@host.com>, Bar <bar@host.com>")
-            >>> adl.full_spec(delimiter='; ')
+            >>> adl.full_spec(delimiter=b'; ')
             'Foo <foo@host.com; Bar <bar@host.com>'
         """
         return delimiter.join(addr.full_spec() for addr in self.container)
@@ -623,7 +629,9 @@ def _normalize_address_list(address_list):
     for addr in address_list:
         if isinstance(addr, Address):
             parts.append(addr.to_unicode())
-        if isinstance(addr, basestring):
+        elif isinstance(addr, unicode):
             parts.append(addr)
+        elif isinstance(addr, str):
+            parts.append(addr.decode('ascii'))
 
     return parts

@@ -82,7 +82,7 @@ def traverse(pointer, iterator, parent=None):
 
         # we are expecting first boundary for multipart message
         # something is broken otherwise
-        if not token.is_boundary() or token != boundary:
+        if not token.is_boundary(): #or token != boundary:
             raise DecodingError(
                 "Multipart message without starting boundary")
 

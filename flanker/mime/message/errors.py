@@ -14,3 +14,8 @@ class EncodingError(MimeError):
 
     def __str__(self):
         return self.message[:256]
+
+class DecodingDataCorruptionError(MimeError):
+
+    def __str__(self):
+        return self.message[:256]

@@ -9,6 +9,8 @@ from nose.tools import *
 from flanker.mime.message.errors import DecodingError
 from flanker.mime.message.headers import encoding
 from flanker.mime.message.headers import MimeHeaders
+from flanker.mime import create
+from tests import PARTIAL_MSG, NO_BREAK_SPACE
 
 from .... import *
 
@@ -186,3 +188,15 @@ def test_folding_combinations():
     eq_('sasha  continued      line', headers['To'])
     eq_('single line  ', headers['From'])
     eq_("hello, how are you today?", headers['Subject'])
+
+# def partial_msg_test():
+#     from_addr = "Mail Delivery Subsystem <mailer-daemon@googlemail.com>"
+#     # print len(NO_FROM_ERROR)
+#     message = create.from_string(PARTIAL_MSG)
+#     eq_(message, not None)
+#     # eq_(message.headers.getraw('from'), from_addr)
+
+def no_break_space_test():
+    from_addr = '"RetailMeNot" <mail@e.retailmenot.com>'
+    message = create.from_string(NO_BREAK_SPACE)
+    eq_(message.headers.getraw('from'), from_addr)

@@ -26,6 +26,15 @@ def _translate_charset(charset):
     if 'koi8-r' in charset.lower():
         return 'koi8_r'
 
+    if 'gb2312' in charset.lower():
+        return 'gb2312'
+
+    if 'gb18030' in charset.lower():
+        return 'gb18030'
+
+    if 'gbk' in charset.lower():
+        return 'gbk'
+
     if 'utf-8' in charset.lower() or charset.lower() == 'x-unknown':
         return 'utf-8'
 

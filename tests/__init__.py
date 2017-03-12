@@ -97,7 +97,11 @@ LONG_HEADER = open(
     fixture_file("messages/long-header.eml")).read()
 ATTACHED_PDF = open(fixture_file("messages/attached-pdf.eml")).read()
 
+CHARSET_GB2312 = open(fixture_file("messages/charset-gb2312.eml")).read()
+CHARSET_GB2312_1 = open(fixture_file("messages/charset-gb2312-1.eml")).read()
 
+NO_BREAK_SPACE = open(fixture_file("messages/no-break-space.eml")).read()
+PARTIAL_MSG  = open(fixture_file("messages/message-partial.eml")).read()
 
 # addresslib fixture files
 MAILBOX_VALID_TESTS = open(fixture_file("mailbox_valid.txt")).read()

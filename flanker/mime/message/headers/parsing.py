@@ -13,29 +13,29 @@ def normalize(header):
     return string.capwords(header.lower(), '-')
 
 
-def parse_stream(stream):
+def parse_stream(stream, charset=None):
     """Reads the incoming stream and returns list of tuples"""
     out = deque()
     for header in unfold(split(stream)):
-        out.append(parse_header(header))
+        out.append(parse_header(header, charset))
     return out
 
 
-def parse_header(header):
+def parse_header(header, charset=None):
     """ Accepts a raw header with name, colons and newlines
     and returns it's parsed value
     """
     name, val = split2(header)
     if not is_pure_ascii(name):
         raise DecodingError("Non-ascii header name")
-    return name, parse_header_value(name, encodedword.unfold(val))
+    return name, parse_header_value(name, encodedword.unfold(val), charset)
 
 
-def parse_header_value(name, val):
+def parse_header_value(name, val, charset=None):
     if not is_pure_ascii(val):
         if parametrized.is_parametrized(name, val):
             raise DecodingError("Unsupported value in content- header")
-        return to_unicode(val)
+        return to_unicode(val, charset)
     else:
         if parametrized.is_parametrized(name, val):
             val, params = parametrized.decode(val)
@@ -52,7 +52,7 @@ def is_empty(line):
     return line in ('\r\n', '\r', '\n')
 
 
-RE_HEADER = regex.compile(r'^(From |[\041-\071\073-\176]+:|[\t ])')
+RE_HEADER = regex.compile(r'^([\040-\071\073-\176]+\s?:|[\t ])')
 
 
 def split(fp):
@@ -70,8 +70,10 @@ def split(fp):
         # ususally means that user forgot to separate the body and newlines
         # so "unread" this line here, what means to treat it like a body
         if not RE_HEADER.match(line):
-            fp.seek(fp.tell() - len(line))
-            break
+            line = line.replace("\xc2\xa0", " ")
+            if not RE_HEADER.match(line):
+                fp.seek(fp.tell() - len(line))
+                break
 
         lines.append(line)
 

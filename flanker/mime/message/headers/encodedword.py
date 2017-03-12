@@ -25,11 +25,11 @@ def unfold(value):
     return re.sub(foldingWhiteSpace, r"\2", value)
 
 
-def decode(header):
-    return mime_to_unicode(header)
+def decode(header, mimepart_charset=None):
+    return mime_to_unicode(header, mimepart_charset)
 
 
-def mime_to_unicode(header):
+def mime_to_unicode(header, mimepart_charset=None):
     """
     Takes a header value and returns a fully decoded unicode string.
     It differs from standard Python's mail.header.decode_header() because:
@@ -50,6 +50,9 @@ def mime_to_unicode(header):
         header = unfold(header)
         decoded = []  # decoded parts
 
+        acc_str = ''
+        acc_str_charset = None
+        acc_str_encoding = None
         while header:
             match = encodedWord.search(header)
             if match:
@@ -58,19 +61,44 @@ def mime_to_unicode(header):
                     # decodes unencoded ascii part to unicode
                     value = charsets.convert_to_unicode(ascii, header[0:start])
                     if value.strip():
+                        if acc_str:
+                            raise errors.DecodingDataCorruptionError()
+
                         decoded.append(value)
+
                 # decode a header =?...?= of encoding
+                if (acc_str_charset is not None and acc_str_charset != match.group('charset').lower()) or \
+                    (acc_str_encoding is not None and acc_str_encoding != match.group('encoding').lower()):
+                        raise errors.DecodingDataCorruptionError()
                 charset, value = decode_part(
-                    match.group('charset').lower(),
+                    match.group('charset').lower() if match.group('charset') else mimepart_charset,
                     match.group('encoding').lower(),
-                    match.group('encoded'))
-                decoded.append(charsets.convert_to_unicode(charset, value))
+                    acc_str+match.group('encoded') if len(acc_str) > 0 else match.group('encoded'))
+                try:
+                    decode_str = charsets.convert_to_unicode(charset, value)
+                except errors.DecodingDataCorruptionError as e:
+                    acc_str += match.group('encoded')
+                    acc_str_charset = match.group('charset').lower()
+                    acc_str_encoding = match.group('encoding').lower()
+                    header = header[match.end():]
+                    continue
+
+                acc_str = ''
+                acc_str_charset = None
+                acc_str_encoding = None
+                decoded.append(decode_str)
                 header = header[match.end():]
             else:
                 # no match? append the remainder
                 # of the string to the list of chunks
+                if acc_str:
+                    raise errors.DecodingDataCorruptionError()
                 decoded.append(charsets.convert_to_unicode(ascii, header))
                 break
+
+        if acc_str:
+            raise errors.DecodingDataCorruptionError()
+
         return u"".join(decoded)
     except Exception:
         try:
@@ -86,6 +114,12 @@ def mime_to_unicode(header):
             log.exception("Failed to log exception")
         return header
 
+def decode_acc_str(acc_str, acc_charset, encoding):
+    charset, value = decode_part(acc_charset, encoding, acc_str)
+    acc_str = ''
+    acc_charset = None
+    encoding = None
+    return charsets.convert_to_unicode(charset, value)
 
 ascii = 'ascii'
 

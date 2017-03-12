@@ -37,6 +37,7 @@ def _guess_and_convert_with(value, detector=cchardet):
         raise errors.DecodingError("Failed to guess encoding")
 
     try:
+        print 'decode by guesss '+ charset["encoding"]
         value = value.decode(charset["encoding"], "replace")
         return value
 
@@ -51,9 +52,14 @@ def _make_unicode(value, charset=None):
     charset = charset or "utf-8"
     try:
         value = value.decode(charset, "strict")
-    except (UnicodeError, LookupError):
-        value = _guess_and_convert(value)
+    except UnicodeError as e:
+        print e.reason
+        if e.reason == "unexpected end of data":
+            raise errors.DecodingDataCorruptionError()
 
+        value = _guess_and_convert(value)
+    except LookupError as e:
+        value = _guess_and_convert(value)
     return value
 
 

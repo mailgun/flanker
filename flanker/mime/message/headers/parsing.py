@@ -52,7 +52,7 @@ def is_empty(line):
     return line in ('\r\n', '\r', '\n')
 
 
-RE_HEADER = regex.compile(r'^(From |[\041-\071\073-\176]+:|[\t ])')
+RE_HEADER = regex.compile(r'^([\040-\071\073-\176]+\s?:|[\t ])')
 
 
 def split(fp):
@@ -70,8 +70,10 @@ def split(fp):
         # ususally means that user forgot to separate the body and newlines
         # so "unread" this line here, what means to treat it like a body
         if not RE_HEADER.match(line):
-            fp.seek(fp.tell() - len(line))
-            break
+            line = line.replace("\xc2\xa0", " ")
+            if not RE_HEADER.match(line):
+                fp.seek(fp.tell() - len(line))
+                break
 
         lines.append(line)
 

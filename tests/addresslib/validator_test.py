@@ -164,23 +164,23 @@ def test_parse_syntax_only_false():
         assert_equal(unpar, [])
 
         # all invalid
-        parse, unpar = address.validate_list(', '.join(invalid_mx_list), as_tuple=True)
+        parse, unpar = address.validate_list(invalid_mx_list, as_tuple=True)
         assert_equal(parse, [])
         assert_equal(unpar, invalid_mx_list)
 
-        parse, unpar = address.validate_list(', '.join(invalid_tld_list), as_tuple=True)
+        parse, unpar = address.validate_list(invalid_tld_list, as_tuple=True)
         assert_equal(parse, [])
         assert_equal(unpar, invalid_tld_list)
 
-        parse, unpar = address.validate_list(', '.join(invalid_domain_list), as_tuple=True)
+        parse, unpar = address.validate_list(invalid_domain_list, as_tuple=True)
         assert_equal(parse, [])
         assert_equal(unpar, invalid_domain_list)
 
-        parse, unpar = address.validate_list(', '.join(invalid_subdomain_list), as_tuple=True)
+        parse, unpar = address.validate_list(invalid_subdomain_list, as_tuple=True)
         assert_equal(parse, [])
         assert_equal(unpar, invalid_subdomain_list)
 
-        parse, unpar = address.validate_list(', '.join(all_list), as_tuple=True)
+        parse, unpar = address.validate_list(all_list, as_tuple=True)
         assert_equal(parse, all_valid_list)
         assert_equal(unpar, all_invalid_list)
 

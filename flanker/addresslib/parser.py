@@ -1,652 +1,207 @@
-# coding:utf-8
-
-"""
-_AddressParser is an implementation of a recursive descent parser for email
-addresses and urls. While _AddressParser can be used directly it is not
-recommended, use the the parse() and parse_list() methods which are provided
-in the address module for convenience.
-
-The grammar supported by the parser (as well as other limitations) are
-outlined below. Plugins are also supported to allow for custom more
-restrictive grammar that is typically seen at large Email Service Providers
-(ESPs).
-
-For email addresses, the grammar tries to stick to RFC 5322 as much as
-possible, but includes relaxed (lax) grammar as well to support for common
-realistic uses of email addresses on the Internet.
-
-Grammar:
+import ply.yacc as yacc
+from lexer import tokens, lexer
+from collections import namedtuple
+import logging
 
 
-    address-list      ->    address { delimiter address }
-    mailbox           ->    name-addr-rfc | name-addr-lax | addr-spec | url
+logging.basicConfig()
+log = logging.getLogger(__name__)
+log.setLevel(logging.INFO)
 
-    name-addr-rfc     ->    [ display-name-rfc ] angle-addr-rfc
-    display-name-rfc  ->    [ whitespace ] word { whitespace word }
-    angle-addr-rfc    ->    [ whitespace ] < addr-spec > [ whitespace ]
-
-    name-addr-lax     ->    [ display-name-lax ] angle-addr-lax
-    display-name-lax  ->    [ whitespace ] word { whitespace word } whitespace
-    angle-addr-lax    ->    addr-spec [ whitespace ]
-
-    addr-spec         ->    [ whitespace ] local-part @ domain [ whitespace ]
-    local-part        ->    dot-atom | quoted-string
-    domain            ->    dot-atom
-
-    word              ->    word-ascii | word-unicode
-    word-ascii        ->    atom | quoted-string
-    word-unicode      ->    unicode-atom | unicode-qstring
-    whitespace        ->    whitespace-ascii | whitespace-unicode
+Mailbox = namedtuple('Mailbox', ['display_name', 'local_part', 'domain'])
+Url     = namedtuple('Url',     ['address'])
 
 
-Additional limitations on email addresses:
+# Parsing rules
 
-    1. local-part:
-        * Must not be greater than 64 octets
+start = 'mailbox_or_url_list'
 
-    2. domain:
-        * No more than 127 levels
-        * Each level no more than 63 octets
-        * Texual representation can not exceed 253 characters
-        * No level can begin or end with -
+precedence = (
+    ('left', 'FWSP', 'ATEXT', 'QTEXT', 'QPAIR', 'DTEXT'),
+    ('left', 'DOT', 'AT'),
+    ('left', 'RANGLE', 'RBRACKET', 'DQUOTE'),
+    ('left', 'COMMA', 'SEMICOLON'),
+)
 
-    3. Maximum mailbox length is len(local-part) + len('@') + len(domain) which
-       is 64 + 1 + 253 = 318 characters. Allow 194 characters for a display
-       name and the (very generous) limit becomes 512 characters. Allow 1024
-       mailboxes and the total limit on a mailbox-list is 524288 characters.
-"""
+def p_expression_mailbox_or_url_list(p):
+    '''mailbox_or_url_list : mailbox_or_url_list delim mailbox_or_url
+                           | mailbox_or_url_list delim
+                           | mailbox_or_url'''
+    if len(p) == 4:
+        p[0] = p[1] + [p[3]]
+    elif len(p) == 3:
+        p[0] = p[1]
+    elif len(p) == 2:
+        p[0] = [p[1]]
 
-import re
-import flanker.addresslib.address
+def p_expression_delim(p):
+    '''delim : delim delim
+             | COMMA ofwsp
+             | SEMICOLON ofwsp'''
 
-from flanker.addresslib.tokenizer import TokenStream
-from flanker.addresslib.tokenizer import LBRACKET
-from flanker.addresslib.tokenizer import AT_SYMBOL
-from flanker.addresslib.tokenizer import RBRACKET
-from flanker.addresslib.tokenizer import DQUOTE
-from flanker.addresslib.tokenizer import BAD_DOMAIN
-from flanker.addresslib.tokenizer import DELIMITER
-from flanker.addresslib.tokenizer import RELAX_ATOM
-from flanker.addresslib.tokenizer import WHITESPACE
-from flanker.addresslib.tokenizer import UNI_WHITE
-from flanker.addresslib.tokenizer import ATOM
-from flanker.addresslib.tokenizer import UNI_ATOM
-from flanker.addresslib.tokenizer import UNI_QSTR
-from flanker.addresslib.tokenizer import DOT_ATOM
-from flanker.addresslib.tokenizer import QSTRING
-from flanker.addresslib.tokenizer import URL
+def p_expression_mailbox_or_url(p):
+    '''mailbox_or_url : mailbox
+                      | url'''
+    p[0] = p[1]
 
-from flanker.mime.message.headers.encoding import encode_string
+def p_expression_url(p):
+    'url : ofwsp URL ofwsp'
+    p[0] = Url(p[2])
 
-from flanker.utils import is_pure_ascii
-from flanker.utils import contains_control_chars
-from flanker.utils import cleanup_display_name
-from flanker.utils import cleanup_email
-from flanker.utils import to_utf8
+def p_expression_mailbox(p):
+    '''mailbox : addr_spec
+               | name_addr
+               | angle_addr''' # NOTE: `angle_addr` is invalid here but has been added for backwards compatability
+    p[0] = p[1]
 
+def p_expression_name_addr(p):
+    '''name_addr : phrase angle_addr
+                 | phrase addr_spec''' # NOTE: `phrase addr_spec` is invalid here but has been added for backwards compatability
+    p[0] = Mailbox(p[1], p[2].local_part, p[2].domain)
 
-class _AddressParser(object):
-    """
-    Do not use _AddressParser directly because it heavily relies on other
-    private classes and methods and its interface is not guaranteed. It
-    will change in the future and possibly break your application.
+def p_expression_angle_addr(p):
+    'angle_addr : ofwsp LANGLE addr_spec RANGLE ofwsp'
+    p[0] = p[3]
 
-    Instead use the parse() and parse_list() functions in the address.py
-    module which will always return a scalar or iterable respectively.
-    """
+def p_expression_addr_spec(p):
+    '''addr_spec : local_part AT domain'''
+    p[0] = Mailbox('', p[1], p[3])
 
-    def __init__(self, strict=False):
-        self.stream = None
-        self.strict = strict
+def p_expression_local_part(p):
+    '''local_part : dot_atom
+                  | atom
+                  | quoted_string'''
+    p[0] = p[1]
 
-    def address_list(self, stream):
-        """
-        Extract a mailbox and/or url list from a stream of input, operates in
-        strict and relaxed modes.
-        """
-        # sanity check
-        if not stream:
-            raise ParserException('No input provided to parser.')
-        if isinstance(stream, str) and not is_pure_ascii(stream):
-            raise ParserException('ASCII string contains non-ASCII chars.')
+def p_expression_domain(p):
+    '''domain : dot_atom
+              | atom
+              | domain_literal'''
+    p[0] = p[1]
 
-        # to avoid spinning here forever, limit address list length
-        if len(stream) > MAX_ADDRESS_LIST_LENGTH:
-            raise ParserException('Stream length exceeds maximum allowable ' + \
-                'address list length of ' + str(MAX_ADDRESS_LIST_LENGTH) + '.')
+def p_expression_quoted_string(p):
+    '''quoted_string : ofwsp DQUOTE quoted_string_text DQUOTE ofwsp'''
+    p[0] = '"{}"'.format(p[3])
 
-        # set stream
-        self.stream = TokenStream(stream)
+def p_expression_quoted_string_text(p):
+    '''quoted_string_text : quoted_string_text QTEXT
+                          | quoted_string_text QPAIR
+                          | quoted_string_text fwsp
+                          | QTEXT
+                          | QPAIR
+                          | fwsp
+                          |''' # NOTE: `empty` is invalid but has been added for backwards compatability
+    if len(p) == 3:
+        p[0] = '{}{}'.format(p[1], p[2])
+    elif len(p) == 2:
+        p[0] = p[1]
+    elif len(p) == 1:
+        p[0] = ''
 
-        if self.strict is True:
-            return self._address_list_strict()
-        return self._address_list_relaxed()
+def p_expression_domain_literal(p):
+    '''domain_literal : ofwsp LBRACKET domain_literal_text RBRACKET ofwsp'''
+    p[0] = '[{}]'.format(p[3])
 
-    def address(self, stream):
-        """
-        Extract a single address or url from a stream of input, always
-        operates in strict mode.
-        """
-        # sanity check
-        if not stream:
-            raise ParserException('No input provided to parser.')
-        if isinstance(stream, str) and not is_pure_ascii(stream):
-            raise ParserException('ASCII string contains non-ASCII chars.')
+def p_expression_domain_literal_text(p):
+    '''domain_literal_text : domain_literal_text DTEXT
+                           | domain_literal_text fwsp
+                           | DTEXT
+                           | fwsp'''
+    if len(p) == 3:
+        p[0] = '{}{}'.format(p[1], p[2])
+    elif len(p) == 2:
+        p[0] = p[1]
 
-        # to avoid spinning here forever, limit mailbox length
-        if len(stream) > MAX_ADDRESS_LENGTH:
-            raise ParserException('Stream length exceeds maximum allowable ' + \
-                'address length of ' + str(MAX_ADDRESS_LENGTH) + '.')
+def p_expression_phrase(p):
+    '''phrase : phrase atom
+              | phrase quoted_string
+              | atom
+              | quoted_string'''
+    if len(p) == 3:
+        p[0] = '{} {}'.format(p[1], p[2])
+    elif len(p) == 2:
+        p[0] = p[1]
 
-        self.stream = TokenStream(stream)
+# NOTE: Our expression for dot_atom here differs from RFC 5322. In the RFC
+# dot_atom is expressed as a superset of atom. That makes it difficult to write
+# unambiguous parsing rules so we've defined it here in such a way that it
+# doesn't conflict. As a result, any higher order rules that accept dot_atom
+# should also accept atom.
+def p_expression_dot_atom(p):
+    'dot_atom : ofwsp dot_atom_text ofwsp'
+    p[0] = p[2]
 
-        addr = self._address()
-        if addr:
-            # optional whitespace
-            self._whitespace()
+def p_expression_dot_atom_text(p):
+    '''dot_atom_text : dot_atom_text DOT ATEXT
+                     | ATEXT DOT ATEXT'''
+    p[0] = '{}.{}'.format(p[1], p[3])
 
-            # if we hit the end of the stream, we have a valid inbox
-            if self.stream.end_of_stream():
-                return addr
+def p_expression_atom(p):
+    'atom : ofwsp ATEXT ofwsp'
+    p[0] = p[2]
 
-        return None
+def p_expression_ofwsp(p):
+    '''ofwsp : fwsp
+             |'''
+    if len(p) == 2:
+        p[0] = p[1]
+    if len(p) == 1:
+        p[0] = ''
 
-    def address_spec(self, stream):
-        """
-        Extract a single address spec from a stream of input, always
-        operates in strict mode.
-        """
-        # sanity check
-        if stream is None:
-            raise ParserException('No input provided to parser.')
-        if isinstance(stream, str) and not is_pure_ascii(stream):
-            raise ParserException('ASCII string contains non-ASCII chars.')
+def p_expression_fwsp(p):
+    'fwsp : FWSP'
+    p[0] = p[1].replace('\r\n', '')
 
-        # to avoid spinning here forever, limit mailbox length
-        if len(stream) > MAX_ADDRESS_LENGTH:
-            raise ParserException('Stream length exceeds maximum allowable ' + \
-                'address length of ' + str(MAX_ADDRESS_LENGTH) + '.')
-
-        self.stream = TokenStream(stream)
-
-        addr = self._addr_spec()
-        if addr:
-            # optional whitespace
-            self._whitespace()
-
-            # if we hit the end of the stream, we have a valid inbox
-            if self.stream.end_of_stream():
-                return addr
-
-        return None
+def p_error(p):
+    if p:
+        raise SyntaxError('syntax error: token=%s, lexpos=%s', p.value, p.lexpos)
+    raise SyntaxError('syntax error: eof')
 
 
-    def _mailbox_post_processing_checks(self, address):
-        """
-        Additional post processing checks to ensure mailbox is valid.
-        """
-        parts = address.split('@')
+# Build the parsers
 
-        # check if local part is less than 1024 octets, the actual
-        # limit is 64 octets but we allow 16x that size here because
-        # unsubscribe links are frequently longer
-        lpart = parts[0]
-        if len(lpart) > 1024:
-            return False
+log.info('building mailbox parser')
+mailbox_parser = yacc.yacc(
+    start='mailbox', errorlog=log)
 
-        # check if the domain is less than 255 octets
-        domn = parts[1]
-        if len(domn) > 253:
-            return False
+log.info('building addr_spec parser')
+addr_spec_parser = yacc.yacc(
+    start='addr_spec', errorlog=log)
 
-        # number of labels can not be over 127
-        labels = domn.split('.')
-        if len(labels) > 127:
-            return False
+log.info('building url parser')
+url_parser = yacc.yacc(
+    start='url', errorlog=log)
 
-        for label in labels:
-            # check the domain doesn't start or end with - and
-            # the length of each label is no more than 63 octets
-            if BAD_DOMAIN.search(label) or len(label) > 63:
-                return False
+log.info('building mailbox_or_url parser')
+mailbox_or_url_parser = yacc.yacc(
+    start='mailbox_or_url', errorlog=log)
 
-        return True
+log.info('building mailbox_or_url_list parser')
+mailbox_or_url_list_parser = yacc.yacc(
+    start='mailbox_or_url_list', errorlog=log)
 
-    def _address_list_relaxed(self):
-        """
-        Grammar: address-list-relaxed -> address { delimiter address }
-        """
-        #addrs = []
-        addrs = flanker.addresslib.address.AddressList()
-        unparsable = []
 
-        # address
-        addr = self._address()
-        if addr is None:
-            # synchronize to the next delimiter (or end of line)
-            # append the skipped over text to the unparsable list
-            skip = self.stream.synchronize()
-            if skip:
-                unparsable.append(skip)
+# Interactive prompt for easy debugging
+if __name__ == '__main__':
+    while True:
+        try:
+            s = raw_input('\nflanker> ')
+        except KeyboardInterrupt:
+            break
+        except EOFError:
+            break
+        if s == '': continue
 
-            # if no mailbox and end of stream, we were unable
-            # return the unparsable stream
-            if self.stream.end_of_stream():
-                return [], unparsable
-        else:
-            # if we found a delimiter or end of stream, we have a
-            # valid mailbox, add it
-            if self.stream.peek(DELIMITER) or self.stream.end_of_stream():
-                addrs.append(addr)
-            else:
-                # otherwise snychornize and add it the unparsable array
-                skip = self.stream.synchronize()
-                if skip:
-                    pre = self.stream.stream[:self.stream.stream.index(skip)]
-                    unparsable.append(pre + skip)
-                # if we hit the end of the stream, return the results
-                if self.stream.end_of_stream():
-                    return [], [self.stream.stream]
-
+        print '\nTokens list:\n'
+        lexer.input(s)
         while True:
-            # delimiter
-            dlm = self.stream.get_token(DELIMITER)
-            if dlm is None:
-                skip = self.stream.synchronize()
-                if skip:
-                    unparsable.append(skip)
-                if self.stream.end_of_stream():
-                    break
-
-            # address
-            start_pos = self.stream.position
-            addr = self._address()
-            if addr is None:
-                skip = self.stream.synchronize()
-                if skip:
-                    unparsable.append(skip)
-
-                if self.stream.end_of_stream():
-                    break
-            else:
-                # if we found a delimiter or end of stream, we have a
-                # valid mailbox, add it
-                if self.stream.peek(DELIMITER) or self.stream.end_of_stream():
-                    addrs.append(addr)
-                else:
-                    # otherwise snychornize and add it the unparsable array
-                    skip = self.stream.synchronize()
-                    if skip:
-                        sskip = self.stream.stream[start_pos:self.stream.position]
-                        unparsable.append(sskip)
-                    # if we hit the end of the stream, return the results
-                    if self.stream.end_of_stream():
-                        return addrs, unparsable
-
-        return addrs, unparsable
-
-    def _address_list_strict(self):
-        """
-        Grammar: address-list-strict -> address { delimiter address }
-        """
-        #addrs = []
-        addrs = flanker.addresslib.address.AddressList()
-
-        # address
-        addr = self._address()
-        if addr is None:
-            return addrs
-        if self.stream.peek(DELIMITER):
-            addrs.append(addr)
-
-        while True:
-            # delimiter
-            dlm = self.stream.get_token(DELIMITER)
-            if dlm is None:
+            tok = lexer.token()
+            if not tok:
                 break
+            print tok
 
-            # address
-            addr = self._address()
-            if addr is None:
-                break
-            addrs.append(addr)
+        print '\nParsing behavior:\n'
+        result = mailbox_or_url_list_parser.parse(s, debug=log)
 
-        return addrs
-
-    def _address(self):
-        """
-        Grammar: address -> name-addr-rfc | name-addr-lax | addr-spec | url
-        """
-        start_pos = self.stream.position
-
-        addr = self._name_addr_rfc() or self._name_addr_lax() or \
-            self._addr_spec() or self._url()
-
-        # if email address, check that it passes post processing checks
-        if addr and isinstance(addr, flanker.addresslib.address.EmailAddress):
-            if self._mailbox_post_processing_checks(addr.address) is False:
-                # roll back
-                self.stream.position = start_pos
-                return None
-
-        return addr
-
-    def _url(self):
-        """
-        Grammar: url -> url
-        """
-        earl = self.stream.get_token(URL)
-        if earl is None:
-            return None
-        return flanker.addresslib.address.UrlAddress(to_utf8(earl))
-
-    def _name_addr_rfc(self):
-        """
-        Grammar: name-addr-rfc -> [ display-name-rfc ] angle-addr-rfc
-        """
-        start_pos = self.stream.position
-
-        # optional displayname
-        dname = self._display_name_rfc()
-
-        aaddr = self._angle_addr_rfc()
-        if aaddr is None:
-            # roll back
-            self.stream.position = start_pos
-            return None
-
-        if dname:
-            return flanker.addresslib.address.EmailAddress(aaddr,
-                                                           parsed_name=dname)
-        return flanker.addresslib.address.EmailAddress(aaddr)
-
-    def _display_name_rfc(self):
-        """
-        Grammar: display-name-rfc -> [ whitespace ] word { whitespace word }
-        """
-        wrds = []
-
-        # optional whitespace
-        self._whitespace()
-
-        # word
-        wrd = self._word()
-        if wrd is None:
-            return None
-        wrds.append(wrd)
-
-        while True:
-            # whitespace
-            wtsp = self._whitespace()
-            if wtsp is None:
-                break
-            wrds.append(wtsp)
-
-            # word
-            wrd = self._word()
-            if wrd is None:
-                break
-            wrds.append(wrd)
-
-        return cleanup_display_name(''.join(wrds))
-
-    def _angle_addr_rfc(self):
-        """
-        Grammar: angle-addr-rfc -> [ whitespace ] < addr-spec > [ whitespace ]
-        """
-        start_pos = self.stream.position
-
-        # optional whitespace
-        self._whitespace()
-
-        # left angle bracket
-        lbr = self.stream.get_token(LBRACKET)
-        if lbr is None:
-            # rollback
-            self.stream.position = start_pos
-            return None
-
-        # addr-spec
-        aspec = self._addr_spec(True)
-        if aspec is None:
-            # rollback
-            self.stream.position = start_pos
-            return None
-
-        # right angle bracket
-        rbr = self.stream.get_token(RBRACKET)
-        if rbr is None:
-            # rollback
-            self.stream.position = start_pos
-            return None
-
-         # optional whitespace
-        self._whitespace()
-
-        return aspec
-
-    def _name_addr_lax(self):
-        """
-        Grammar: name-addr-lax -> [ display-name-lax ] angle-addr-lax
-        """
-        start_pos = self.stream.position
-
-        # optional displayname
-        dname = self._display_name_lax()
-
-        aaddr = self._angle_addr_lax()
-        if aaddr is None:
-            # roll back
-            self.stream.position = start_pos
-            return None
-
-        if dname:
-            return flanker.addresslib.address.EmailAddress(aaddr,
-                                                           parsed_name=dname)
-        return flanker.addresslib.address.EmailAddress(aaddr)
-
-    def _display_name_lax(self):
-        """
-        Grammar: display-name-lax ->
-            [ whitespace ] word { whitespace word } whitespace
-        """
-
-        start_pos = self.stream.position
-        wrds = []
-
-        # optional whitespace
-        self._whitespace()
-
-        # word
-        wrd = self._word()
-        if wrd is None:
-            # roll back
-            self.stream.position = start_pos
-            return None
-        wrds.append(wrd)
-
-        # peek to see if we have a whitespace,
-        # if we don't, we have a invalid display-name
-        if self.stream.peek(WHITESPACE) is None or \
-            self.stream.peek(UNI_WHITE) is None:
-            self.stream.position = start_pos
-            return None
-
-        while True:
-            # whitespace
-            wtsp = self._whitespace()
-            if wtsp:
-                wrds.append(wtsp)
-
-            # if we need to roll back the next word
-            start_pos = self.stream.position
-
-            # word
-            wrd = self._word()
-            if wrd is None:
-                self.stream.position = start_pos
-                break
-            wrds.append(wrd)
-
-            # peek to see if we have a whitespace
-            # if we don't pop off the last word break
-            if self.stream.peek(WHITESPACE) is None or \
-                self.stream.peek(UNI_WHITE) is None:
-                # roll back last word
-                self.stream.position = start_pos
-                wrds.pop()
-                break
-
-        return cleanup_display_name(''.join(wrds))
-
-    def _angle_addr_lax(self):
-        """
-        Grammar: angle-addr-lax -> addr-spec [ whitespace ]
-        """
-        start_pos = self.stream.position
-
-        # addr-spec
-        aspec = self._addr_spec(True)
-        if aspec is None:
-            # rollback
-            self.stream.position = start_pos
-            return None
-
-        # optional whitespace
-        self._whitespace()
-
-        return aspec
-
-    def _addr_spec(self, as_string=False):
-        """
-        Grammar: addr-spec -> [ whitespace ] local-part @ domain [ whitespace ]
-        """
-        start_pos = self.stream.position
-
-        # optional whitespace
-        self._whitespace()
-
-        lpart = self._local_part()
-        if lpart is None:
-            # rollback
-            self.stream.position = start_pos
-            return None
-
-        asym = self.stream.get_token(AT_SYMBOL)
-        if asym is None:
-            # rollback
-            self.stream.position = start_pos
-            return None
-
-        domn = self._domain()
-        if domn is None:
-            # rollback
-            self.stream.position = start_pos
-            return None
-
-        # optional whitespace
-        self._whitespace()
-
-        aspec = cleanup_email(''.join([lpart, asym, domn]))
-        if as_string:
-            return aspec
-        return flanker.addresslib.address.EmailAddress(aspec)
-
-    def _local_part(self):
-        """
-        Grammar: local-part -> dot-atom | quoted-string
-        """
-        return self.stream.get_token(DOT_ATOM) or \
-            self.stream.get_token(QSTRING)
-
-    def _domain(self):
-        """
-        Grammar: domain -> dot-atom
-        """
-        return self.stream.get_token(DOT_ATOM)
-
-    def _word(self):
-        """
-        Grammar: word -> word-ascii | word-unicode
-        """
-        start_pos = self.stream.position
-
-        # ascii word
-        ascii_wrd = self._word_ascii()
-        if ascii_wrd and not self.stream.peek(UNI_ATOM):
-            return ascii_wrd
-
-        # didn't get an ascii word, rollback to try again
-        self.stream.position = start_pos
-
-        # unicode word
-        return self._word_unicode()
-
-    def _word_ascii(self):
-        """
-        Grammar: word-ascii -> atom | qstring
-        """
-        wrd = self.stream.get_token(RELAX_ATOM) or self.stream.get_token(QSTRING)
-        if wrd and not contains_control_chars(wrd):
-            return wrd
-
-        return None
-
-    def _word_unicode(self):
-        """
-        Grammar: word-unicode -> unicode-atom | unicode-qstring
-        """
-        start_pos = self.stream.position
-
-        # unicode atom
-        uwrd = self.stream.get_token(UNI_ATOM)
-        if uwrd and isinstance(uwrd, unicode) and not contains_control_chars(uwrd):
-            return uwrd
-
-        # unicode qstr
-        uwrd = self.stream.get_token(UNI_QSTR, 'qstr')
-        if uwrd and isinstance(uwrd, unicode) and not contains_control_chars(uwrd):
-            return u'"{0}"'.format(encode_string(None, uwrd))
-
-        # rollback
-        self.stream.position = start_pos
-        return None
-
-
-    def _whitespace(self):
-        """
-        Grammar: whitespace -> whitespace-ascii | whitespace-unicode
-        """
-        return self._whitespace_ascii() or self._whitespace_unicode()
-
-    def _whitespace_ascii(self):
-        """
-        Grammar: whitespace-ascii -> whitespace-ascii
-        """
-        return self.stream.get_token(WHITESPACE)
-
-    def _whitespace_unicode(self):
-        """
-        Grammar: whitespace-unicode -> whitespace-unicode
-        """
-        uwhite = self.stream.get_token(UNI_WHITE)
-        if uwhite and not is_pure_ascii(uwhite):
-            return uwhite
-        return None
-
-
-class ParserException(Exception):
-    """
-    Exception raised when the parser encounters some parsing exception.
-    """
-    def __init__(self, reason='Unknown parser error.'):
-        self.reason = reason
-
-    def __str__(self):
-        return self.reason
-
-
-
-MAX_ADDRESS_LENGTH = 1280
-MAX_ADDRESS_NUMBER = 1024
-MAX_ADDRESS_LIST_LENGTH = MAX_ADDRESS_LENGTH * MAX_ADDRESS_NUMBER
+        print '\nResult:\n'
+        print result

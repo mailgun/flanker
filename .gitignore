@@ -37,3 +37,7 @@ nosetests.xml
 
 # Editor temp files
 *.swp
+
+# PLY
+parser.out
+parsetab.py

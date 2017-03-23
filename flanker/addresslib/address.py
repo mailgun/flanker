@@ -36,16 +36,24 @@ See the parser.py module for implementation details of the parser.
 
 import time
 import flanker.addresslib.parser
+import flanker.addresslib.lexer
+import ply.lex
+import ply.yacc
 from flanker.addresslib.quote import smart_unquote, smart_quote
 import flanker.addresslib.validate
+import logging
 
-from flanker.addresslib.parser import MAX_ADDRESS_LENGTH
 from flanker.utils import is_pure_ascii
 from flanker.utils import metrics_wrapper
 from flanker.mime.message.headers.encoding import encode_string
 from flanker.mime.message.headers.encodedword import mime_to_unicode
 from urlparse import urlparse
 
+log = logging.getLogger(__name__)
+
+MAX_ADDRESS_LENGTH = 1024
+MAX_ADDRESS_NUMBER = 1024
+MAX_ADDRESS_LIST_LENGTH = MAX_ADDRESS_LENGTH * MAX_ADDRESS_NUMBER
 
 @metrics_wrapper()
 def parse(address, addr_spec_only=False, metrics=False):
@@ -73,27 +81,93 @@ def parse(address, addr_spec_only=False, metrics=False):
         None
     """
     mtimes = {'parsing': 0}
+    lexer = flanker.addresslib.lexer.lexer.clone()
+    if addr_spec_only:
+        parser = flanker.addresslib.parser.addr_spec_parser
+    else:
+        parser = flanker.addresslib.parser.mailbox_or_url_parser
 
-    parser = flanker.addresslib.parser._AddressParser(False)
+    # normalize inputs to bytestrings
+    if isinstance(address, unicode):
+        address = address.encode('utf-8')
 
-    try:
-        # addr-spec only
-        if addr_spec_only:
-            bstart = time.time()
-            retval = parser.address_spec(address)
-            mtimes['parsing'] = time.time() - bstart
-            return retval, mtimes
-
-        # full address
-        bstart = time.time()
-        retval = parser.address(address)
-        mtimes['parsing'] = time.time() - bstart
-        return retval, mtimes
-
-    # supress any exceptions and return None
-    except flanker.addresslib.parser.ParserException:
+    # sanity checks
+    if not address:
         return None, mtimes
 
+    try:
+        bstart = time.time()
+        retval = _lift_parser_result(parser.parse(address, lexer=lexer))
+        mtimes['parsing'] = time.time() - bstart
+    except ply.lex.LexError as e:
+        log.warning(u'error in lexing: %s', e)
+        return None, mtimes
+    except ply.yacc.YaccError as e:
+        log.warning(u'error in parsing: %s', e)
+        return None, mtimes
+    except SyntaxError as e:
+        log.warning(u'error in parsing: %s', e)
+        return None, mtimes
+
+    if retval and len(retval.address) > MAX_ADDRESS_LENGTH:
+        log.warning('address length exceeds maximum address length of %s', MAX_ADDRESS_LENGTH)
+        return None, mtimes
+
+    return retval, mtimes
+
+
+@metrics_wrapper()
+def parse_discrete_list(address_list, metrics=False):
+    """
+    Given an string, returns an AddressList object (an iterable list
+    representing parsed email addresses and urls).
+
+    Returns an AddressList object and optionally metrics on processing
+    time if requested.
+
+    Examples:
+        >>> address.parse_list('A <a@b>')
+        [A <a@b>]
+
+        >>> address.parse_list('A <a@b>, C <d@e>')
+        [A <a@b>, C <d@e>]
+
+        >>> address.parse_list('A <a@b>, C, D <d@e>')
+        None
+
+        >>> address.parse_list('A <a@b>, D <d@e>, http://localhost')
+        [A <a@b>, D <d@e>, http://localhost]
+    """
+    mtimes = {'parsing': 0}
+    lexer = flanker.addresslib.lexer.lexer.clone()
+    parser = flanker.addresslib.parser.mailbox_or_url_list_parser
+
+    # normalize inputs to bytestrings
+    if isinstance(address_list, unicode):
+        address_list = address_list.encode('utf-8')
+
+    # sanity checks
+    if not address_list:
+        return None, mtimes
+    elif len(address_list) > MAX_ADDRESS_LIST_LENGTH:
+        log.warning('address list length exceeds maximum address list length of %s', MAX_ADDRESS_LIST_LENGTH)
+        return None, mtimes
+
+    try:
+        bstart = time.time()
+        retval = _lift_parser_result(parser.parse(address_list, lexer=lexer))
+        mtimes['parsing'] = time.time() - bstart
+    except ply.lex.LexError as e:
+        log.warning(u'error in lexing: %s', e)
+        return None, mtimes
+    except ply.yacc.YaccError as e:
+        log.warning(u'error in parsing: %s', e)
+        return None, mtimes
+    except SyntaxError as e:
+        log.warning(u'error in parsing: %s', e)
+        return None, mtimes
+
+    return retval, mtimes
 
 @metrics_wrapper()
 def parse_list(address_list, strict=False, as_tuple=False, metrics=False):
@@ -101,10 +175,6 @@ def parse_list(address_list, strict=False, as_tuple=False, metrics=False):
     Given an string or list of email addresses and/or urls seperated by a
     delimiter (comma (,) or semi-colon (;)), returns an AddressList object
     (an iterable list representing parsed email addresses and urls).
-
-    The Parser operates in strict or relaxed modes. In strict mode the parser
-    will quit at the first occurrence of error, in relaxed mode the parser
-    will attempt to seek to to known valid location and continue parsing.
 
     The parser can return a list of parsed addresses or a tuple containing
     the parsed and unparsed portions. The parser also returns the parsing
@@ -118,37 +188,58 @@ def parse_list(address_list, strict=False, as_tuple=False, metrics=False):
         [A <a@b>, C <d@e>]
 
         >>> address.parse_list('A <a@b>, C, D <d@e>')
-        [A <a@b>, D <d@e>]
+        []
 
-        >>> address.parse_list('A <a@b>, C, D <d@e>')
-        [A <a@b>]
+        >>> address.parse_list(['A <a@b>', 'C', 'D <d@e>'], as_tuple=True)
+        ([A <a@b>, D <d@e>], ['C'])
 
         >>> address.parse_list('A <a@b>, D <d@e>, http://localhost')
         [A <a@b>, D <d@e>, http://localhost]
     """
+    if strict:
+        log.warning('strict parsing has been removed, ignoring')
+
     mtimes = {'parsing': 0}
-    parser = flanker.addresslib.parser._AddressParser(strict)
 
-    # if we have a list, transform it into a string first
-    if isinstance(address_list, list):
-        address_list = ', '.join(_normalize_address_list(address_list))
-
-    # parse
-    try:
-        bstart = time.time()
-        if strict:
-            p = parser.address_list(address_list)
-            u = []
+    if not address_list:
+        parsed, unparsed = AddressList(), []
+    elif isinstance(address_list, list) and len(address_list) > MAX_ADDRESS_NUMBER:
+        log.warning('address list exceeds maximum address list items of %s', MAX_ADDRESS_NUMBER)
+        parsed, unparsed = AddressList(), [address_list]
+    elif isinstance(address_list, list):
+        parsed, unparsed = AddressList(), []
+        for address in address_list:
+            if isinstance(address, basestring):
+                retval, metrics = parse(address, metrics=True)
+                mtimes['parsing'] += metrics['parsing']
+                if retval:
+                    parsed.append(retval)
+                else:
+                    unparsed.append(address)
+            elif isinstance(address, EmailAddress):
+                parsed.append(address)
+            elif isinstance(address, UrlAddress):
+                parsed.append(address)
+            else:
+                log.warning('couldnt attempt to parse address list item')
+                unparsed.append(address)
+    elif isinstance(address_list, basestring) and len(address_list) > MAX_ADDRESS_LIST_LENGTH:
+        log.warning('address list exceeds maximum address list length of %s', MAX_ADDRESS_LIST_LENGTH)
+        parsed, unparsed = AddressList(), [address_list]
+    elif isinstance(address_list, basestring):
+        retval, metrics = parse_discrete_list(address_list, metrics=True)
+        mtimes['parsing'] += metrics['parsing']
+        if retval:
+            parsed, unparsed = retval, []
         else:
-            p, u = parser.address_list(address_list)
-        mtimes['parsing'] = time.time() - bstart
-    except flanker.addresslib.parser.ParserException:
-        p, u = (AddressList(), [])
+            parsed, unparsed = AddressList(), [address_list]
+    else:
+        log.warning('couldnt attempt to parse address list')
+        parsed, unparsed = AddressList(), [address_list]
 
-    # return as tuple or just parsed addresses
     if as_tuple:
-        return p, u, mtimes
-    return p, mtimes
+        return parsed, unparsed, mtimes
+    return parsed, mtimes
 
 
 @metrics_wrapper()
@@ -176,8 +267,6 @@ def validate_address(addr_spec, metrics=False):
 
     # sanity check
     if addr_spec is None:
-        return None, mtimes
-    if not is_pure_ascii(addr_spec):
         return None, mtimes
 
     # preparse address into its parts and perform any ESP specific pre-parsing
@@ -234,15 +323,15 @@ def validate_list(addr_list, as_tuple=False, metrics=False):
     mtimes = {'parsing': 0, 'mx_lookup': 0,
         'dns_lookup': 0, 'mx_conn':0 , 'custom_grammar':0}
 
-    if addr_list is None:
-        return None, mtimes
+    if not addr_list:
+        return AddressList(), mtimes
 
     # parse addresses
     bstart = time.time()
     parsed_addresses, unparseable = parse_list(addr_list, as_tuple=True)
     mtimes['parsing'] = time.time() - bstart
 
-    plist = flanker.addresslib.address.AddressList()
+    plist = AddressList()
     ulist = []
 
     # make sure parsed list pass dns and esp grammar
@@ -250,7 +339,7 @@ def validate_list(addr_list, as_tuple=False, metrics=False):
 
         # lookup if this domain has a mail exchanger
         exchanger, mx_metrics = \
-            flanker.addresslib.validate.mail_exchanger_lookup(paddr.hostname, metrics=True)
+            flanker.addresslib.validate.mail_exchanger_lookup(paddr.domain, metrics=True)
         mtimes['mx_lookup'] += mx_metrics['mx_lookup']
         mtimes['dns_lookup'] += mx_metrics['dns_lookup']
         mtimes['mx_conn'] += mx_metrics['mx_conn']
@@ -262,7 +351,7 @@ def validate_list(addr_list, as_tuple=False, metrics=False):
         # lookup custom local-part grammar if it exists
         plugin = flanker.addresslib.validate.plugin_for_esp(exchanger)
         bstart = time.time()
-        if plugin and plugin.validate(paddr.mailbox) is False:
+        if plugin and plugin.validate(paddr.local_part) is False:
             ulist.append(paddr.full_spec())
             continue
         mtimes['custom_grammar'] = time.time() - bstart
@@ -345,27 +434,73 @@ class EmailAddress(Address):
        'Bob Silva <bob@host.com>'
     """
 
-    __slots__ = ['display_name', 'mailbox', 'hostname', 'address']
+    display_name = None
+    local_part = None
+    domain = None
+    addr_type = Address.Type.Email
 
-    def __init__(self, display_name, spec=None, parsed_name=None):
-        if spec is None:
-            spec = display_name
-            display_name = None
+    def __init__(self, raw_display_name=None, raw_addr_spec=None, display_name=None, local_part=None, domain=None):
 
-        assert(spec)
+        if raw_display_name and raw_addr_spec:
+            if isinstance(raw_addr_spec, unicode):
+                raw_addr_spec = raw_addr_spec.encode('utf-8')
 
-        if parsed_name:
-            self.display_name = smart_unquote(mime_to_unicode(parsed_name))
-        elif display_name:
-            self.display_name = display_name
+            lexer = flanker.addresslib.lexer.lexer.clone()
+            parser = flanker.addresslib.parser.addr_spec_parser
+            mailbox = parser.parse(raw_addr_spec, lexer=lexer)
+
+            self.display_name = raw_display_name
+            self.local_part = mailbox.local_part.decode('utf-8')
+            self.domain = mailbox.domain.decode('utf-8')
+
+            if self.display_name.startswith('"') and self.display_name.endswith('"') and self.display_name != '""':
+                self.display_name = smart_unquote(self.display_name)
+
+        elif raw_display_name:
+            if isinstance(raw_display_name, unicode):
+                raw_display_name = raw_display_name.encode('utf-8')
+
+            lexer = flanker.addresslib.lexer.lexer.clone()
+            parser = flanker.addresslib.parser.mailbox_parser
+            mailbox = parser.parse(raw_display_name, lexer=lexer)
+
+            self.display_name = smart_unquote(mailbox.display_name.decode('utf-8'))
+            self.local_part = mailbox.local_part.decode('utf-8')
+            self.domain = mailbox.domain.decode('utf-8')
+
+        elif raw_addr_spec:
+            if isinstance(raw_addr_spec, unicode):
+                raw_addr_spec = raw_addr_spec.encode('utf-8')
+
+            lexer = flanker.addresslib.lexer.lexer.clone()
+            parser = flanker.addresslib.parser.addr_spec_parser
+            mailbox = parser.parse(raw_addr_spec, lexer=lexer)
+
+            self.display_name = ''
+            self.local_part = mailbox.local_part.decode('utf-8')
+            self.domain = mailbox.domain.decode('utf-8')
+
+        elif local_part and domain:
+            self.display_name = display_name or ''
+            self.local_part = local_part
+            self.domain = domain
+
         else:
-            self.display_name = u''
+            raise SyntaxError('failed to create EmailAddress: bad parameters')
 
-        parts = spec.rsplit('@', 1)
-        self.mailbox = parts[0]
-        self.hostname = parts[1].lower()
-        self.address = self.mailbox + "@" + self.hostname
-        self.addr_type = self.Type.Email
+    @property
+    def address(self):
+        return u'{}@{}'.format(self.local_part, self.domain.lower())
+
+    @property
+    def mailbox(self):
+        log.warning('deprecation notice: `mailbox` as been renamed `local_part` to match the nomenclature in RFC 5322 and will be removed in a future version')
+        return self.local_part
+
+    @property
+    def hostname(self):
+        log.warning('deprecation notice: `hostname` as been renamed `domain` to match the nomenclature in RFC 5322 and will be removed in a future version')
+        return self.domain.lower()
 
     def __repr__(self):
         """
@@ -419,11 +554,9 @@ class EmailAddress(Address):
         """
         Allows comparison of two addresses.
         """
+        if isinstance(other, basestring):
+            other = parse(other)
         if other:
-            if isinstance(other, basestring):
-                other = parse(other)
-                if not other:
-                    return False
             return self.address.lower() == other.address.lower()
         return False
 
@@ -469,30 +602,40 @@ class UrlAddress(Address):
     data", use the parse() and parse_list() functions instead.
     """
 
-    __slots__ = ['address', 'parse_result']
+    address = None
+    addr_type = Address.Type.Url
 
-    def __init__(self, spec):
-        self.address = spec
-        self.parse_result = urlparse(spec)
-        self.addr_type = self.Type.Url
+    def __init__(self, raw=None, address=None):
+
+        if raw:
+            if isinstance(raw, unicode):
+                raw = raw.encode('utf-8')
+            lexer = flanker.addresslib.lexer.lexer.clone()
+            parser = flanker.addresslib.parser.url_parser
+            url = parser.parse(raw, lexer=lexer)
+            self.address = url.address.decode('utf-8')
+        elif address:
+            self.address = address
+        else:
+            raise SyntaxError('failed to create UrlAddress: bad parameters')
 
     @property
     def hostname(self):
-        hostname = self.parse_result.hostname
+        hostname = urlparse(self.address).hostname
         if hostname:
             return hostname.lower()
 
     @property
     def port(self):
-        return self.parse_result.port
+        return urlparse(self.address).port
 
     @property
     def scheme(self):
-        return self.parse_result.scheme
+        return urlparse(self.address).scheme
 
     @property
     def path(self):
-        return self.parse_result.path
+        return urlparse(self.address).path
 
     def __str__(self):
         return self.address
@@ -508,10 +651,11 @@ class UrlAddress(Address):
 
     def __eq__(self, other):
         "Allows comparison of two URLs"
+        if isinstance(other, basestring):
+            other = parse(other)
         if other:
-            if not isinstance(other, basestring):
-                other = other.address
-            return self.address == other
+            return self.address == other.address
+        return False
 
     def __hash__(self):
         return hash(self.address)
@@ -532,10 +676,13 @@ class AddressList(object):
         True
     """
 
+    container = None
+
     def __init__(self, container=None):
         if container is None:
-            container = []
-        self.container = container
+            self.container = []
+        else:
+            self.container = container
 
     def append(self, n):
         self.container.append(n)
@@ -557,6 +704,8 @@ class AddressList(object):
         When comparing ourselves to other lists we must ignore order.
         """
         if isinstance(other, list):
+            other = parse_list(other)
+        if isinstance(other, basestring):
             other = parse_list(other)
         return set(self.container) == set(other.container)
 
@@ -617,13 +766,16 @@ class AddressList(object):
         return set([addr.addr_type for addr in self.container])
 
 
-def _normalize_address_list(address_list):
-    parts = []
-
-    for addr in address_list:
-        if isinstance(addr, Address):
-            parts.append(addr.to_unicode())
-        if isinstance(addr, basestring):
-            parts.append(addr)
-
-    return parts
+def _lift_parser_result(retval):
+    if isinstance(retval, flanker.addresslib.parser.Mailbox):
+        return EmailAddress(
+            display_name=smart_unquote(retval.display_name.decode('utf-8')),
+            local_part=retval.local_part.decode('utf-8'),
+            domain=retval.domain.decode('utf-8'))
+    if isinstance(retval, flanker.addresslib.parser.Url):
+        return UrlAddress(
+            address=retval.address.decode('utf-8'))
+    if isinstance(retval, list):
+        return AddressList(
+            map(_lift_parser_result, retval))
+    return None

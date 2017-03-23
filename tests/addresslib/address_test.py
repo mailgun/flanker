@@ -108,7 +108,7 @@ def test_addresslist_with_apostrophe():
     eq_(2, len(lst))
     eq_('Allan G\'o <allan@example.com>', lst[0].full_spec())
     eq_('Os Wi <oswi@example.com>', lst[1].full_spec())
-    lst = parse_list("=?UTF-8?Q?Eugueny_=CF=8E_Kontsevoy?= <eugueny@gmail.com>")
+    lst = parse_list("Eugueny ώ Kontsevoy <eugueny@gmail.com>")
     eq_('=?utf-8?q?Eugueny_=CF=8E_Kontsevoy?= <eugueny@gmail.com>', lst.full_spec())
     eq_(u'Eugueny ώ Kontsevoy', lst[0].display_name)
 

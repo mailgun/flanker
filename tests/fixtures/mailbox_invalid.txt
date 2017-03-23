@@ -15,7 +15,6 @@ missing-at-sign.net
 Abc.example.com
 A@b@c@example.com
 a"b(c)d,e:f;g<h>i[j\k]l@example.com
-just"not"right@example.com
 this is"not\allowed@example.com
 this\ still\"not\\allowed@example.com
 first.last@sub.do,com
@@ -35,20 +34,6 @@ first..last@iana.org
                                                                                         # Which allows "" as a local-part for a addr-spec
 first\@last@iana.org
 first.last@
-first.last@[.12.34.56.78]
-first.last@[12.34.56.789]
-first.last@[::12.34.56.78]
-first.last@[IPv5:::12.34.56.78]
-first.last@[IPv6:1111:2222:3333:4444:5555:12.34.56.78]
-first.last@[IPv6:1111:2222:3333:4444:5555:6666:7777:12.34.56.78]
-first.last@[IPv6:1111:2222:3333:4444:5555:6666:7777]
-first.last@[IPv6:1111:2222:3333:4444:5555:6666:7777:8888:9999]
-first.last@[IPv6:1111:2222::3333::4444:5555:6666]
-first.last@[IPv6:1111:2222:333x::4444:5555]
-first.last@[IPv6:1111:2222:33333::4444:5555]
-first.last@-xample.com
-first.last@exampl-.com
-first.last@x234567890123456789012345678901234567890123456789012345678901234.iana.org
 abc\@def@iana.org
 abc\@iana.org
 Doug\ \"Ace\"\ Lovell@iana.org
@@ -62,7 +47,6 @@ ote"@iana.org
 .dot@iana.org
 dot.@iana.org
 two..dot@iana.org
-"Doug "Ace" L."@iana.org
 Doug\ \"Ace\"\ L\.@iana.org
 hello world@iana.org                                                                    # lax parser picks up "hello" as display-name
 gatsby@f.sc.ot.t.f.i.tzg.era.l.d.
@@ -96,7 +80,6 @@ first\last@iana.org
 Abc\@def@iana.org
 #Fred\ Bloggs@iana.org                                                                  # people use backslash all the time
 Joe.\Blow@iana.org
-first.last@[IPv6:1111:2222:3333:4444:5555:6666:12.34.567.89]
 {^c\@**Dog^}@cartoon.com
 "foo"(yay)@(hoopla)[1.2.3.4]
 cal(foo(bar)@iamcal.com
@@ -111,13 +94,9 @@ aaa.com
 aaa@.com
 aaa@.123
 aaa@[123.123.123.123]a
-aaa@[123.123.123.333]
 a@bar.com.
-a@-b.com
-a@b-.com
 -@..com
 -@a..com
-invalid@about.museum-
 test@...........com
 # first.last@[IPv6::]                                                                   # domain literal
 # first.last@[IPv6::::]                                                                 # domain literal

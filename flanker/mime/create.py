@@ -68,6 +68,9 @@ def attachment(content_type, body, filename=None,
         try:
             message = message_container(from_string(body))
             message.headers['Content-Disposition'] = WithParams(disposition)
+            if filename:
+                message.headers['Content-Disposition'].params['filename'] = filename
+                message.headers['Content-Type'].params['name'] = self.filename
             return message
         except DecodingError:
             content_type = ContentType('application', 'octet-stream')

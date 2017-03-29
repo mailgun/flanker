@@ -5,7 +5,7 @@ import logging
 from collections import deque
 from email.header import Header
 from flanker.mime.message.headers import parametrized
-from flanker.utils import to_utf8
+from flanker.mime.message.utils import to_utf8
 
 log = logging.getLogger(__name__)
 

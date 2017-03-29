@@ -434,10 +434,10 @@ class EmailAddress(Address):
        'Bob Silva <bob@host.com>'
     """
 
-    display_name = None
-    local_part = None
-    domain = None
-    addr_type = Address.Type.Email
+    _display_name = None
+    _local_part = None
+    _domain = None
+    _addr_type = Address.Type.Email
 
     def __init__(self, raw_display_name=None, raw_addr_spec=None, display_name=None, local_part=None, domain=None):
 
@@ -449,12 +449,12 @@ class EmailAddress(Address):
             parser = flanker.addresslib.parser.addr_spec_parser
             mailbox = parser.parse(raw_addr_spec, lexer=lexer)
 
-            self.display_name = raw_display_name
-            self.local_part = mailbox.local_part.decode('utf-8')
-            self.domain = mailbox.domain.decode('utf-8')
+            self._display_name = raw_display_name
+            self._local_part = mailbox.local_part.decode('utf-8')
+            self._domain = mailbox.domain.decode('utf-8')
 
-            if self.display_name.startswith('"') and self.display_name.endswith('"') and self.display_name != '""':
-                self.display_name = smart_unquote(self.display_name)
+            if self._display_name.startswith('"') and self._display_name.endswith('"') and self._display_name != '""':
+                self._display_name = smart_unquote(self._display_name)
 
         elif raw_display_name:
             if isinstance(raw_display_name, unicode):
@@ -464,9 +464,12 @@ class EmailAddress(Address):
             parser = flanker.addresslib.parser.mailbox_parser
             mailbox = parser.parse(raw_display_name, lexer=lexer)
 
-            self.display_name = smart_unquote(mailbox.display_name.decode('utf-8'))
-            self.local_part = mailbox.local_part.decode('utf-8')
-            self.domain = mailbox.domain.decode('utf-8')
+            self._display_name = mailbox.display_name.decode('utf-8')
+            self._local_part = mailbox.local_part.decode('utf-8')
+            self._domain = mailbox.domain.decode('utf-8')
+
+            if self._display_name.startswith('"') and self._display_name.endswith('"') and self._display_name != '""':
+                self._display_name = smart_unquote(self._display_name)
 
         elif raw_addr_spec:
             if isinstance(raw_addr_spec, unicode):
@@ -476,17 +479,37 @@ class EmailAddress(Address):
             parser = flanker.addresslib.parser.addr_spec_parser
             mailbox = parser.parse(raw_addr_spec, lexer=lexer)
 
-            self.display_name = ''
-            self.local_part = mailbox.local_part.decode('utf-8')
-            self.domain = mailbox.domain.decode('utf-8')
+            self._display_name = ''
+            self._local_part = mailbox.local_part.decode('utf-8')
+            self._domain = mailbox.domain.decode('utf-8')
 
         elif local_part and domain:
-            self.display_name = display_name or ''
-            self.local_part = local_part
-            self.domain = domain
+            self._display_name = display_name or ''
+            self._local_part = local_part
+            self._domain = domain
 
         else:
             raise SyntaxError('failed to create EmailAddress: bad parameters')
+
+    @property
+    def display_name(self):
+        return self._display_name
+
+    @display_name.setter
+    def display_name(self, display_name):
+        self._display_name = display_name
+
+    @property
+    def local_part(self):
+        return self._local_part
+
+    @property
+    def domain(self):
+        return self._domain
+
+    @property
+    def addr_type(self):
+        return self._addr_type
 
     @property
     def address(self):
@@ -495,12 +518,12 @@ class EmailAddress(Address):
     @property
     def mailbox(self):
         log.warning('deprecation notice: `mailbox` as been renamed `local_part` to match the nomenclature in RFC 5322 and will be removed in a future version')
-        return self.local_part
+        return self._local_part
 
     @property
     def hostname(self):
         log.warning('deprecation notice: `hostname` as been renamed `domain` to match the nomenclature in RFC 5322 and will be removed in a future version')
-        return self.domain.lower()
+        return self._domain.lower()
 
     def __repr__(self):
         """
@@ -602,8 +625,8 @@ class UrlAddress(Address):
     data", use the parse() and parse_list() functions instead.
     """
 
-    address = None
-    addr_type = Address.Type.Url
+    _address = None
+    _addr_type = Address.Type.Url
 
     def __init__(self, raw=None, address=None):
 
@@ -613,29 +636,37 @@ class UrlAddress(Address):
             lexer = flanker.addresslib.lexer.lexer.clone()
             parser = flanker.addresslib.parser.url_parser
             url = parser.parse(raw, lexer=lexer)
-            self.address = url.address.decode('utf-8')
+            self._address = url.address.decode('utf-8')
         elif address:
-            self.address = address
+            self._address = address
         else:
             raise SyntaxError('failed to create UrlAddress: bad parameters')
 
     @property
+    def address(self):
+        return self._address
+
+    @property
+    def addr_type(self):
+        return self._addr_type
+
+    @property
     def hostname(self):
-        hostname = urlparse(self.address).hostname
+        hostname = urlparse(self._address).hostname
         if hostname:
             return hostname.lower()
 
     @property
     def port(self):
-        return urlparse(self.address).port
+        return urlparse(self._address).port
 
     @property
     def scheme(self):
-        return urlparse(self.address).scheme
+        return urlparse(self._address).scheme
 
     @property
     def path(self):
-        return urlparse(self.address).path
+        return urlparse(self._address).path
 
     def __str__(self):
         return self.address

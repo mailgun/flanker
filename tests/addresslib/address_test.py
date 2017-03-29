@@ -158,3 +158,20 @@ def test_display_name__update():
     # Then
     eq_('=?utf-8?b?0J/RgNC40LLQtdGCINCc0LXQtNCy0LXQtA==?= <foo@bar.com>',
         a.full_spec())
+
+
+def test_address_to_unicode():
+    eq_(EmailAddress('foo <foo@bar.com>'        ).to_unicode(), u'foo <foo@bar.com>')
+    eq_(EmailAddress('аджай <аджай@экзампл.рус>').to_unicode(), u'аджай <аджай@экзампл.рус>')
+
+
+def test_address_full_spec():
+    eq_(EmailAddress('foo <foo@bar.com>').full_spec(), 'foo <foo@bar.com>')
+
+
+def test_address_full_spec_non_ascii_display_name():
+    eq_(EmailAddress('аджай <foo@bar.com>').full_spec(), '=?utf-8?b?0LDQtNC20LDQuQ==?= <foo@bar.com>')
+
+
+def test_address_full_spec_non_ascii_domain():
+    eq_(EmailAddress('foo <foo@экзампл.рус>').full_spec(), 'foo <foo@xn--80aniges7g.xn--p1acf>')

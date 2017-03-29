@@ -548,27 +548,30 @@ class EmailAddress(Address):
 
     def full_spec(self):
         """
-        Returns a full spec of an email address. Always in ASCII, RFC-2822
-        compliant, safe to be included into MIME:
+        Returns a full spec of an email address. Display name and domain parts
+        will be converted to ASCII-compatable encoding. The transformed address
+        will be ASCII-only and RFC-2822 compliant if the local part is
+        ASCII-only.
 
            >>> EmailAddress("Ev K", "ev@example.com").full_spec()
            'Ev K <ev@host.com>'
            >>> EmailAddress("Жека", "ev@example.com").full_spec()
            '=?utf-8?b?0JbQtdC60LA=?= <ev@example.com>'
         """
+        ace_domain = self.domain.lower().encode('idna')
         if self.display_name:
-            encoded_display_name = smart_quote(encode_string(
+            ace_display_name = smart_quote(encode_string(
                 None, self.display_name, maxlinelen=MAX_ADDRESS_LENGTH))
-            return '{0} <{1}>'.format(encoded_display_name, self.address)
-        return u'{0}'.format(self.address)
+            return u'{} <{}@{}>'.format(ace_display_name, self.local_part, ace_domain).encode('utf-8')
+        return u'{}@{}'.format(self.local_part, ace_domain).encode('utf-8')
 
     def to_unicode(self):
         """
         Converts to unicode.
         """
         if self.display_name:
-            return u'{0} <{1}>'.format(self.display_name, self.address)
-        return u'{0}'.format(self.address)
+            return u'{} <{}@{}>'.format(self.display_name, self.local_part, self.domain)
+        return u'{}@{}'.format(self.local_part, self.domain)
 
     def __cmp__(self, other):
         return True

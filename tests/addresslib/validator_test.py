@@ -240,3 +240,17 @@ def test_validate_address_metrics():
         assert_equal(metrics['mx_lookup'], 10)
         assert_equal(metrics['dns_lookup'], 20)
         assert_equal(metrics['mx_conn'], 30)
+
+
+@patch('flanker.addresslib.validate.connect_to_mail_exchanger')
+@patch('flanker.addresslib.validate.lookup_domain')
+@patch('flanker.addresslib.validate.lookup_exchanger_in_cache')
+def test_validate_domain_literal(mock_lookup_exchanger_in_cache, mock_lookup_domain, mock_connect_to_mail_exchanger):
+    mock_lookup_exchanger_in_cache.return_value = (False, None)
+    mock_connect_to_mail_exchanger.return_value = '1.2.3.4'
+
+    addr = address.validate_address('foo@[1.2.3.4]')
+
+    assert_equal(addr.full_spec(), 'foo@[1.2.3.4]')
+    mock_lookup_domain.assert_not_called()
+    mock_connect_to_mail_exchanger.assert_called_once_with(['1.2.3.4'])

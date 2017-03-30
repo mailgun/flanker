@@ -175,3 +175,22 @@ def test_address_full_spec_non_ascii_display_name():
 
 def test_address_full_spec_non_ascii_domain():
     eq_(EmailAddress('foo <foo@экзампл.рус>').full_spec(), 'foo <foo@xn--80aniges7g.xn--p1acf>')
+
+
+def test_contains_non_ascii():
+    eq_(EmailAddress(None, 'foo@bar.com'      ).contains_non_ascii(), False)
+    eq_(EmailAddress(None, 'foo@экзампл.рус'  ).contains_non_ascii(), True)
+    eq_(EmailAddress(None, 'аджай@bar.com'    ).contains_non_ascii(), True)
+    eq_(EmailAddress(None, 'аджай@экзампл.рус').contains_non_ascii(), True)
+
+
+def test_requires_non_ascii():
+    eq_(EmailAddress(None, 'foo@bar.com'      ).requires_non_ascii(), False)
+    eq_(EmailAddress(None, 'foo@экзампл.рус'  ).requires_non_ascii(), False)
+    eq_(EmailAddress(None, 'аджай@bar.com'    ).requires_non_ascii(), True)
+    eq_(EmailAddress(None, 'аджай@экзампл.рус').requires_non_ascii(), True)
+
+
+def test_contains_domain_literal():
+    eq_(EmailAddress(None, 'foo@bar.com'  ).contains_domain_literal(), False)
+    eq_(EmailAddress(None, 'foo@[1.2.3.4]').contains_domain_literal(), True)

@@ -94,6 +94,9 @@ def parse(address, addr_spec_only=False, metrics=False):
     # sanity checks
     if not address:
         return None, mtimes
+    if len(address) > MAX_ADDRESS_LENGTH:
+        log.warning('address exceeds maximum length of %s', MAX_ADDRESS_LENGTH)
+        return None, mtimes
 
     try:
         bstart = time.time()
@@ -107,10 +110,6 @@ def parse(address, addr_spec_only=False, metrics=False):
         return None, mtimes
     except SyntaxError as e:
         log.warning(u'error in parsing: %s', e)
-        return None, mtimes
-
-    if retval and len(retval.address) > MAX_ADDRESS_LENGTH:
-        log.warning('address length exceeds maximum address length of %s', MAX_ADDRESS_LENGTH)
         return None, mtimes
 
     return retval, mtimes
@@ -150,7 +149,7 @@ def parse_discrete_list(address_list, metrics=False):
     if not address_list:
         return None, mtimes
     elif len(address_list) > MAX_ADDRESS_LIST_LENGTH:
-        log.warning('address list length exceeds maximum address list length of %s', MAX_ADDRESS_LIST_LENGTH)
+        log.warning('address list exceeds maximum length of %s', MAX_ADDRESS_LIST_LENGTH)
         return None, mtimes
 
     try:
@@ -204,7 +203,7 @@ def parse_list(address_list, strict=False, as_tuple=False, metrics=False):
     if not address_list:
         parsed, unparsed = AddressList(), []
     elif isinstance(address_list, list) and len(address_list) > MAX_ADDRESS_NUMBER:
-        log.warning('address list exceeds maximum address list items of %s', MAX_ADDRESS_NUMBER)
+        log.warning('address list exceeds maximum items of %s', MAX_ADDRESS_NUMBER)
         parsed, unparsed = AddressList(), [address_list]
     elif isinstance(address_list, list):
         parsed, unparsed = AddressList(), []
@@ -224,7 +223,7 @@ def parse_list(address_list, strict=False, as_tuple=False, metrics=False):
                 log.warning('couldnt attempt to parse address list item')
                 unparsed.append(address)
     elif isinstance(address_list, basestring) and len(address_list) > MAX_ADDRESS_LIST_LENGTH:
-        log.warning('address list exceeds maximum address list length of %s', MAX_ADDRESS_LIST_LENGTH)
+        log.warning('address list exceeds maximum length of %s', MAX_ADDRESS_LIST_LENGTH)
         parsed, unparsed = AddressList(), [address_list]
     elif isinstance(address_list, basestring):
         retval, metrics = parse_discrete_list(address_list, metrics=True)

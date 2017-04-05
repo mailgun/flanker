@@ -408,12 +408,12 @@ class EmailAddress(Address):
     or parse_list() functions to return a scalar or iterable list respectively.
 
     Examples:
-       >>> addr = EmailAddress("Bob Silva", "bob@host.com")
+       >>> addr = parse("Bob Silva", "bob@host.com")
        >>> addr.address
        'bob@host.com'
-       >>> addr.hostname
+       >>> addr.domain
        'host.com'
-       >>> addr.mailbox
+       >>> addr.local_part
        'bob'
 
     Display name is always returned in Unicode, i.e. ready to be displayed on
@@ -422,7 +422,7 @@ class EmailAddress(Address):
        >>> addr.display_name
        u'Bob Silva'
 
-    And full email spec is 100% ASCII, encoded for MIME:
+    And full email spec is always returned as a sting encoded for MIME:
        >>> addr.full_spec()
        'Bob Silva <bob@host.com>'
     """
@@ -631,7 +631,7 @@ class EmailAddress(Address):
 class UrlAddress(Address):
     """
     Represents a parsed URL:
-        >>> url = UrlAddress("http://user@host.com:8080?q=a")
+        >>> url = parse("http://user@host.com:8080?q=a")
         >>> url.hostname
         'host.com'
         >>> url.port

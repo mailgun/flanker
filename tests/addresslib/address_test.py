@@ -147,19 +147,6 @@ def test_display_name__to_full_spec():
         EmailAddress(u'Привет Медвед', 'foo@bar.com').full_spec())
 
 
-def test_display_name__update():
-    # Given
-    a = EmailAddress('foo bar', 'foo@bar.com')
-    eq_('foo bar <foo@bar.com>', a.full_spec())
-
-    # When
-    a.display_name = u'Привет Медвед'
-
-    # Then
-    eq_('=?utf-8?b?0J/RgNC40LLQtdGCINCc0LXQtNCy0LXQtA==?= <foo@bar.com>',
-        a.full_spec())
-
-
 def test_address_full_spec():
     eq_(EmailAddress('foo <foo@bar.com>'        ).full_spec(), 'foo <foo@bar.com>')
     eq_(EmailAddress('аджай <аджай@экзампл.рус>').full_spec(), 'аджай <аджай@экзампл.рус>')

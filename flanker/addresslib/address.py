@@ -485,10 +485,6 @@ class EmailAddress(Address):
     def display_name(self):
         return self._display_name
 
-    @display_name.setter
-    def display_name(self, display_name):
-        self._display_name = display_name
-
     @property
     def local_part(self):
         return self._local_part

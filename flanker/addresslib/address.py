@@ -573,21 +573,21 @@ class EmailAddress(Address):
         return u'{}@{}'.format(self.local_part, self.domain)
 
     def contains_non_ascii(self):
-        '''
+        """
         Does the address contain any non-ASCII characters?
-        '''
+        """
         return not is_pure_ascii(self.address)
 
     def requires_non_ascii(self):
-        '''
+        """
         Can the address be converted to an ASCII compatible encoding?
-        '''
+        """
         return not is_pure_ascii(self.local_part)
 
     def contains_domain_literal(self):
-        '''
+        """
         Is the address a domain literal?
-        '''
+        """
         return self.domain.startswith('[') and self.domain.endswith(']')
 
     def __cmp__(self, other):

@@ -4,7 +4,6 @@ import random
 import string
 
 from flanker.addresslib import address
-from flanker.addresslib import validate
 
 from mock import patch
 from nose.tools import assert_equal, assert_not_equal
@@ -37,7 +36,7 @@ def test_exchanger_lookup():
 
 
 def test_yahoo_pass():
-    with patch.object(validate, 'mail_exchanger_lookup') as mock_method:
+    with patch.object(address, 'mail_exchanger_lookup') as mock_method:
         mock_method.side_effect = mock_exchanger_lookup
 
         # valid length range
@@ -72,7 +71,7 @@ def test_yahoo_pass():
 
 
 def test_yahoo_disposable_pass():
-    with patch.object(validate, 'mail_exchanger_lookup') as mock_method:
+    with patch.object(address, 'mail_exchanger_lookup') as mock_method:
         mock_method.side_effect = mock_exchanger_lookup
 
         # valid length range
@@ -97,7 +96,7 @@ def test_yahoo_disposable_pass():
 
 
 def test_yahoo_disposable_fail():
-    with patch.object(validate, 'mail_exchanger_lookup') as mock_method:
+    with patch.object(address, 'mail_exchanger_lookup') as mock_method:
         mock_method.side_effect = mock_exchanger_lookup
 
         # invalid base length range
@@ -130,7 +129,7 @@ def test_yahoo_disposable_fail():
             assert_equal(addr, None)
 
 def test_yahoo_fail():
-    with patch.object(validate, 'mail_exchanger_lookup') as mock_method:
+    with patch.object(address, 'mail_exchanger_lookup') as mock_method:
         mock_method.side_effect = mock_exchanger_lookup
 
         # invalid length range

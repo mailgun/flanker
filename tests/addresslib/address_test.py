@@ -148,30 +148,25 @@ def test_display_name__to_full_spec():
 
 
 def test_address_full_spec():
-    eq_(EmailAddress('foo <foo@bar.com>'        ).full_spec(), 'foo <foo@bar.com>')
-    eq_(EmailAddress('аджай <аджай@экзампл.рус>').full_spec(), 'аджай <аджай@экзампл.рус>')
+    eq_(EmailAddress('foo <foo@bar.com>').full_spec(), 'foo <foo@bar.com>')
+
+
+def test_address_full_spec_non_ascii_display_name():
+    eq_(EmailAddress('аджай <foo@bar.com>').full_spec(), '=?utf-8?b?0LDQtNC20LDQuQ==?= <foo@bar.com>')
+
+
+def test_address_full_spec_non_ascii_domain():
+    eq_(EmailAddress('foo <foo@экзампл.рус>').full_spec(), 'foo <foo@xn--80aniges7g.xn--p1acf>')
+
+
+def test_address_full_spec_non_ascii_local_part():
+    with assert_raises(ValueError):
+        EmailAddress('foo <аджай@bar.com>').full_spec()
 
 
 def test_address_to_unicode():
     eq_(EmailAddress('foo <foo@bar.com>'        ).to_unicode(), u'foo <foo@bar.com>')
     eq_(EmailAddress('аджай <аджай@экзампл.рус>').to_unicode(), u'аджай <аджай@экзампл.рус>')
-
-
-def test_address_to_ace():
-    eq_(EmailAddress('foo <foo@bar.com>').to_ace(), 'foo <foo@bar.com>')
-
-
-def test_address_to_ace_non_ascii_display_name():
-    eq_(EmailAddress('аджай <foo@bar.com>').to_ace(), '=?utf-8?b?0LDQtNC20LDQuQ==?= <foo@bar.com>')
-
-
-def test_address_to_ace_non_ascii_domain():
-    eq_(EmailAddress('foo <foo@экзампл.рус>').to_ace(), 'foo <foo@xn--80aniges7g.xn--p1acf>')
-
-
-def test_address_to_ace_non_ascii_local_part():
-    with assert_raises(ValueError):
-        EmailAddress('foo <аджай@bar.com>').to_ace()
 
 
 def test_contains_non_ascii():

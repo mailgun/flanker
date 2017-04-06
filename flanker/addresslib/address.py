@@ -534,26 +534,15 @@ class EmailAddress(Address):
 
     def full_spec(self):
         """
-        Returns a normalized email address as a bytestring. ASCII-compatable
-        encoding will be returned if possible. If an ASCII-compatable encoding
-        is not possible then any non-ASCII characters will be unchanged.
+        Returns an ASCII-compatable encoding of an email address or raises a
+        ValueException. Display name and domain parts will be converted to
+        ASCII-compatable encoding. The transformed address will be ASCII-only
+        and RFC-2822 compliant.
 
            >>> EmailAddress("Ev K", "ev@example.com").full_spec()
            'Ev K <ev@example.com>'
            >>> EmailAddress("Жека", "ev@example.com").full_spec()
            '=?utf-8?b?0JbQtdC60LA=?= <ev@example.com>'
-        """
-        if self.requires_non_ascii():
-            return self.to_unicode().encode('utf-8')
-        else:
-            return self.to_ace().encode('utf-8')
-
-    def to_ace(self):
-        """
-        Returns an ASCII-compatable encoding of an email address or raises a
-        ValueException. Display name and domain parts will be converted to
-        ASCII-compatable encoding. The transformed address will be ASCII-only
-        and RFC-2822 compliant.
         """
         if not is_pure_ascii(self.local_part):
             raise ValueError('address {} has no ASCII-compatable encoding'.format(self.address.encode('utf-8')))
@@ -561,8 +550,8 @@ class EmailAddress(Address):
         if self.display_name:
             ace_display_name = smart_quote(encode_string(
                 None, self.display_name, maxlinelen=MAX_ADDRESS_LENGTH))
-            return u'{} <{}@{}>'.format(ace_display_name, self.local_part, ace_domain)
-        return u'{}@{}'.format(self.local_part, ace_domain)
+            return '{} <{}@{}>'.format(ace_display_name, self.local_part, ace_domain)
+        return '{}@{}'.format(self.local_part, ace_domain)
 
     def to_unicode(self):
         """

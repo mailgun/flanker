@@ -200,7 +200,7 @@ def parse_list(address_list, strict=False, as_tuple=False, metrics=False):
         parsed, unparsed = AddressList(), []
     elif isinstance(address_list, list) and len(address_list) > MAX_ADDRESS_NUMBER:
         log.warning('address list exceeds maximum items of %s', MAX_ADDRESS_NUMBER)
-        parsed, unparsed = AddressList(), [address_list]
+        parsed, unparsed = AddressList(), address_list
     elif isinstance(address_list, list):
         parsed, unparsed = AddressList(), []
         for address in address_list:
@@ -230,7 +230,7 @@ def parse_list(address_list, strict=False, as_tuple=False, metrics=False):
             parsed, unparsed = AddressList(), [address_list]
     else:
         log.warning('couldnt attempt to parse address list')
-        parsed, unparsed = AddressList(), [address_list]
+        parsed, unparsed = AddressList(), None
 
     if as_tuple:
         return parsed, unparsed, mtimes

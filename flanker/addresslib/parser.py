@@ -154,7 +154,7 @@ def p_expression_fwsp(p):
 
 def p_error(p):
     if p:
-        raise SyntaxError('syntax error: token=%s, lexpos=%s', p.value, p.lexpos)
+        raise SyntaxError('syntax error: token=%s, lexpos=%s' % (p.value, p.lexpos))
     raise SyntaxError('syntax error: eof')
 
 

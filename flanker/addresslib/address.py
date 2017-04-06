@@ -644,15 +644,15 @@ class UrlAddress(Address):
                 raw = raw.encode('utf-8')
             parser = url_parser
             url = parser.parse(raw, lexer=lexer.clone())
-            self._address = url.address.decode('utf-8')
+            self._address = urlparse(url.address)
         elif address:
-            self._address = address
+            self._address = urlparse(address)
         else:
             raise SyntaxError('failed to create UrlAddress: bad parameters')
 
     @property
     def address(self):
-        return self._address
+        return self._address.geturl()
 
     @property
     def addr_type(self):
@@ -660,21 +660,23 @@ class UrlAddress(Address):
 
     @property
     def hostname(self):
-        hostname = urlparse(self._address).hostname
+        hostname = self._address.hostname
         if hostname:
             return hostname.lower()
+        else:
+            return None
 
     @property
     def port(self):
-        return urlparse(self._address).port
+        return self._address.port
 
     @property
     def scheme(self):
-        return urlparse(self._address).scheme
+        return self._address.scheme
 
     @property
     def path(self):
-        return urlparse(self._address).path
+        return self._address.path
 
     def __str__(self):
         return self.address

@@ -535,7 +535,7 @@ class EmailAddress(Address):
     def full_spec(self):
         """
         Returns an ASCII-compatable encoding of an email address or raises a
-        ValueException. Display name and domain parts will be converted to
+        ValueError. Display name and domain parts will be converted to
         ASCII-compatable encoding. The transformed address will be ASCII-only
         and RFC-2822 compliant.
 

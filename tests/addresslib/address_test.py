@@ -1,7 +1,7 @@
 # coding:utf-8
 
 from .. import *
-from nose.tools import assert_equal, assert_not_equal
+from nose.tools import assert_equal, assert_not_equal, assert_raises
 
 from flanker.addresslib.address import parse, parse_list
 from flanker.addresslib.address import Address, AddressList, EmailAddress, UrlAddress
@@ -108,7 +108,7 @@ def test_addresslist_with_apostrophe():
     eq_(2, len(lst))
     eq_('Allan G\'o <allan@example.com>', lst[0].full_spec())
     eq_('Os Wi <oswi@example.com>', lst[1].full_spec())
-    lst = parse_list("=?UTF-8?Q?Eugueny_=CF=8E_Kontsevoy?= <eugueny@gmail.com>")
+    lst = parse_list("Eugueny ώ Kontsevoy <eugueny@gmail.com>")
     eq_('=?utf-8?q?Eugueny_=CF=8E_Kontsevoy?= <eugueny@gmail.com>', lst.full_spec())
     eq_(u'Eugueny ώ Kontsevoy', lst[0].display_name)
 
@@ -147,14 +147,42 @@ def test_display_name__to_full_spec():
         EmailAddress(u'Привет Медвед', 'foo@bar.com').full_spec())
 
 
-def test_display_name__update():
-    # Given
-    a = EmailAddress('foo bar', 'foo@bar.com')
-    eq_('foo bar <foo@bar.com>', a.full_spec())
+def test_address_full_spec():
+    eq_(EmailAddress('foo <foo@bar.com>').full_spec(), 'foo <foo@bar.com>')
 
-    # When
-    a.display_name = u'Привет Медвед'
 
-    # Then
-    eq_('=?utf-8?b?0J/RgNC40LLQtdGCINCc0LXQtNCy0LXQtA==?= <foo@bar.com>',
-        a.full_spec())
+def test_address_full_spec_non_ascii_display_name():
+    eq_(EmailAddress('аджай <foo@bar.com>').full_spec(), '=?utf-8?b?0LDQtNC20LDQuQ==?= <foo@bar.com>')
+
+
+def test_address_full_spec_non_ascii_domain():
+    eq_(EmailAddress('foo <foo@экзампл.рус>').full_spec(), 'foo <foo@xn--80aniges7g.xn--p1acf>')
+
+
+def test_address_full_spec_non_ascii_local_part():
+    with assert_raises(ValueError):
+        EmailAddress('foo <аджай@bar.com>').full_spec()
+
+
+def test_address_to_unicode():
+    eq_(EmailAddress('foo <foo@bar.com>'        ).to_unicode(), u'foo <foo@bar.com>')
+    eq_(EmailAddress('аджай <аджай@экзампл.рус>').to_unicode(), u'аджай <аджай@экзампл.рус>')
+
+
+def test_contains_non_ascii():
+    eq_(EmailAddress(None, 'foo@bar.com'      ).contains_non_ascii(), False)
+    eq_(EmailAddress(None, 'foo@экзампл.рус'  ).contains_non_ascii(), True)
+    eq_(EmailAddress(None, 'аджай@bar.com'    ).contains_non_ascii(), True)
+    eq_(EmailAddress(None, 'аджай@экзампл.рус').contains_non_ascii(), True)
+
+
+def test_requires_non_ascii():
+    eq_(EmailAddress(None, 'foo@bar.com'      ).requires_non_ascii(), False)
+    eq_(EmailAddress(None, 'foo@экзампл.рус'  ).requires_non_ascii(), False)
+    eq_(EmailAddress(None, 'аджай@bar.com'    ).requires_non_ascii(), True)
+    eq_(EmailAddress(None, 'аджай@экзампл.рус').requires_non_ascii(), True)
+
+
+def test_contains_domain_literal():
+    eq_(EmailAddress(None, 'foo@bar.com'  ).contains_domain_literal(), False)
+    eq_(EmailAddress(None, 'foo@[1.2.3.4]').contains_domain_literal(), True)

@@ -124,16 +124,19 @@ def mail_exchanger_lookup(domain, metrics=False):
         return cache_value, mtimes
 
     # dns lookup on domain
-    bstart = time.time()
-    mx_hosts = lookup_domain(domain)
-    mtimes['dns_lookup'] = time.time() - bstart
-    if mx_hosts is None:
-        # try one more time
+    if domain.startswith('[') and domain.endswith(']'):
+        mx_hosts = [domain[1:-1]]
+    else:
         bstart = time.time()
         mx_hosts = lookup_domain(domain)
-        mtimes['dns_lookup'] += time.time() - bstart
+        mtimes['dns_lookup'] = time.time() - bstart
         if mx_hosts is None:
-            return None, mtimes
+            # try one more time
+            bstart = time.time()
+            mx_hosts = lookup_domain(domain)
+            mtimes['dns_lookup'] += time.time() - bstart
+            if mx_hosts is None:
+                return None, mtimes
 
     # test connecting to the mx exchanger
     bstart = time.time()

@@ -8,8 +8,7 @@ from nose.tools import assert_equal, assert_not_equal
 from nose.tools import nottest
 from mock import patch
 
-from flanker.addresslib import address
-from flanker.addresslib import validate
+from flanker.addresslib import address, validate
 
 
 COMMENT = re.compile(r'''\s*#''')
@@ -82,7 +81,7 @@ def test_abridged_mailbox_valid_set():
             continue
 
         # mocked valid dns lookup for tests
-        with patch.object(validate, 'mail_exchanger_lookup') as mock_method:
+        with patch.object(address, 'mail_exchanger_lookup') as mock_method:
             mock_method.side_effect = mock_exchanger_lookup
 
             addr = line + '@ai'
@@ -113,7 +112,7 @@ def test_abridged_mailbox_invalid_set():
             continue
 
         # mocked valid dns lookup for tests
-        with patch.object(validate, 'mail_exchanger_lookup') as mock_method:
+        with patch.object(address, 'mail_exchanger_lookup') as mock_method:
             mock_method.side_effect = mock_exchanger_lookup
 
             addr = line + '@ai'
@@ -148,7 +147,7 @@ def test_parse_syntax_only_false():
     all_list = all_valid_list + all_invalid_list
 
     # all valid
-    with patch.object(validate, 'mail_exchanger_lookup') as mock_method:
+    with patch.object(address, 'mail_exchanger_lookup') as mock_method:
         mock_method.side_effect = mock_exchanger_lookup
 
         parse, unpar = address.validate_list(', '.join(valid_tld_list), as_tuple=True)
@@ -164,23 +163,23 @@ def test_parse_syntax_only_false():
         assert_equal(unpar, [])
 
         # all invalid
-        parse, unpar = address.validate_list(', '.join(invalid_mx_list), as_tuple=True)
+        parse, unpar = address.validate_list(invalid_mx_list, as_tuple=True)
         assert_equal(parse, [])
         assert_equal(unpar, invalid_mx_list)
 
-        parse, unpar = address.validate_list(', '.join(invalid_tld_list), as_tuple=True)
+        parse, unpar = address.validate_list(invalid_tld_list, as_tuple=True)
         assert_equal(parse, [])
         assert_equal(unpar, invalid_tld_list)
 
-        parse, unpar = address.validate_list(', '.join(invalid_domain_list), as_tuple=True)
+        parse, unpar = address.validate_list(invalid_domain_list, as_tuple=True)
         assert_equal(parse, [])
         assert_equal(unpar, invalid_domain_list)
 
-        parse, unpar = address.validate_list(', '.join(invalid_subdomain_list), as_tuple=True)
+        parse, unpar = address.validate_list(invalid_subdomain_list, as_tuple=True)
         assert_equal(parse, [])
         assert_equal(unpar, invalid_subdomain_list)
 
-        parse, unpar = address.validate_list(', '.join(all_list), as_tuple=True)
+        parse, unpar = address.validate_list(all_list, as_tuple=True)
         assert_equal(parse, all_valid_list)
         assert_equal(unpar, all_invalid_list)
 
@@ -231,7 +230,7 @@ def test_mx_lookup_metrics():
         a = validate.mail_exchanger_lookup('example.com', metrics=False)
 
 def test_validate_address_metrics():
-    with patch.object(validate, 'mail_exchanger_lookup') as mock_method:
+    with patch.object(address, 'mail_exchanger_lookup') as mock_method:
         mock_method.side_effect = mock_exchanger_lookup
 
         parse, metrics = address.validate_address('foo@example.com', metrics=True)
@@ -240,3 +239,17 @@ def test_validate_address_metrics():
         assert_equal(metrics['mx_lookup'], 10)
         assert_equal(metrics['dns_lookup'], 20)
         assert_equal(metrics['mx_conn'], 30)
+
+
+@patch('flanker.addresslib.validate.connect_to_mail_exchanger')
+@patch('flanker.addresslib.validate.lookup_domain')
+@patch('flanker.addresslib.validate.lookup_exchanger_in_cache')
+def test_validate_domain_literal(mock_lookup_exchanger_in_cache, mock_lookup_domain, mock_connect_to_mail_exchanger):
+    mock_lookup_exchanger_in_cache.return_value = (False, None)
+    mock_connect_to_mail_exchanger.return_value = '1.2.3.4'
+
+    addr = address.validate_address('foo@[1.2.3.4]')
+
+    assert_equal(addr.full_spec(), 'foo@[1.2.3.4]')
+    mock_lookup_domain.assert_not_called()
+    mock_connect_to_mail_exchanger.assert_called_once_with(['1.2.3.4'])

@@ -5,7 +5,7 @@ import logging
 from collections import deque
 from email.header import Header
 from flanker.mime.message.headers import parametrized
-from flanker.utils import to_utf8
+from flanker.mime.message.utils import to_utf8
 
 log = logging.getLogger(__name__)
 
@@ -59,7 +59,7 @@ def encode_unstructured(name, value):
 def encode_address_header(name, value):
     out = deque()
     for addr in flanker.addresslib.address.parse_list(value):
-        out.append(addr.full_spec())
+        out.append(addr.to_unicode().encode('utf-8'))
     return "; ".join(out)
 
 

@@ -198,3 +198,20 @@ cdburgess+!#$%&'*-/=?+_{}|~test@mail.com
 test@test.com
 test@xn--example.com
 test@example.com
+
+#
+# Sample valid international email addresses from https://en.wikipedia.org/wiki/International_email
+#
+Abc@example.com
+Abc.123@example.com
+user+mailbox/department=shipping@example.com
+!#$%&'*+-/=?^_`.{|}~@example.com
+"Abc@def"@example.com
+"Fred Bloggs"@example.com
+"Joe.\\Blow"@example.com
+用户@例子.广告
+उपयोगकर्ता@उदाहरण.कॉम
+юзер@екзампл.ком
+θσερ@εχαμπλε.ψομ
+Dörte@Sörensen.example.com
+аджай@экзампл.рус

@@ -4,7 +4,8 @@ from nose.tools import nottest, assert_equal, assert_not_equal
 
 from flanker.addresslib import address
 from flanker.addresslib.address import EmailAddress
-from flanker.addresslib.parser import ParserException
+from ply.lex import LexError
+from ply.yacc import YaccError
 
 VALID_QTEXT         = [chr(x) for x in [0x21] + range(0x23, 0x5b) + range(0x5d, 0x7e)]
 VALID_QUOTED_PAIR   = [chr(x) for x in range(0x20, 0x7e)]
@@ -12,7 +13,7 @@ VALID_QUOTED_PAIR   = [chr(x) for x in range(0x20, 0x7e)]
 FULL_QTEXT = ''.join(VALID_QTEXT)
 FULL_QUOTED_PAIR = '\\' + '\\'.join(VALID_QUOTED_PAIR)
 
-CONTROL_CHARS = ''.join(map(unichr, range(0, 9) + range(14, 32) + range(127, 160)))
+CONTROL_CHARS = ''.join(map(unichr, range(0, 9) + range(14, 32) + [127] ))
 
 @nottest
 def chunks(l, n):
@@ -64,7 +65,9 @@ def test_name_addr():
     run_mailbox_test('<linus@kernel.org>', 'linus@kernel.org')
     try:
         run_mailbox_test(' ', None)
-    except ParserException:
+    except LexError:
+        pass
+    except YaccError:
         pass
 
 
@@ -78,7 +81,7 @@ def test_display_name():
     run_full_mailbox_test('!#$%&\'*+-/=?^_`{|}~ <a@b>', EmailAddress('!#$%&\'*+-/=?^_`{|}~', 'a@b'))
     run_full_mailbox_test('Bill <bill@microsoft.com>', EmailAddress('Bill', 'bill@microsoft.com'))
     run_full_mailbox_test('Bill Gates <bill@microsoft.com>', EmailAddress('Bill Gates', 'bill@microsoft.com'))
-    run_full_mailbox_test(' Bill  Gates <bill@microsoft.com>', EmailAddress('Bill  Gates', 'bill@microsoft.com'))
+    run_full_mailbox_test(' Bill  Gates <bill@microsoft.com>', EmailAddress('Bill Gates', 'bill@microsoft.com'))
     run_full_mailbox_test(' Bill Gates <bill@microsoft.com>', EmailAddress('Bill Gates', 'bill@microsoft.com'))
     run_full_mailbox_test('Bill Gates<bill@microsoft.com>', EmailAddress('Bill Gates', 'bill@microsoft.com'))
     run_full_mailbox_test(' Bill Gates<bill@microsoft.com>', EmailAddress('Bill Gates', 'bill@microsoft.com'))
@@ -91,7 +94,7 @@ def test_display_name():
     run_full_mailbox_test('!#$%&\'*+-/=?^_`{|}~ a@b', EmailAddress('!#$%&\'*+-/=?^_`{|}~', 'a@b'))
     run_full_mailbox_test('Bill bill@microsoft.com', EmailAddress('Bill', 'bill@microsoft.com'))
     run_full_mailbox_test('Bill Gates bill@microsoft.com', EmailAddress('Bill Gates', 'bill@microsoft.com'))
-    run_full_mailbox_test(' Bill  Gates bill@microsoft.com', EmailAddress('Bill  Gates', 'bill@microsoft.com'))
+    run_full_mailbox_test(' Bill  Gates bill@microsoft.com', EmailAddress('Bill Gates', 'bill@microsoft.com'))
     run_full_mailbox_test(' Bill Gates bill@microsoft.com', EmailAddress('Bill Gates', 'bill@microsoft.com'))
 
 
@@ -153,7 +156,6 @@ def test_display_name():
                           EmailAddress(' Bill Gates ', 'bill@microsoft.com'))
 
     # fail display-name quoted-string lax
-    run_mailbox_test('"Bill Gates"bill@microsoft.com', None)
     run_mailbox_test('"{0} a@b"'.format(FULL_QUOTED_PAIR), None)
     run_mailbox_test('"{0} a@b'.format(FULL_QTEXT), None)
     run_mailbox_test('{0}" a@b'.format(FULL_QUOTED_PAIR), None)
@@ -171,9 +173,6 @@ def test_display_name():
     run_full_mailbox_test(u'ϐΙλλ Γαθεσ <bill@microsoft.com>', EmailAddress(u'ϐΙλλ Γαθεσ', 'bill@microsoft.com'))
     run_full_mailbox_test(u'BΙλλ Γαθεσ <bill@microsoft.com>', EmailAddress(u'BΙλλ Γαθεσ', 'bill@microsoft.com'))
     run_full_mailbox_test(u'Bill Γαθεσ <bill@microsoft.com>', EmailAddress(u'Bill Γαθεσ', 'bill@microsoft.com'))
-
-    # fail unicode display-name, sanity
-    run_mailbox_test('ϐΙλλ Γαθεσ <bill@microsoft.com>', None)
 
 
 def test_unicode_display_name():
@@ -443,10 +442,6 @@ def test_unicode_special_chars():
         EmailAddress(u'foo᥄', u'foo@example.com'),
         '=?utf-8?b?Zm9v4aWE?= <foo@example.com>')
 
-    run_full_mailbox_test(u'foo ()[]@\\ bar <foo@example.com>',
-        EmailAddress(u'foo ()[]@\\ bar', u'foo@example.com'),
-        '"foo ()[]@\\\\ bar" <foo@example.com>')
-
 
 def test_angle_addr():
     "Grammar: angle-addr -> [ whitespace ] < addr-spec > [ whitespace ]"
@@ -520,14 +515,10 @@ def test_local_part():
     run_mailbox_test('  steve@apple.com', 'steve@apple.com')
 
     # fail dot-atom
-    run_mailbox_test('steve @apple.com', None)
-    run_mailbox_test(' steve @apple.com', None)
     run_mailbox_test(', steve@apple.com', None)
     run_mailbox_test(';;steve@apple.com', None)
     run_mailbox_test('"steve@apple.com', None)
     run_mailbox_test('steve"@apple.com', None)
-    run_mailbox_test('steve jobs @apple.com', None)
-    run_mailbox_test(' steve jobs @apple.com', None)
     run_mailbox_test('steve..jobs@apple.com', None)
 
     # pass qtext
@@ -540,10 +531,6 @@ def test_local_part():
         EmailAddress(sample_qtext, '"{0}"@b'.format(sample_qtext)))
 
     # fail qtext
-    run_mailbox_test('"{0}""{0}"@b'.format(sample_qtext), None)
-    run_mailbox_test('"john""smith"@b'.format(sample_qtext), None)
-    run_mailbox_test('"{0}" @b'.format(sample_qtext), None)
-    run_mailbox_test(' "{0}" @b'.format(sample_qtext), None)
     run_mailbox_test('"{0}@b'.format(sample_qtext), None)
     run_mailbox_test('{0}"@b'.format(sample_qtext), None)
     run_mailbox_test('{0}@b'.format(sample_qtext), None)
@@ -559,10 +546,6 @@ def test_local_part():
         EmailAddress(sample_qpair_without_slashes, '"{0}"@b'.format(sample_qpair)))
 
     # fail quoted-pair
-    run_mailbox_test('"{0}""{0}"@b'.format(sample_qpair), None)
-    run_mailbox_test('"john""smith"@b'.format(sample_qpair), None)
-    run_mailbox_test('"{0}" @b'.format(sample_qpair), None)
-    run_mailbox_test(' "{0}" @b'.format(sample_qpair), None)
     run_mailbox_test('"{0}@b'.format(sample_qpair), None)
     run_mailbox_test('{0}"@b'.format(sample_qpair), None)
     run_mailbox_test('{0}@b'.format(sample_qpair), None)
@@ -571,17 +554,6 @@ def test_local_part():
 
 def test_domain():
     "Grammar: domain -> dot-atom"
-
-    # test length limits
-    max_domain_len = ''.join(['a'*62, '.', 'b'*62, '.', 'c'*63, '.', 'd'*63])
-    overlimit_domain_one = ''.join(['a'*62, '.', 'b'*62, '.', 'c'*63, '.', 'd'*64])
-    overlimit_domain_two = ''.join(['a'*62, '.', 'b'*62, '.', 'c'*63, '.', 'd'*63, '.', 'a'])
-    run_mailbox_test(''.join(['b@', 'a'*63]), ''.join(['b@', 'a'*63]))
-    run_mailbox_test(''.join(['b@', 'a'*64]), None)
-    run_mailbox_test(''.join(['a@', max_domain_len]), ''.join(['a@', max_domain_len]))
-    run_mailbox_test(''.join(['a@', overlimit_domain_one]), None)
-    run_mailbox_test(''.join(['a@', overlimit_domain_two]), None)
-
 
     # pass dot-atom
     run_mailbox_test('bill@ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'bill@abcdefghijklmnopqrstuvwxyz')

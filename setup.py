@@ -4,7 +4,7 @@ from setuptools import setup, find_packages
 
 
 setup(name='flanker',
-      version='0.4.55',
+      version='0.5.0',
       description='Mailgun Parsing Tools',
       long_description=open('README.rst').read(),
       classifiers=[],
@@ -32,5 +32,6 @@ setup(name='flanker',
           # mime parsing (100x slower) so keep it as-is for now.
           'regex>=0.1.20110315',
           'cryptography>=0.5',
+          'ply>=3.10',
       ],
 )

@@ -32,15 +32,38 @@ Public Functions in flanker.addresslib.validate module:
 
       Attempts to connect to a given mail exchanger to see if it exists.
 """
-
-import re
-import redis
 import socket
 import time
-import flanker.addresslib
+
+import regex as re
 
 from flanker.addresslib import corrector
+from flanker.addresslib.plugins import aol
+from flanker.addresslib.plugins import gmail
+from flanker.addresslib.plugins import google
+from flanker.addresslib.plugins import hotmail
+from flanker.addresslib.plugins import icloud
+from flanker.addresslib.plugins import yahoo
 from flanker.utils import metrics_wrapper
+
+_YAHOO_PATTERN = re.compile(r'''mta[0-9]+\.am[0-9]+\.yahoodns\.net$''')
+_GMAIL_PATTERN = re.compile(r'''.*gmail-smtp-in\.l\.google.com$''')
+_AOL_PATTERN = re.compile(r'''.*\.mx\.aol\.com$''')
+_ICLOUD_PATTERN = re.compile(r'''.*\.mail\.icloud\.com$''')
+_HOTMAIL_PATTERN = re.compile(r'''mx[0-9]\.hotmail\.com''')
+_GOOGLE_PATTERN = re.compile(r'''(.*aspmx\.l\.google\.com$)|(aspmx.*\.googlemail.com$)''', re.IGNORECASE)
+
+_CUSTOM_GRAMMAR_LIST = [
+    (_YAHOO_PATTERN, yahoo),
+    (_GMAIL_PATTERN, gmail),
+    (_AOL_PATTERN, aol),
+    (_ICLOUD_PATTERN, icloud),
+    (_HOTMAIL_PATTERN, hotmail),
+    (_GOOGLE_PATTERN, google),
+]
+
+_mx_cache = None
+_dns_lookup = None
 
 
 def suggest_alternate(addr_spec):
@@ -99,7 +122,7 @@ def plugin_for_esp(mail_exchanger):
     to the flanker.addresslib.plugins directory then update the
     flanker.addresslib package to add it to the known list of custom grammars.
     """
-    for grammar in flanker.addresslib.CUSTOM_GRAMMAR_LIST:
+    for grammar in _CUSTOM_GRAMMAR_LIST:
         if grammar[0].match(mail_exchanger):
             return grammar[1]
 
@@ -114,7 +137,6 @@ def mail_exchanger_lookup(domain, metrics=False):
     exist None will be returned.
     """
     mtimes = {'mx_lookup': 0, 'dns_lookup': 0, 'mx_conn': 0}
-    mx_cache = flanker.addresslib.mx_cache
 
     # look in cache
     bstart = time.time()
@@ -146,7 +168,7 @@ def mail_exchanger_lookup(domain, metrics=False):
         return None, mtimes
 
     # valid mx records, connected to mail exchanger, return True
-    mx_cache[domain] = mail_exchanger
+    _get_mx_cache()[domain] = mail_exchanger
     return mail_exchanger, mtimes
 
 
@@ -158,9 +180,7 @@ def lookup_exchanger_in_cache(domain):
     See the implimentation of the redis cache in the flanker.addresslib.driver
     package for more details if you wish to implement your own cache.
     """
-    mx_cache = flanker.addresslib.mx_cache
-
-    lookup = mx_cache[domain]
+    lookup = _get_mx_cache()[domain]
     if lookup is None:
         return (False, None)
 
@@ -179,11 +199,8 @@ def lookup_domain(domain):
     implimentation of the dnspython lookup in the flanker.addresslib.driver
     package for more details.
     """
-
-    dns_lookup = flanker.addresslib.dns_lookup
-
     fqdn = domain if domain[-1] == '.' else ''.join([domain, '.'])
-    mx_hosts = dns_lookup[fqdn]
+    mx_hosts = _get_dns_lookup()[fqdn]
 
     if len(mx_hosts) == 0:
         return None
@@ -208,4 +225,19 @@ def connect_to_mail_exchanger(mx_hosts):
     return None
 
 
-ONE_WEEK = 604800
+def _get_mx_cache():
+    global _mx_cache
+    if _mx_cache is None:
+        from flanker.addresslib.drivers.redis_driver import RedisCache
+        _mx_cache = RedisCache()
+
+    return _mx_cache
+
+
+def _get_dns_lookup():
+    global _dns_lookup
+    if _dns_lookup is None:
+        from flanker.addresslib.drivers.dns_lookup import DNSLookup
+        _dns_lookup = DNSLookup()
+
+    return _dns_lookup

@@ -1,4 +1,4 @@
-'''
+"""
 The flanker.addresslib package exposes a simple address parsing library that
 can handle email addresses and urls.
 
@@ -8,43 +8,14 @@ used to parse email addresses and urls.
 
 To override the default DNS lookup library or MX Cache, use the
 set_dns_lookup and set_mx_cache methods. For more details, see the User Manual.
-'''
-import re
-
-from flanker.addresslib.drivers.redis_driver import RedisCache
-from flanker.addresslib.drivers.dns_lookup import DNSLookup
-
-from flanker.addresslib.plugins import yahoo
-from flanker.addresslib.plugins import aol
-from flanker.addresslib.plugins import gmail
-from flanker.addresslib.plugins import icloud
-from flanker.addresslib.plugins import hotmail
-from flanker.addresslib.plugins import google
+"""
 
 
-mx_cache = RedisCache()
-dns_lookup = DNSLookup()
+def set_dns_lookup(dns_lookup):
+    from flanker.addresslib import validate
+    validate._dns_lookup = dns_lookup
 
-YAHOO_PATTERN = re.compile(r'''mta[0-9]+\.am[0-9]+\.yahoodns\.net$''')
-GMAIL_PATTERN = re.compile(r'''.*gmail-smtp-in\.l\.google.com$''')
-AOL_PATTERN = re.compile(r'''.*\.mx\.aol\.com$''')
-ICLOUD_PATTERN = re.compile(r'''.*\.mail\.icloud\.com$''')
-HOTMAIL_PATTERN = re.compile(r'''mx[0-9]\.hotmail\.com''')
-GOOGLE_PATTERN = re.compile(r'''(.*aspmx\.l\.google\.com$)|(aspmx.*\.googlemail.com$)''', re.IGNORECASE)
 
-CUSTOM_GRAMMAR_LIST = [
-    (YAHOO_PATTERN, yahoo),
-    (GMAIL_PATTERN, gmail),
-    (AOL_PATTERN, aol),
-    (ICLOUD_PATTERN, icloud),
-    (HOTMAIL_PATTERN, hotmail),
-    (GOOGLE_PATTERN, google),
-]
-
-def set_dns_lookup(dlookup):
-    global dns_lookup
-    dns_lookup = dlookup
-
-def set_mx_cache(mcache):
-    global mx_cache
-    mx_cache = mcache
+def set_mx_cache(mx_cache):
+    from flanker.addresslib import validate
+    validate._mx_cache = mx_cache

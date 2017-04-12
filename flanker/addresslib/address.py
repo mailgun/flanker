@@ -503,12 +503,18 @@ class EmailAddress(Address):
 
     @property
     def mailbox(self):
-        log.warning('deprecation notice: `mailbox` as been renamed `local_part` to match the nomenclature in RFC 5322 and will be removed in a future version')
+        """
+        Deprecation notice. `mailbox` as been renamed `local_part` to match the
+        nomenclature in RFC 5322 and will be removed in a future version.
+        """
         return self._local_part
 
     @property
     def hostname(self):
-        log.warning('deprecation notice: `hostname` as been renamed `domain` to match the nomenclature in RFC 5322 and will be removed in a future version')
+        """
+        Deprecation notice. `hostname` as been renamed `domain` to match the
+        nomenclature in RFC 5322 and will be removed in a future version.
+        """
         return self._domain.lower()
 
     def __repr__(self):

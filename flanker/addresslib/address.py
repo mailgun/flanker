@@ -332,7 +332,7 @@ def validate_list(addr_list, as_tuple=False, metrics=False):
     for paddr in parsed_addresses:
 
         # lookup if this domain has a mail exchanger
-        exchanger, mx_metrics = mail_exchanger_lookup(paddr.domain, metrics=True)
+        exchanger, mx_metrics = mail_exchanger_lookup(paddr.hostname, metrics=True)
         mtimes['mx_lookup'] += mx_metrics['mx_lookup']
         mtimes['dns_lookup'] += mx_metrics['dns_lookup']
         mtimes['mx_conn'] += mx_metrics['mx_conn']
@@ -344,7 +344,7 @@ def validate_list(addr_list, as_tuple=False, metrics=False):
         # lookup custom local-part grammar if it exists
         plugin = plugin_for_esp(exchanger)
         bstart = time()
-        if plugin and plugin.validate(paddr.local_part) is False:
+        if plugin and plugin.validate(paddr.mailbox) is False:
             ulist.append(paddr.full_spec())
             continue
         mtimes['custom_grammar'] = time() - bstart
@@ -411,9 +411,9 @@ class EmailAddress(Address):
        >>> addr = parse("Bob Silva", "bob@host.com")
        >>> addr.address
        'bob@host.com'
-       >>> addr.domain
+       >>> addr.hostname
        'host.com'
-       >>> addr.local_part
+       >>> addr.mailbox
        'bob'
 
     Display name is always returned in Unicode, i.e. ready to be displayed on
@@ -428,11 +428,11 @@ class EmailAddress(Address):
     """
 
     _display_name = None
-    _local_part = None
-    _domain = None
+    _mailbox = None
+    _hostname = None
     _addr_type = Address.Type.Email
 
-    def __init__(self, raw_display_name=None, raw_addr_spec=None, display_name=None, local_part=None, domain=None):
+    def __init__(self, raw_display_name=None, raw_addr_spec=None, display_name=None, mailbox=None, hostname=None):
 
         if raw_display_name and raw_addr_spec:
             if isinstance(raw_addr_spec, unicode):
@@ -442,8 +442,8 @@ class EmailAddress(Address):
             mailbox = parser.parse(raw_addr_spec, lexer=lexer.clone())
 
             self._display_name = raw_display_name
-            self._local_part = mailbox.local_part.decode('utf-8')
-            self._domain = mailbox.domain.decode('utf-8')
+            self._mailbox = mailbox.local_part.decode('utf-8')
+            self._hostname = mailbox.domain.decode('utf-8')
 
             if self._display_name.startswith('"') and self._display_name.endswith('"') and self._display_name != '""':
                 self._display_name = smart_unquote(self._display_name)
@@ -456,8 +456,8 @@ class EmailAddress(Address):
             mailbox = parser.parse(raw_display_name, lexer=lexer.clone())
 
             self._display_name = mailbox.display_name.decode('utf-8')
-            self._local_part = mailbox.local_part.decode('utf-8')
-            self._domain = mailbox.domain.decode('utf-8')
+            self._mailbox = mailbox.local_part.decode('utf-8')
+            self._hostname = mailbox.domain.decode('utf-8')
 
             if self._display_name.startswith('"') and self._display_name.endswith('"') and self._display_name != '""':
                 self._display_name = smart_unquote(self._display_name)
@@ -470,46 +470,36 @@ class EmailAddress(Address):
             mailbox = parser.parse(raw_addr_spec, lexer=lexer.clone())
 
             self._display_name = ''
-            self._local_part = mailbox.local_part.decode('utf-8')
-            self._domain = mailbox.domain.decode('utf-8')
+            self._mailbox = mailbox.local_part.decode('utf-8')
+            self._hostname = mailbox.domain.decode('utf-8')
 
-        elif local_part and domain:
+        elif mailbox and hostname:
             self._display_name = display_name or ''
-            self._local_part = local_part
-            self._domain = domain
+            self._mailbox = mailbox
+            self._hostname = hostname
 
         else:
             raise SyntaxError('failed to create EmailAddress: bad parameters')
-
-    @property
-    def display_name(self):
-        return self._display_name
-
-    @property
-    def local_part(self):
-        return self._local_part
-
-    @property
-    def domain(self):
-        return self._domain
 
     @property
     def addr_type(self):
         return self._addr_type
 
     @property
-    def address(self):
-        return u'{}@{}'.format(self.local_part, self.domain.lower())
+    def display_name(self):
+        return self._display_name
 
     @property
     def mailbox(self):
-        log.warning('deprecation notice: `mailbox` as been renamed `local_part` to match the nomenclature in RFC 5322 and will be removed in a future version')
-        return self._local_part
+        return self._mailbox
 
     @property
     def hostname(self):
-        log.warning('deprecation notice: `hostname` as been renamed `domain` to match the nomenclature in RFC 5322 and will be removed in a future version')
-        return self._domain.lower()
+        return self._hostname.lower()
+
+    @property
+    def address(self):
+        return u'{}@{}'.format(self.mailbox, self.hostname)
 
     def __repr__(self):
         """
@@ -544,22 +534,22 @@ class EmailAddress(Address):
            >>> EmailAddress("Жека", "ev@example.com").full_spec()
            '=?utf-8?b?0JbQtdC60LA=?= <ev@example.com>'
         """
-        if not is_pure_ascii(self.local_part):
+        if not is_pure_ascii(self.mailbox):
             raise ValueError('address {} has no ASCII-compatable encoding'.format(self.address.encode('utf-8')))
-        ace_domain = self.domain.lower().encode('idna')
+        ace_hostname = self.hostname.encode('idna')
         if self.display_name:
             ace_display_name = smart_quote(encode_string(
                 None, self.display_name, maxlinelen=MAX_ADDRESS_LENGTH))
-            return '{} <{}@{}>'.format(ace_display_name, self.local_part, ace_domain)
-        return '{}@{}'.format(self.local_part, ace_domain)
+            return '{} <{}@{}>'.format(ace_display_name, self.mailbox, ace_hostname)
+        return '{}@{}'.format(self.mailbox, ace_hostname)
 
     def to_unicode(self):
         """
         Converts to unicode.
         """
         if self.display_name:
-            return u'{} <{}@{}>'.format(self.display_name, self.local_part, self.domain)
-        return u'{}@{}'.format(self.local_part, self.domain)
+            return u'{} <{}@{}>'.format(self.display_name, self.mailbox, self.hostname)
+        return u'{}@{}'.format(self.mailbox, self.hostname)
 
     def contains_non_ascii(self):
         """
@@ -571,13 +561,13 @@ class EmailAddress(Address):
         """
         Can the address be converted to an ASCII compatible encoding?
         """
-        return not is_pure_ascii(self.local_part)
+        return not is_pure_ascii(self.mailbox)
 
     def contains_domain_literal(self):
         """
         Is the address a domain literal?
         """
-        return self.domain.startswith('[') and self.domain.endswith(']')
+        return self.hostname.startswith('[') and self.hostname.endswith(']')
 
     def __cmp__(self, other):
         return True
@@ -811,8 +801,8 @@ def _lift_parser_result(retval):
     if isinstance(retval, Mailbox):
         return EmailAddress(
             display_name=smart_unquote(retval.display_name.decode('utf-8')),
-            local_part=retval.local_part.decode('utf-8'),
-            domain=retval.domain.decode('utf-8'))
+            mailbox=retval.local_part.decode('utf-8'),
+            hostname=retval.domain.decode('utf-8'))
     if isinstance(retval, Url):
         return UrlAddress(
             address=retval.address.decode('utf-8'))

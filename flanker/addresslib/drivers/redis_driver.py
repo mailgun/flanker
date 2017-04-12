@@ -1,8 +1,11 @@
 import collections
 import redis
 
+
 class RedisCache(collections.MutableMapping):
-    "RedisCache has the same interface as a dict, but talks to a redis server"
+    """
+    RedisCache has the same interface as a dict, but talks to a redis server.
+    """
 
     def __init__(self, host='localhost', port=6379, prefix='mxr:', ttl=604800):
         self.prefix = prefix

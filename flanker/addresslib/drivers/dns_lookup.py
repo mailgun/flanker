@@ -3,7 +3,9 @@ import dnsq
 
 
 class DNSLookup(collections.MutableMapping):
-    "DNSLookup has the same interface as a dict, but talks to a DNS server"
+    """
+    DNSLookup has the same interface as a dict, but talks to a DNS server
+    """
 
     def __init__(self):
         pass

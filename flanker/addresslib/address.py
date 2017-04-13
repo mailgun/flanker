@@ -434,44 +434,37 @@ class EmailAddress(Address):
 
     def __init__(self, raw_display_name=None, raw_addr_spec=None, display_name=None, mailbox=None, hostname=None):
 
+        if isinstance(raw_display_name, unicode):
+            raw_display_name = raw_display_name.encode('utf-8')
+        if isinstance(raw_addr_spec, unicode):
+            raw_addr_spec = raw_addr_spec.encode('utf-8')
+
         if raw_display_name and raw_addr_spec:
-            if isinstance(raw_addr_spec, unicode):
-                raw_addr_spec = raw_addr_spec.encode('utf-8')
 
             parser = addr_spec_parser
             mailbox = parser.parse(raw_addr_spec, lexer=lexer.clone())
 
             self._display_name = raw_display_name
-            self._mailbox = mailbox.local_part.decode('utf-8')
-            self._hostname = mailbox.domain.decode('utf-8')
-
-            if self._display_name.startswith('"') and self._display_name.endswith('"') and self._display_name != '""':
-                self._display_name = smart_unquote(self._display_name)
+            self._mailbox = mailbox.local_part
+            self._hostname = mailbox.domain
 
         elif raw_display_name:
-            if isinstance(raw_display_name, unicode):
-                raw_display_name = raw_display_name.encode('utf-8')
 
             parser = mailbox_parser
             mailbox = parser.parse(raw_display_name, lexer=lexer.clone())
 
-            self._display_name = mailbox.display_name.decode('utf-8')
-            self._mailbox = mailbox.local_part.decode('utf-8')
-            self._hostname = mailbox.domain.decode('utf-8')
-
-            if self._display_name.startswith('"') and self._display_name.endswith('"') and self._display_name != '""':
-                self._display_name = smart_unquote(self._display_name)
+            self._display_name = mailbox.display_name
+            self._mailbox = mailbox.local_part
+            self._hostname = mailbox.domain
 
         elif raw_addr_spec:
-            if isinstance(raw_addr_spec, unicode):
-                raw_addr_spec = raw_addr_spec.encode('utf-8')
 
             parser = addr_spec_parser
             mailbox = parser.parse(raw_addr_spec, lexer=lexer.clone())
 
             self._display_name = ''
-            self._mailbox = mailbox.local_part.decode('utf-8')
-            self._hostname = mailbox.domain.decode('utf-8')
+            self._mailbox = mailbox.local_part
+            self._hostname = mailbox.domain
 
         elif mailbox and hostname:
             self._display_name = display_name or ''
@@ -480,6 +473,15 @@ class EmailAddress(Address):
 
         else:
             raise SyntaxError('failed to create EmailAddress: bad parameters')
+
+        if self._display_name.startswith('"') and self._display_name.endswith('"') and self._display_name != '""':
+            self._display_name = smart_unquote(self._display_name)
+        if isinstance(self._display_name, str):
+            self._display_name = self._display_name.decode('utf-8')
+        if isinstance(self._mailbox, str):
+            self._mailbox = self._mailbox.decode('utf-8')
+        if isinstance(self._hostname, str):
+            self._hostname = self._hostname.decode('utf-8')
 
     @property
     def addr_type(self):
@@ -506,14 +508,14 @@ class EmailAddress(Address):
         >>> repr(EmailAddress("John Smith", "john@smith.com"))
         'John Smith <john@smith.com>'
         """
-        return self.full_spec()
+        return self.to_unicode().encode('utf-8')
 
     def __str__(self):
         """
         >>> str(EmailAddress("boo@host.com"))
         'boo@host.com'
         """
-        return self.address
+        return self.address.encode('utf-8')
 
     @property
     def supports_routing(self):
@@ -540,8 +542,8 @@ class EmailAddress(Address):
         if self.display_name:
             ace_display_name = smart_quote(encode_string(
                 None, self.display_name, maxlinelen=MAX_ADDRESS_LENGTH))
-            return '{} <{}@{}>'.format(ace_display_name, self.mailbox, ace_hostname)
-        return '{}@{}'.format(self.mailbox, ace_hostname)
+            return u'{} <{}@{}>'.format(ace_display_name, self.mailbox, ace_hostname)
+        return u'{}@{}'.format(self.mailbox, ace_hostname)
 
     def to_unicode(self):
         """
@@ -669,7 +671,7 @@ class UrlAddress(Address):
         return self._address.path
 
     def __str__(self):
-        return self.address
+        return self.address.encode('utf-8')
 
     def full_spec(self):
         return self.address
@@ -678,7 +680,7 @@ class UrlAddress(Address):
         return self.address
 
     def __repr__(self):
-        return self.address
+        return self.address.encode('utf-8')
 
     def __eq__(self, other):
         "Allows comparison of two URLs"
@@ -741,7 +743,7 @@ class AddressList(object):
         return set(self.container) == set(other.container)
 
     def __repr__(self):
-        return ''.join(['[', self.full_spec(), ']'])
+        return ''.join(['[', self.to_unicode().encode('utf-8'), ']'])
 
     def __add__(self, other):
         """
@@ -780,7 +782,7 @@ class AddressList(object):
         return [addr.address for addr in self.container]
 
     def __str__(self):
-        return self.full_spec()
+        return self.full_spec().encode('utf-8')
 
     @property
     def hostnames(self):

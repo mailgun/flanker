@@ -147,6 +147,16 @@ def test_display_name__to_full_spec():
         EmailAddress(u'Привет Медвед', 'foo@bar.com').full_spec())
 
 
+def test_address_str():
+    eq_(str(EmailAddress('foo <foo@bar.com>'        )), 'foo@bar.com')
+    eq_(str(EmailAddress('аджай <аджай@экзампл.рус>')), 'аджай@экзампл.рус')
+
+
+def test_address_repr():
+    eq_(repr(EmailAddress('foo <foo@bar.com>'        )), 'foo <foo@bar.com>')
+    eq_(repr(EmailAddress('аджай <аджай@экзампл.рус>')), 'аджай <аджай@экзампл.рус>')
+
+
 def test_address_full_spec():
     eq_(EmailAddress('foo <foo@bar.com>').full_spec(), 'foo <foo@bar.com>')
 

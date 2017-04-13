@@ -506,14 +506,14 @@ class EmailAddress(Address):
         >>> repr(EmailAddress("John Smith", "john@smith.com"))
         'John Smith <john@smith.com>'
         """
-        return self.full_spec()
+        return self.to_unicode().encode('utf-8')
 
     def __str__(self):
         """
         >>> str(EmailAddress("boo@host.com"))
         'boo@host.com'
         """
-        return self.address
+        return self.address.encode('utf-8')
 
     @property
     def supports_routing(self):
@@ -669,7 +669,7 @@ class UrlAddress(Address):
         return self._address.path
 
     def __str__(self):
-        return self.address
+        return self.address.encode('utf-8')
 
     def full_spec(self):
         return self.address
@@ -678,7 +678,7 @@ class UrlAddress(Address):
         return self.address
 
     def __repr__(self):
-        return self.address
+        return self.address.encode('utf-8')
 
     def __eq__(self, other):
         "Allows comparison of two URLs"
@@ -741,7 +741,7 @@ class AddressList(object):
         return set(self.container) == set(other.container)
 
     def __repr__(self):
-        return ''.join(['[', self.full_spec(), ']'])
+        return ''.join(['[', self.to_unicode().encode('utf-8'), ']'])
 
     def __add__(self, other):
         """
@@ -780,7 +780,7 @@ class AddressList(object):
         return [addr.address for addr in self.container]
 
     def __str__(self):
-        return self.full_spec()
+        return self.full_spec().encode('utf-8')
 
     @property
     def hostnames(self):

@@ -28,6 +28,7 @@ def run_full_mailbox_test(string, expected, full_spec=None):
         assert_equal(expected.address, mbox.address)
         if full_spec:
             assert_equal(full_spec, mbox.full_spec())
+        assert_equal(mbox, address.parse(mbox.to_unicode())) # check symmetry
         return
     assert_equal(expected, mbox)
 

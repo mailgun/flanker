@@ -474,7 +474,7 @@ class EmailAddress(Address):
         else:
             raise SyntaxError('failed to create EmailAddress: bad parameters')
 
-        if self._display_name.startswith('"') and self._display_name.endswith('"') and self._display_name != '""':
+        if self._display_name.startswith('"') and self._display_name.endswith('"') and len(self._display_name) > 2:
             self._display_name = smart_unquote(self._display_name)
         if isinstance(self._display_name, str):
             self._display_name = self._display_name.decode('utf-8')
@@ -518,7 +518,7 @@ class EmailAddress(Address):
 
     def __unicode__(self):
         if self.display_name:
-            return u'{} <{}@{}>'.format(self.display_name, self.mailbox, self.hostname)
+            return u'{} <{}@{}>'.format(smart_quote(self.display_name), self.mailbox, self.hostname)
         return u'{}@{}'.format(self.mailbox, self.hostname)
 
     def to_unicode(self):

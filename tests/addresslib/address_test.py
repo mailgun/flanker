@@ -209,6 +209,22 @@ def test_views():
             eq_(tc['full_spec'], tc['addr'].full_spec())
 
 
+def test_address_full_spec_smart_quote_display_name():
+    eq_(EmailAddress('foo',         'foo@bar.com').full_spec(), 'foo <foo@bar.com>')
+    eq_(EmailAddress('()<>[]:;@,.', 'foo@bar.com').full_spec(), '"()<>[]:;@,." <foo@bar.com>')
+    eq_(EmailAddress('"',           'foo@bar.com').full_spec(), '"\\"" <foo@bar.com>')
+    eq_(EmailAddress('\\',          'foo@bar.com').full_spec(), '"\\\\" <foo@bar.com>')
+
+
+def test_address_unicode_smart_quote_display_name():
+    eq_(EmailAddress('foo',         'foo@bar.com').to_unicode(), u'foo <foo@bar.com>')
+    eq_(EmailAddress('()<>[]:;@,.', 'foo@bar.com').to_unicode(), u'"()<>[]:;@,." <foo@bar.com>')
+    eq_(EmailAddress('"',           'foo@bar.com').to_unicode(), u'"\\"" <foo@bar.com>')
+    eq_(EmailAddress('\\',          'foo@bar.com').to_unicode(), u'"\\\\" <foo@bar.com>')
+    eq_(EmailAddress('Федот',       'foo@bar.com').to_unicode(), u'Федот <foo@bar.com>')
+    eq_(EmailAddress('<Федот>',     'foo@bar.com').to_unicode(), u'"<Федот>" <foo@bar.com>')
+
+
 def test_contains_non_ascii():
     eq_(EmailAddress(None, 'foo@bar.com').contains_non_ascii(), False)
     eq_(EmailAddress(None, 'foo@экзампл.рус').contains_non_ascii(), True)

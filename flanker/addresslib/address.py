@@ -503,26 +503,26 @@ class EmailAddress(Address):
     def address(self):
         return u'{}@{}'.format(self.mailbox, self.hostname)
 
-    def __repr__(self):
-        """
-        >>> repr(EmailAddress("John Smith", "john@smith.com"))
-        'John Smith <john@smith.com>'
-        """
-        return self.to_unicode().encode('utf-8')
-
-    def __str__(self):
-        """
-        >>> str(EmailAddress("boo@host.com"))
-        'boo@host.com'
-        """
-        return self.address.encode('utf-8')
-
     @property
     def supports_routing(self):
         """
         Email addresses can be routed.
         """
         return True
+
+    def __repr__(self):
+        return unicode(self).encode('utf-8')
+
+    def __str__(self):
+        return self.address.encode('utf-8')
+
+    def __unicode__(self):
+        if self.display_name:
+            return u'{} <{}@{}>'.format(self.display_name, self.mailbox, self.hostname)
+        return u'{}@{}'.format(self.mailbox, self.hostname)
+
+    def to_unicode(self):
+        return unicode(self)
 
     def full_spec(self):
         """
@@ -544,14 +544,6 @@ class EmailAddress(Address):
                 None, self.display_name, maxlinelen=MAX_ADDRESS_LENGTH))
             return u'{} <{}@{}>'.format(ace_display_name, self.mailbox, ace_hostname)
         return u'{}@{}'.format(self.mailbox, ace_hostname)
-
-    def to_unicode(self):
-        """
-        Converts to unicode.
-        """
-        if self.display_name:
-            return u'{} <{}@{}>'.format(self.display_name, self.mailbox, self.hostname)
-        return u'{}@{}'.format(self.mailbox, self.hostname)
 
     def contains_non_ascii(self):
         """
@@ -589,7 +581,6 @@ class EmailAddress(Address):
         Negative comparison support
         """
         return not (self == other)
-
 
     def __hash__(self):
         """
@@ -670,17 +661,20 @@ class UrlAddress(Address):
     def path(self):
         return self._address.path
 
+    def __repr__(self):
+        return self.address.encode('utf-8')
+
     def __str__(self):
         return self.address.encode('utf-8')
 
-    def full_spec(self):
+    def __unicode__(self):
         return self.address
 
     def to_unicode(self):
-        return self.address
+        return unicode(self)
 
-    def __repr__(self):
-        return self.address.encode('utf-8')
+    def full_spec(self):
+        return self.address
 
     def __eq__(self, other):
         "Allows comparison of two URLs"
@@ -745,6 +739,12 @@ class AddressList(object):
     def __repr__(self):
         return ''.join(['[', self.to_unicode().encode('utf-8'), ']'])
 
+    def __str__(self):
+        return ', '.join(str(addr) for addr in self.container)
+
+    def __unicode__(self):
+        return u', '.join(unicode(addr) for addr in self.container)
+
     def __add__(self, other):
         """
         Adding two AddressLists together yields another AddressList.
@@ -780,9 +780,6 @@ class AddressList(object):
             ['foo@host.com', 'bar@host.com']
         """
         return [addr.address for addr in self.container]
-
-    def __str__(self):
-        return self.full_spec().encode('utf-8')
 
     @property
     def hostnames(self):

@@ -36,6 +36,7 @@ import socket
 import time
 
 import regex as re
+from logging import getLogger
 
 from flanker.addresslib import corrector
 from flanker.addresslib.plugins import aol
@@ -45,6 +46,8 @@ from flanker.addresslib.plugins import hotmail
 from flanker.addresslib.plugins import icloud
 from flanker.addresslib.plugins import yahoo
 from flanker.utils import metrics_wrapper
+
+log = getLogger(__name__)
 
 _YAHOO_PATTERN = re.compile(r'''mta[0-9]+\.am[0-9]+\.yahoodns\.net$''')
 _GMAIL_PATTERN = re.compile(r'''.*gmail-smtp-in\.l\.google.com$''')
@@ -158,6 +161,7 @@ def mail_exchanger_lookup(domain, metrics=False):
             mx_hosts = lookup_domain(domain)
             mtimes['dns_lookup'] += time.time() - bstart
             if mx_hosts is None:
+                log.warning('failed mx lookup for %s', domain)
                 return None, mtimes
 
     # test connecting to the mx exchanger
@@ -165,6 +169,7 @@ def mail_exchanger_lookup(domain, metrics=False):
     mail_exchanger = connect_to_mail_exchanger(mx_hosts)
     mtimes['mx_conn'] = time.time() - bstart
     if mail_exchanger is None:
+        log.warning('failed mx connection for %s/%s', domain, mx_hosts)
         return None, mtimes
 
     # valid mx records, connected to mail exchanger, return True

@@ -267,6 +267,7 @@ def validate_address(addr_spec, metrics=False):
     # preparse address into its parts and perform any ESP specific pre-parsing
     addr_parts = preparse_address(addr_spec)
     if addr_parts is None:
+        log.warning('failed preparse check for %s', addr_spec)
         return None, mtimes
 
     # run parser against address
@@ -274,6 +275,7 @@ def validate_address(addr_spec, metrics=False):
     paddr = parse('@'.join(addr_parts), addr_spec_only=True)
     mtimes['parsing'] = time() - bstart
     if paddr is None:
+        log.warning('failed parse check for %s', addr_spec)
         return None, mtimes
 
     # lookup if this domain has a mail exchanger
@@ -282,6 +284,7 @@ def validate_address(addr_spec, metrics=False):
     mtimes['dns_lookup'] = mx_metrics['dns_lookup']
     mtimes['mx_conn'] = mx_metrics['mx_conn']
     if exchanger is None:
+        log.warning('failed mx check for %s', addr_spec)
         return None, mtimes
 
     # lookup custom local-part grammar if it exists
@@ -289,6 +292,7 @@ def validate_address(addr_spec, metrics=False):
     plugin = plugin_for_esp(exchanger)
     mtimes['custom_grammar'] = time() - bstart
     if plugin and plugin.validate(addr_parts[0]) is False:
+        log.warning('failed custom grammer check for %s/%s', addr_spec, plugin.__name__)
         return None, mtimes
 
     return paddr, mtimes

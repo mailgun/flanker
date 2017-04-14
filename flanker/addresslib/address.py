@@ -743,7 +743,7 @@ class AddressList(object):
         return ', '.join(str(addr) for addr in self.container)
 
     def __unicode__(self):
-        return u', '.join(addr.to_unicode() for addr in self.container)
+        return u', '.join(unicode(addr) for addr in self.container)
 
     def __add__(self, other):
         """

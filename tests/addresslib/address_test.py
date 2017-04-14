@@ -202,6 +202,7 @@ def test_views():
         eq_(tc['repr'], repr(tc['addr']))
         eq_(tc['str'], str(tc['addr']))
         eq_(tc['unicode'], unicode(tc['addr']))
+        eq_(tc['unicode'], tc['addr'].to_unicode())
         if isinstance(tc['full_spec'], Exception):
             assert_raises(type(tc['full_spec']), tc['addr'].full_spec)
         else:

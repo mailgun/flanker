@@ -29,7 +29,6 @@ this\ still\"not\\allowed
 partially."quoted"
 this is"not\allowed
 this\ still\"not\\allowed
-.first.last
 first.last.
 first..last
 "first"last"

@@ -53,6 +53,7 @@ MAX_ADDRESS_LENGTH = 1024
 MAX_ADDRESS_NUMBER = 1024
 MAX_ADDRESS_LIST_LENGTH = MAX_ADDRESS_LENGTH * MAX_ADDRESS_NUMBER
 
+
 @metrics_wrapper()
 def parse(address, addr_spec_only=False, metrics=False):
     """
@@ -99,14 +100,9 @@ def parse(address, addr_spec_only=False, metrics=False):
         bstart = time()
         retval = _lift_parser_result(parser.parse(address, lexer=lexer.clone()))
         mtimes['parsing'] = time() - bstart
-    except LexError as e:
-        log.warning(u'error in lexing: %s', e)
-        return None, mtimes
-    except YaccError as e:
-        log.warning(u'error in parsing: %s', e)
-        return None, mtimes
-    except SyntaxError as e:
-        log.warning(u'error in parsing: %s', e)
+    except (LexError, YaccError, SyntaxError):
+        log.warning('Failed to parse address: %s',
+                    address.decode('utf-8', 'replace'))
         return None, mtimes
 
     return retval, mtimes
@@ -152,14 +148,9 @@ def parse_discrete_list(address_list, metrics=False):
         bstart = time()
         retval = _lift_parser_result(parser.parse(address_list, lexer=lexer.clone()))
         mtimes['parsing'] = time() - bstart
-    except LexError as e:
-        log.warning(u'error in lexing: %s', e)
-        return None, mtimes
-    except YaccError as e:
-        log.warning(u'error in parsing: %s', e)
-        return None, mtimes
-    except SyntaxError as e:
-        log.warning(u'error in parsing: %s', e)
+    except (LexError, YaccError, SyntaxError):
+        log.warning('Failed to parse address list: %s',
+                    address_list.decode('utf-8', 'replace'))
         return None, mtimes
 
     return retval, mtimes

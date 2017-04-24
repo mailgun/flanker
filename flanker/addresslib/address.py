@@ -98,7 +98,7 @@ def parse(address, addr_spec_only=False, metrics=False):
 
     try:
         bstart = time()
-        retval = _lift_parser_result(parser.parse(address, lexer=lexer.clone()))
+        retval = _lift_parser_result(parser.parse(address.strip(), lexer=lexer.clone()))
         mtimes['parsing'] = time() - bstart
     except (LexError, YaccError, SyntaxError):
         log.warning('Failed to parse address: %s',
@@ -146,7 +146,7 @@ def parse_discrete_list(address_list, metrics=False):
 
     try:
         bstart = time()
-        retval = _lift_parser_result(parser.parse(address_list, lexer=lexer.clone()))
+        retval = _lift_parser_result(parser.parse(address_list.strip(), lexer=lexer.clone()))
         mtimes['parsing'] = time() - bstart
     except (LexError, YaccError, SyntaxError):
         log.warning('Failed to parse address list: %s',
@@ -437,7 +437,7 @@ class EmailAddress(Address):
         if raw_display_name and raw_addr_spec:
 
             parser = addr_spec_parser
-            mailbox = parser.parse(raw_addr_spec, lexer=lexer.clone())
+            mailbox = parser.parse(raw_addr_spec.strip(), lexer=lexer.clone())
 
             self._display_name = raw_display_name
             self._mailbox = mailbox.local_part
@@ -446,7 +446,7 @@ class EmailAddress(Address):
         elif raw_display_name:
 
             parser = mailbox_parser
-            mailbox = parser.parse(raw_display_name, lexer=lexer.clone())
+            mailbox = parser.parse(raw_display_name.strip(), lexer=lexer.clone())
 
             self._display_name = mailbox.display_name
             self._mailbox = mailbox.local_part
@@ -455,7 +455,7 @@ class EmailAddress(Address):
         elif raw_addr_spec:
 
             parser = addr_spec_parser
-            mailbox = parser.parse(raw_addr_spec, lexer=lexer.clone())
+            mailbox = parser.parse(raw_addr_spec.strip(), lexer=lexer.clone())
 
             self._display_name = ''
             self._mailbox = mailbox.local_part
@@ -621,7 +621,7 @@ class UrlAddress(Address):
             if isinstance(raw, unicode):
                 raw = raw.encode('utf-8')
             parser = url_parser
-            url = parser.parse(raw, lexer=lexer.clone())
+            url = parser.parse(raw.strip(), lexer=lexer.clone())
             self._address = urlparse(url.address)
         elif address:
             self._address = urlparse(address)

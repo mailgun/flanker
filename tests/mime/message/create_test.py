@@ -192,6 +192,28 @@ def create_multipart_nested_test():
     eq_(u"Саша с уралмаша", message2.parts[1].parts[0].body)
     eq_(u"<html>Саша с уралмаша</html>", message2.parts[1].parts[1].body)
 
+def create_bounced_email_test():
+    google_delivery_failed = """Delivered-To: user@gmail.com
+Content-Type: multipart/report; boundary=f403045f50f42d03f10546f0cb14; report-type=delivery-status
+
+--f403045f50f42d03f10546f0cb14
+Content-Type: message/delivery-status
+
+--f403045f50f42d03f10546f0cb14
+Content-Type: message/rfc822
+
+MIME-Version: 1.0
+From: Test <test@test.com>
+To: fake@faketestemail.xxx
+Content-Type: multipart/alternative; boundary=f403045f50f42690580546f0cb4d
+
+There should be a boundary here!
+
+--f403045f50f42d03f10546f0cb14--
+"""
+
+    message = create.from_string(google_delivery_failed)
+    eq_(google_delivery_failed, message.to_string())
 
 def create_enclosed_test():
     message = create.text("plain", u"Превед")

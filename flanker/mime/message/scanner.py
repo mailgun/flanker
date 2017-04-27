@@ -28,7 +28,7 @@ def scan(string):
         raise DecodingError("Malformed MIME message"), None, sys.exc_info()[2]
 
 
-def traverse(pointer, iterator, parent=None):
+def traverse(pointer, iterator, parent=None, allow_bad_mime=False):
     """Recursive-descendant parser"""
 
     iterator.check()
@@ -80,6 +80,8 @@ def traverse(pointer, iterator, parent=None):
         parts = deque()
         token = iterator.next()
 
+        if allow_bad_mime and parent and parent.is_message_container():
+            return None
         # we are expecting first boundary for multipart message
         # something is broken otherwise
         if not token.is_boundary() or token != boundary:
@@ -128,14 +130,16 @@ def traverse(pointer, iterator, parent=None):
     # a message inside, delimited from parent
     # headers by newline
     elif token.is_message_container():
-        enclosed = traverse(pointer, iterator, token)
-        return make_part(
-            content_type=token,
-            start=pointer,
-            end=iterator.current(),
-            iterator=iterator,
-            enclosed=enclosed,
-            parent=parent)
+        # Delivery notification body can contain all sorts of bad MIME.
+        allow_bad_mime = parent and parent.is_delivery_report()
+
+        enclosed = traverse(pointer, iterator, token, allow_bad_mime)
+        return make_part(content_type=token if enclosed else default_content_type(),
+                     start=pointer,
+                     end=iterator.current(),
+                     iterator=iterator,
+                     enclosed=enclosed,
+                     parent=parent)
 
     # this part contains headers separated by newlines,
     # grab these headers and enclose them in one part
@@ -480,7 +484,7 @@ def _filter_false_tokens(tokens):
             # to identify a place where a header section completes and a body
             # section starts.
             continue
-        
+
         else:
             raise DecodingError("Unknown token")
 

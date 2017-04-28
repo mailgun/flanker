@@ -31,6 +31,13 @@ def encodings_test():
     eq_(folded_s, headers.to_mime('Subject', s))
 
 
+def encode_address_test():
+    eq_('john.smith@example.com', headers.to_mime('To', 'john.smith@example.com'))
+    eq_('"John Smith" <john.smith@example.com>', headers.to_mime('To', '"John Smith" <john.smith@example.com>'))
+    eq_('Федот <стрелец@письмо.рф>', headers.to_mime('To', 'Федот <стрелец@письмо.рф>'))
+    eq_('=?utf-8?b?0KTQtdC00L7Rgg==?= <foo@xn--h1aigbl0e.xn--p1ai>', headers.to_mime('To', 'Федот <foo@письмо.рф>'))
+
+
 def string_maxlinelen_test():
     """
     If the encoded string is longer then the maximum line length, which is 76,

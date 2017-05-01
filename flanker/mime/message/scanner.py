@@ -80,11 +80,11 @@ def traverse(pointer, iterator, parent=None, allow_bad_mime=False):
         parts = deque()
         token = iterator.next()
 
-        if allow_bad_mime and parent and parent.is_message_container():
-            return None
         # we are expecting first boundary for multipart message
         # something is broken otherwise
         if not token.is_boundary() or token != boundary:
+            if allow_bad_mime and parent and parent.is_message_container():
+                return None
             raise DecodingError(
                 "Multipart message without starting boundary")
 

@@ -214,6 +214,39 @@ There should be a boundary here!
 
     message = create.from_string(google_delivery_failed)
     eq_(google_delivery_failed, message.to_string())
+    eq_(None, message.get_attached_message())
+
+def create_bounced_email_attached_message_test():
+    attached_message = """MIME-Version: 1.0
+From: Test <test@test.com>
+To: fake@faketestemail.xxx
+Content-Type: multipart/alternative; boundary=f403045f50f42690580546f0cb4d
+
+--f403045f50f42690580546f0cb4d
+Content-Type: text/plain
+Content-Transfer-Encoding: 8bit
+
+how are you?
+
+--f403045f50f42690580546f0cb4d--
+"""
+    google_delivery_failed = """Delivered-To: user@gmail.com
+Content-Type: multipart/report; boundary=f403045f50f42d03f10546f0cb14; report-type=delivery-status
+
+--f403045f50f42d03f10546f0cb14
+Content-Type: message/delivery-status
+
+--f403045f50f42d03f10546f0cb14
+Content-Type: message/rfc822
+
+{msg}
+--f403045f50f42d03f10546f0cb14--
+""".format(msg=attached_message)
+
+    message = create.from_string(google_delivery_failed)
+    eq_(google_delivery_failed, message.to_string())
+    eq_(attached_message, message.get_attached_message().to_string())
+
 
 def create_enclosed_test():
     message = create.text("plain", u"Превед")

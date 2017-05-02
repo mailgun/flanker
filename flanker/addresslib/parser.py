@@ -40,6 +40,7 @@ def p_expression_url(p):
 
 def p_expression_mailbox(p):
     '''mailbox : addr_spec
+               | angle_addr
                | name_addr'''
     p[0] = p[1]
 

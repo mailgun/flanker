@@ -150,6 +150,20 @@ def test_display_name__to_full_spec():
 def test_views():
     for i, tc in enumerate([{
         # Pure ASCII
+        'addr': parse('foo@bar.com'),
+        'repr': 'foo@bar.com',
+        'str': 'foo@bar.com',
+        'unicode': u'foo@bar.com',
+        'full_spec': 'foo@bar.com',
+    }, {
+        # Pure ASCII
+        'addr': parse('<foo@bar.com>'),
+        'repr': 'foo@bar.com',
+        'str': 'foo@bar.com',
+        'unicode': u'foo@bar.com',
+        'full_spec': 'foo@bar.com',
+    }, {
+        # Pure ASCII
         'addr': parse('foo <foo@bar.com>'),
         'repr': 'foo <foo@bar.com>',
         'str': 'foo@bar.com',

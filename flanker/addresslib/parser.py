@@ -113,10 +113,14 @@ def p_expression_domain_literal_text(p):
         p[0] = p[1]
 
 def p_expression_phrase(p):
-    '''phrase : phrase atom
+    '''phrase : phrase dot_atom
+              | phrase atom
               | phrase quoted_string
+              | phrase DOT
+              | dot_atom
               | atom
-              | quoted_string'''
+              | quoted_string
+              | DOT'''
     if len(p) == 3:
         p[0] = '{} {}'.format(p[1], p[2])
     elif len(p) == 2:

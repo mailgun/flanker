@@ -129,6 +129,9 @@ def test_display_name():
     # period in display name
     run_full_mailbox_test(u'Bill. Gates. <bill@microsoft.com>', EmailAddress(u'Bill. Gates.', 'bill@microsoft.com'))
 
+    # name addr without display name
+    run_full_mailbox_test(u'<bill@microsoft.com>', EmailAddress(None, 'bill@microsoft.com'))
+
 
 def test_unicode_display_name():
     # unicode, no quotes, display-name rfc

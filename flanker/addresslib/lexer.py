@@ -5,8 +5,8 @@ log = logging.getLogger(__name__)
 log.setLevel(logging.INFO)
 
 states = (
-    ('domain','inclusive'),
-    ('quote', 'inclusive'),
+    ('domain','exclusive'),
+    ('quote', 'exclusive'),
 )
 
 tokens = (
@@ -17,7 +17,8 @@ tokens = (
     'SEMICOLON',
     'LANGLE',
     'RANGLE',
-    'ATEXT',
+    'ATOM',
+    'DOT_ATOM',
     'LBRACKET',
     'RBRACKET',
     'DTEXT',
@@ -43,18 +44,49 @@ t_LANGLE    = r'\<'                    # '<'
 t_RANGLE    = r'\>'                    # '>'
 t_SEMICOLON = r'\;'                    # ';'
 
-t_ATEXT = r'''
-          ( [a-zA-Z0-9\!\#\$\%\&\'\*\+\-\/\=\?\^\_\`\{\|\}\~] # Visable ASCII characters not including specials
-          | [\xC2-\xDF][\x80-\xBF]                            # UTF8-2
-          | \xE0[\xA0-\xBF][\x80-\xBF]                        # UTF8-3
-          | [\xE1-\xEC][\x80-\xBF]{2}
-          | \xED[\x80-\x9F][\x80-\xBF]
-          | [\xEE-\xEF][\x80-\xBF]{2}
-          | \xF0[\x90-\xBF][\x80-\xBF]{2}                     # UTF8-4
-          | [\xF1-\xF3][\x80-\xBF]{3}
-          | \xF4[\x80-\x8F][\x80-\xBF]{2}
-          )+
-          '''
+# NOTE: Our expression for dot_atom here differs from RFC 5322. In the RFC
+# dot_atom is expressed as a superset of atom. That makes it difficult to write
+# unambiguous parsing rules so we've defined it here in such a way that it
+# doesn't conflict. As a result, any rules that accept dot_atom should also
+# accept atom.
+t_DOT_ATOM = r'''
+             ( [a-zA-Z0-9\!\#\$\%\&\'\*\+\-\/\=\?\^\_\`\{\|\}\~] # Visable ASCII characters not including specials
+             | [\xC2-\xDF][\x80-\xBF]                            # UTF8-2
+             | \xE0[\xA0-\xBF][\x80-\xBF]                        # UTF8-3
+             | [\xE1-\xEC][\x80-\xBF]{2}
+             | \xED[\x80-\x9F][\x80-\xBF]
+             | [\xEE-\xEF][\x80-\xBF]{2}
+             | \xF0[\x90-\xBF][\x80-\xBF]{2}                     # UTF8-4
+             | [\xF1-\xF3][\x80-\xBF]{3}
+             | \xF4[\x80-\x8F][\x80-\xBF]{2}
+             )+
+             (
+             \.
+             ( [a-zA-Z0-9\!\#\$\%\&\'\*\+\-\/\=\?\^\_\`\{\|\}\~] # Visable ASCII characters not including specials
+             | [\xC2-\xDF][\x80-\xBF]                            # UTF8-2
+             | \xE0[\xA0-\xBF][\x80-\xBF]                        # UTF8-3
+             | [\xE1-\xEC][\x80-\xBF]{2}
+             | \xED[\x80-\x9F][\x80-\xBF]
+             | [\xEE-\xEF][\x80-\xBF]{2}
+             | \xF0[\x90-\xBF][\x80-\xBF]{2}                     # UTF8-4
+             | [\xF1-\xF3][\x80-\xBF]{3}
+             | \xF4[\x80-\x8F][\x80-\xBF]{2}
+             )+
+             )+
+             '''
+
+t_ATOM =     r'''
+             ( [a-zA-Z0-9\!\#\$\%\&\'\*\+\-\/\=\?\^\_\`\{\|\}\~] # Visable ASCII characters not including specials
+             | [\xC2-\xDF][\x80-\xBF]                            # UTF8-2
+             | \xE0[\xA0-\xBF][\x80-\xBF]                        # UTF8-3
+             | [\xE1-\xEC][\x80-\xBF]{2}
+             | \xED[\x80-\x9F][\x80-\xBF]
+             | [\xEE-\xEF][\x80-\xBF]{2}
+             | \xF0[\x90-\xBF][\x80-\xBF]{2}                     # UTF8-4
+             | [\xF1-\xF3][\x80-\xBF]{3}
+             | \xF4[\x80-\x8F][\x80-\xBF]{2}
+             )+
+             '''
 
 def t_error(t):
     log.warning("syntax error in default lexer, token=%s", t)
@@ -84,6 +116,8 @@ t_domain_DTEXT = r'''
                  | \xF4[\x80-\x8F][\x80-\xBF]{2}
                  )+
                  '''
+
+t_domain_FWSP = r'([\s\t]*\r\n)?[\s\t]+' # folding whitespace
 
 def t_domain_error(t):
     log.warning("syntax error in domain lexer, token=%s", t)
@@ -128,6 +162,8 @@ t_quote_QPAIR = r'''
                 | \xF4[\x80-\x8F][\x80-\xBF]{2}
                 )
                 '''
+
+t_quote_FWSP = r'([\s\t]*\r\n)?[\s\t]+' # folding whitespace
 
 def t_quote_error(t):
     log.warning("syntax error in quoted string lexer, token=%s", t)

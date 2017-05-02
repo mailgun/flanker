@@ -35,7 +35,7 @@ def test_sanity():
 
 
 def test_simple_valid():
-    s = '''http://foo.com:8080; "Ev K." <ev@host.com>, "Alex K" alex@yahoo.net, "Tom, S" "tom+[a]"@s.com'''
+    s = '''http://foo.com:8080; "Ev K." <ev@host.com>, "Alex K" <alex@yahoo.net>, "Tom, S" <"tom+[a]"@s.com>'''
     addrs = parse_list(s)
 
     assert_equal(4, len(addrs))
@@ -97,7 +97,7 @@ def test_simple_valid():
     assert_equal(addrs[2].full_spec(), '=?utf-8?q?Gonzalo_Ba=C3=B1uelos?= <gonz@host.com>')
 
 
-    s = r'''"Escaped" "\e\s\c\a\p\e\d"@sld.com; http://userid:password@example.com:8080, "Dmitry" <my|'`!#_~%$&{}?^+-*@host.com>'''
+    s = r'''"Escaped" <"\e\s\c\a\p\e\d"@sld.com>; http://userid:password@example.com:8080, "Dmitry" <my|'`!#_~%$&{}?^+-*@host.com>'''
     addrs = parse_list(s)
 
     assert_equal(3, len(addrs))

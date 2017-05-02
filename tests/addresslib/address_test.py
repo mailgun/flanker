@@ -72,7 +72,7 @@ def test_addresslist_basics():
     ok_("Biz@kontsevoy.com" in str(lst))
 
     # check parsing:
-    spec = '''http://foo.com:8080, "Ev K." <ev@host.com>, "Alex K" alex@yahoo.net; "Tom, S" "tom+[a]"@s.com'''
+    spec = '''http://foo.com:8080, "Ev K." <ev@host.com>, "Alex K" <alex@yahoo.net>; "Tom, S" <"tom+[a]"@s.com>'''
     lst = parse_list(spec, True)
 
     eq_(len(lst), 4)
@@ -164,7 +164,7 @@ def test_views():
         'full_spec': ValueError(),
     }, {
         # UTF-8
-        'addr': parse(u'"Федот" стрелец@письмо.рф'),
+        'addr': parse(u'"Федот" <стрелец@письмо.рф>'),
         'repr': 'Федот <стрелец@письмо.рф>',
         'str': 'стрелец@письмо.рф',
         'unicode': u'Федот <стрелец@письмо.рф>',
@@ -192,7 +192,7 @@ def test_views():
         'full_spec': ValueError(),
     }, {
         # UTF-8 address list
-        'addr': parse_list(u'"Федот" стрелец@письмо.рф, Марья <искусница@mail.gun>'),
+        'addr': parse_list(u'"Федот" <стрелец@письмо.рф>, Марья <искусница@mail.gun>'),
         'repr': '[Федот <стрелец@письмо.рф>, Марья <искусница@mail.gun>]',
         'str': 'стрелец@письмо.рф, искусница@mail.gun',
         'unicode': u'Федот <стрелец@письмо.рф>, Марья <искусница@mail.gun>',

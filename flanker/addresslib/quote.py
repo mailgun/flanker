@@ -1,9 +1,9 @@
 from StringIO import StringIO
 import re
-from flanker.addresslib.lexer import t_ATEXT, t_FWSP
+from flanker.addresslib.lexer import t_ATOM, t_FWSP
 
 _RE_ATOM_PHRASE = re.compile(
-    r'({atext}({fwsp}{atext})*)?'.format(atext=t_ATEXT, fwsp=t_FWSP),
+    r'({atom}({fwsp}{atom})*)?'.format(atom=t_ATOM, fwsp=t_FWSP),
     re.MULTILINE | re.VERBOSE)
 
 

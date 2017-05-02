@@ -17,20 +17,17 @@ Url     = namedtuple('Url',     ['address'])
 start = 'mailbox_or_url_list'
 
 def p_expression_mailbox_or_url_list(p):
-    '''mailbox_or_url_list : mailbox_or_url_list delim mailbox_or_url
-                           | mailbox_or_url_list delim
+    '''mailbox_or_url_list : mailbox_or_url_list mailbox_or_url
+                           | mailbox_or_url_list COMMA
+                           | mailbox_or_url_list SEMICOLON
+                           | mailbox_or_url_list fwsp
                            | mailbox_or_url'''
-    if len(p) == 4:
-        p[0] = p[1] + [p[3]]
-    elif len(p) == 3:
+    if len(p) == 3 and isinstance(p[2], basestring):
         p[0] = p[1]
+    elif len(p) == 3:
+        p[0] = p[1] + [p[2]]
     elif len(p) == 2:
         p[0] = [p[1]]
-
-def p_expression_delim(p):
-    '''delim : delim delim
-             | ofwsp COMMA ofwsp
-             | ofwsp SEMICOLON ofwsp'''
 
 def p_expression_mailbox_or_url(p):
     '''mailbox_or_url : mailbox
@@ -47,25 +44,28 @@ def p_expression_mailbox(p):
     p[0] = p[1]
 
 def p_expression_name_addr(p):
-    'name_addr : phrase angle_addr'
-    p[0] = Mailbox(' '.join(p[1].split()), p[2].local_part, p[2].domain)
+    'name_addr : phrase ofwsp angle_addr'
+    p[0] = Mailbox(p[1], p[3].local_part, p[3].domain)
 
 def p_expression_angle_addr(p):
     'angle_addr : LANGLE ofwsp addr_spec ofwsp RANGLE'
     p[0] = Mailbox('', p[3].local_part, p[3].domain)
 
 def p_expression_addr_spec(p):
-    '''addr_spec : DOT_ATOM      AT DOT_ATOM
-                 | DOT_ATOM      AT ATOM
-                 | DOT_ATOM      AT domain_literal
-                 | ATOM          AT DOT_ATOM
-                 | ATOM          AT ATOM
-                 | ATOM          AT domain_literal
-                 | quoted_string AT DOT_ATOM
-                 | quoted_string AT ATOM
-                 | quoted_string AT domain_literal
-    '''
+    'addr_spec : local_part AT domain'
     p[0] = Mailbox('', p[1], p[3])
+
+def p_expression_local_part(p):
+    '''local_part : DOT_ATOM
+                  | ATOM
+                  | quoted_string'''
+    p[0] = p[1]
+
+def p_expression_domain(p):
+    '''domain : DOT_ATOM
+              | ATOM
+              | domain_literal'''
+    p[0] = p[1]
 
 def p_expression_quoted_string(p):
     '''quoted_string : DQUOTE quoted_string_text DQUOTE'''
@@ -101,15 +101,20 @@ def p_expression_domain_literal_text(p):
         p[0] = p[1]
 
 def p_expression_phrase(p):
-    '''phrase : phrase ATOM
+    '''phrase : phrase fwsp ATOM
+              | phrase fwsp DOT_ATOM
+              | phrase fwsp DOT
+              | phrase fwsp quoted_string
+              | phrase ATOM
               | phrase DOT_ATOM
               | phrase DOT
               | phrase quoted_string
-              | phrase fwsp
               | ATOM
               | DOT_ATOM
               | DOT
               | quoted_string'''
+    if len(p) == 4:
+        p[0] = '{} {}'.format(p[1], p[3])
     if len(p) == 3:
         p[0] = '{}{}'.format(p[1], p[2])
     elif len(p) == 2:

@@ -68,8 +68,12 @@ def p_expression_domain(p):
     p[0] = p[1]
 
 def p_expression_quoted_string(p):
-    '''quoted_string : DQUOTE quoted_string_text DQUOTE'''
-    p[0] = '"{}"'.format(p[2])
+    '''quoted_string : DQUOTE quoted_string_text DQUOTE
+                     | DQUOTE DQUOTE'''
+    if len(p) == 4:
+        p[0] = '"{}"'.format(p[2])
+    elif len(p) == 3:
+        p[0] = '""'
 
 def p_expression_quoted_string_text(p):
     '''quoted_string_text : quoted_string_text QTEXT
@@ -77,18 +81,19 @@ def p_expression_quoted_string_text(p):
                           | quoted_string_text fwsp
                           | QTEXT
                           | QPAIR
-                          | fwsp
-                          |''' # NOTE: `empty` is invalid but has been added for backwards compatability
+                          | fwsp'''
     if len(p) == 3:
         p[0] = '{}{}'.format(p[1], p[2])
     elif len(p) == 2:
         p[0] = p[1]
-    elif len(p) == 1:
-        p[0] = ''
 
 def p_expression_domain_literal(p):
-    '''domain_literal : LBRACKET domain_literal_text RBRACKET'''
-    p[0] = '[{}]'.format(p[2])
+    '''domain_literal : LBRACKET domain_literal_text RBRACKET
+                      | LBRACKET RBRACKET'''
+    if len(p) == 4:
+        p[0] = '[{}]'.format(p[2])
+    elif len(p) == 3:
+        p[0] = '[]'
 
 def p_expression_domain_literal_text(p):
     '''domain_literal_text : domain_literal_text DTEXT

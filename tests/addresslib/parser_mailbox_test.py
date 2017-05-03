@@ -504,6 +504,20 @@ def test_domain():
     run_mailbox_test('bill@microsoft.com"', None)
 
 
+def test_comments():
+    run_full_mailbox_test('(comment) Steve Jobs <steve@apple.com>', EmailAddress('Steve Jobs', 'steve@apple.com'))
+    run_full_mailbox_test('Steve Jobs (comment) <steve@apple.com>', EmailAddress('Steve Jobs', 'steve@apple.com'))
+    run_full_mailbox_test('Steve Jobs <(comment) steve@apple.com>', EmailAddress('Steve Jobs', 'steve@apple.com'))
+    run_full_mailbox_test('Steve Jobs <steve@apple.com (comment)>', EmailAddress('Steve Jobs', 'steve@apple.com'))
+    run_full_mailbox_test('Steve Jobs <steve@apple.com> (comment)', EmailAddress('Steve Jobs', 'steve@apple.com'))
+
+    run_full_mailbox_test('(comment)"Steve Jobs"<steve@apple.com>', EmailAddress('Steve Jobs', 'steve@apple.com'))
+    run_full_mailbox_test('"Steve Jobs"(comment)<steve@apple.com>', EmailAddress('Steve Jobs', 'steve@apple.com'))
+    run_full_mailbox_test('"Steve Jobs"<(comment)steve@apple.com>', EmailAddress('Steve Jobs', 'steve@apple.com'))
+    run_full_mailbox_test('"Steve Jobs"<steve@apple.com(comment)>', EmailAddress('Steve Jobs', 'steve@apple.com'))
+    run_full_mailbox_test('"Steve Jobs"<steve@apple.com>(comment)', EmailAddress('Steve Jobs', 'steve@apple.com'))
+
+
 def test_full_spec_symmetry_bug():
     """
     There was a bug that if an address has a display name that is equal or

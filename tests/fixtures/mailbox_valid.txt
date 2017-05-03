@@ -198,6 +198,10 @@ cdburgess+!#$%&'*-/=?+_{}|~test@mail.com
 test@test.com
 test@xn--example.com
 test@example.com
+(this is a comment) test@example.com
+(this is a comment)test@example.com
+test@example.com(this is a comment)
+test@example.com (this is a comment)
 
 #
 # Sample valid international email addresses from https://en.wikipedia.org/wiki/International_email

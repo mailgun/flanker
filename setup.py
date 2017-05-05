@@ -4,7 +4,7 @@ from setuptools import setup, find_packages
 
 
 setup(name='flanker',
-      version='0.6.8',
+      version='0.6.9',
       description='Mailgun Parsing Tools',
       long_description=open('README.rst').read(),
       classifiers=[],
@@ -23,15 +23,13 @@ setup(name='flanker',
       install_requires=[
           'chardet>=1.0.1',
           'cchardet>=0.3.5',
+          'cryptography>=0.5',
           'cython>=0.21.1',
           'dnsq>=1.1.6',
           'expiringdict>=1.1.2',
-          'WebOb>=0.9.8',
-          'redis>=2.7.1',
-          # IMPORTANT! Newer regex versions are a lot slower for
-          # mime parsing (100x slower) so keep it as-is for now.
-          'regex>=0.1.20110315',
-          'cryptography>=0.5',
+          'idna>=2.5',
           'ply>=3.10',
-      ],
+          'redis>=2.7.1',
+          'regex>=0.1.20110315',
+          'WebOb>=0.9.8'],
 )

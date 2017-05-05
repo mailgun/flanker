@@ -33,12 +33,13 @@ EmailAddress or UrlAddress in flanker.addresslib.address.
 
 See the parser.py module for implementation details of the parser.
 """
-
 from logging import getLogger
-from ply.lex import LexError
-from ply.yacc import YaccError
 from time import time
 from urlparse import urlparse
+
+import idna
+from ply.lex import LexError
+from ply.yacc import YaccError
 
 from flanker.addresslib.lexer import lexer
 from flanker.addresslib.parser import Mailbox, Url, mailbox_parser, mailbox_or_url_parser, mailbox_or_url_list_parser, addr_spec_parser, url_parser
@@ -532,8 +533,9 @@ class EmailAddress(Address):
            '=?utf-8?b?0JbQtdC60LA=?= <ev@example.com>'
         """
         if not is_pure_ascii(self.mailbox):
-            raise ValueError('address {} has no ASCII-compatable encoding'.format(self.address.encode('utf-8')))
-        ace_hostname = self.hostname.encode('idna')
+            raise ValueError('address {} has no ASCII-compatable encoding'
+                             .format(self.address.encode('utf-8')))
+        ace_hostname = idna.encode(self.hostname)
         if self.display_name:
             ace_display_name = smart_quote(encode_string(
                 None, self.display_name, maxlinelen=MAX_ADDRESS_LENGTH))

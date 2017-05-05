@@ -1,5 +1,5 @@
-Flanker
-*******
+Flanker - email address and MIME parsing for Python
+===================================================
 
 .. image:: https://travis-ci.org/mailgun/flanker.svg?branch=master
     :target: https://travis-ci.org/mailgun/flanker
@@ -14,11 +14,8 @@ well as a MIME parsing library (`flanker.mime`).
 Detailed documentation is provided in the `User Manual <https://github.com/mailgun/flanker/blob/master/docs/User%20Manual.md>`_ as well as the
 `API Reference <https://github.com/mailgun/flanker/blob/master/docs/API%20Reference.md>`_. A Quickstart Guide is provided below.
 
-Quickstart Guide
-################
-
 Installing
-**********
+----------
 
 **Flanker was built and tested with Python 2.7.2.**
 
@@ -35,17 +32,9 @@ You'll need Python headers files before you start working with flanker, so insta
 
 If you are using `pip`, simply type:
 
-
 .. code-block:: bash
 
    pip install flanker
-
-*Note about installing from PyPi. Installing without specifying a version number will
-install the latest version from PyPi that does not pin version dependences. This version
-of Flanker will most likely work, but is not guaranteed. If you want to run a guaranteed
-to work version of Flanker, run the version where we pin dependences, which is one lower
-major version number. For example, if the current release is `0.4.4` then the stabled
-pinned dependency version is `0.3.4`.*
 
 If you are cloning from GitHub, you can type:
 
@@ -53,10 +42,10 @@ If you are cloning from GitHub, you can type:
 
    git clone git@github.com:mailgun/flanker.git
    cd flanker
-   python setup.py install
+   pip install -e .
 
 Address Parsing
-***************
+---------------
 
 To parse a single mailbox (display name as well as email address):
 
@@ -132,7 +121,7 @@ To validate an address list:
    ([foo@mailgun.com, bar@mailgun.com], ['@mailgun.com'])
 
 MIME Parsing
-************
+------------
 
 For the following examples, `message_string` will be set to the following MIME message:
 

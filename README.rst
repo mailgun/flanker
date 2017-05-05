@@ -1,8 +1,11 @@
-.. image:: https://drone.io/github.com/mailgun/flanker/status.png
-
-*******
 Flanker
 *******
+
+.. image:: https://travis-ci.org/mailgun/flanker.svg?branch=master
+    :target: https://travis-ci.org/mailgun/flanker
+
+.. image:: https://coveralls.io/repos/github/mailgun/flanker/badge.svg?branch=master
+    :target: https://coveralls.io/github/mailgun/flanker?branch=master
 
 Flanker is an open source parsing library written in Python by the Mailgun Team.
 Flanker currently consists of an address parsing library (`flanker.addresslib`) as

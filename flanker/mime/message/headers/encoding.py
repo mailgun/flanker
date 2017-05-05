@@ -60,10 +60,19 @@ def encode_address_header(name, value):
     out = deque()
     for addr in flanker.addresslib.address.parse_list(value):
         if addr.requires_non_ascii():
-            out.append(addr.to_unicode().encode('utf-8'))
+            addr_u = addr.to_unicode()
         else:
-            out.append(addr.full_spec().encode('utf-8'))
-    return "; ".join(out)
+            # FIXME full_spec must never raise an exception
+            # FIXME if requires_non_ascii returns False.
+            try:
+                addr_u = addr.full_spec()
+            except Exception:
+                addr_u = addr.to_unicode()
+                log.warn('Address %s is not convertible to ASCII', addr_u)
+
+        out.append(addr_u.encode('utf-8'))
+
+    return '; '.join(out)
 
 
 def encode_parametrized(key, value, params):

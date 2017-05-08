@@ -535,7 +535,14 @@ class EmailAddress(Address):
         if not is_pure_ascii(self.mailbox):
             raise ValueError('address {} has no ASCII-compatable encoding'
                              .format(self.address.encode('utf-8')))
-        ace_hostname = idna.encode(self.hostname)
+        if not is_pure_ascii(self.hostname):
+            try:
+                ace_hostname = idna.encode(self.hostname)
+            except idna.IDNAError:
+                raise ValueError('address {} has no ASCII-compatable encoding'
+                                 .format(self.address.encode('utf-8')))
+        else:
+            ace_hostname = self.hostname
         if self.display_name:
             ace_display_name = smart_quote(encode_string(
                 None, self.display_name, maxlinelen=MAX_ADDRESS_LENGTH))
@@ -552,7 +559,14 @@ class EmailAddress(Address):
         """
         Can the address be converted to an ASCII compatible encoding?
         """
-        return not is_pure_ascii(self.mailbox)
+        if not is_pure_ascii(self.mailbox):
+            return True
+        if not is_pure_ascii(self.hostname):
+            try:
+                idna.encode(self.hostname)
+            except idna.IDNAError:
+                return True
+        return False
 
     def contains_domain_literal(self):
         """

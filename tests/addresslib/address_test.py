@@ -249,6 +249,8 @@ def test_contains_non_ascii():
 def test_requires_non_ascii():
     eq_(EmailAddress(None, 'foo@bar.com').requires_non_ascii(), False)
     eq_(EmailAddress(None, 'foo@экзампл.рус').requires_non_ascii(), False)
+    eq_(EmailAddress(None, 'foo@xn--0.pt').requires_non_ascii(), False)
+    eq_(EmailAddress(None, 'foo@日本語。ＪＰ').requires_non_ascii(), True)
     eq_(EmailAddress(None, 'аджай@bar.com').requires_non_ascii(), True)
     eq_(EmailAddress(None, 'аджай@экзампл.рус').requires_non_ascii(), True)
 

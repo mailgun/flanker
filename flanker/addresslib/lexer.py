@@ -5,8 +5,9 @@ log = logging.getLogger(__name__)
 log.setLevel(logging.INFO)
 
 states = (
-    ('domain','exclusive'),
-    ('quote', 'exclusive'),
+    ('domain',  'exclusive'),
+    ('quote',   'exclusive'),
+    ('comment', 'exclusive'),
 )
 
 tokens = (
@@ -25,6 +26,9 @@ tokens = (
     'DQUOTE',
     'QTEXT',
     'QPAIR',
+    'LPAREN',
+    'RPAREN',
+    'CTEXT',
     'URL'
 )
 
@@ -167,6 +171,38 @@ t_quote_FWSP = r'([\s\t]*\r\n)?[\s\t]+' # folding whitespace
 
 def t_quote_error(t):
     log.warning("syntax error in quoted string lexer, token=%s", t)
+
+
+# Comments - https://tools.ietf.org/html/rfc5322#section-3.2.2
+
+def t_LPAREN(t):
+    r'\('
+    t.lexer.begin('comment')
+    return t
+
+def t_comment_RPAREN(t):
+    r'\)'
+    t.lexer.begin('INITIAL')
+    return t
+
+t_comment_CTEXT = r'''
+                  ( [\x21-\x27]                   # Visable ASCII characters not
+                  | [\x2a-\x5B]                   #   including '(', ')', or '\'
+                  | [\x5D-\x7E]
+                  | [\xC2-\xDF][\x80-\xBF]        # UTF8-2
+                  | \xE0[\xA0-\xBF][\x80-\xBF]    # UTF8-3
+                  | [\xE1-\xEC][\x80-\xBF]{2}
+                  | \xED[\x80-\x9F][\x80-\xBF]
+                  | [\xEE-\xEF][\x80-\xBF]{2}
+                  | \xF0[\x90-\xBF][\x80-\xBF]{2} # UTF8-4
+                  | [\xF1-\xF3][\x80-\xBF]{3}
+                  | \xF4[\x80-\x8F][\x80-\xBF]{2}
+                  )+
+                  '''
+t_comment_FWSP = r'([\s\t]*\r\n)?[\s\t]+' # folding whitespace
+
+def t_comment_error(t):
+    log.warning("syntax error in comment lexer, token=%s", t)
 
 
 # Build the lexer

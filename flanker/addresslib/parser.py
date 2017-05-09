@@ -17,17 +17,21 @@ Url     = namedtuple('Url',     ['address'])
 start = 'mailbox_or_url_list'
 
 def p_expression_mailbox_or_url_list(p):
-    '''mailbox_or_url_list : mailbox_or_url_list mailbox_or_url
-                           | mailbox_or_url_list COMMA
-                           | mailbox_or_url_list SEMICOLON
-                           | mailbox_or_url_list fwsp
+    '''mailbox_or_url_list : mailbox_or_url_list delim mailbox_or_url
+                           | mailbox_or_url_list delim
                            | mailbox_or_url'''
-    if len(p) == 3 and isinstance(p[2], basestring):
-        p[0] = p[1]
+    if len(p) == 4:
+        p[0] = p[1] + [p[3]]
     elif len(p) == 3:
-        p[0] = p[1] + [p[2]]
+        p[0] = p[1]
     elif len(p) == 2:
         p[0] = [p[1]]
+
+def p_delim(p):
+    '''delim : delim fwsp COMMA
+             | delim fwsp SEMICOLON
+             | COMMA
+             | SEMICOLON'''
 
 def p_expression_mailbox_or_url(p):
     '''mailbox_or_url : mailbox
@@ -35,8 +39,8 @@ def p_expression_mailbox_or_url(p):
     p[0] = p[1]
 
 def p_expression_url(p):
-    'url : URL'
-    p[0] = Url(p[1])
+    'url : ofwsp URL ofwsp'
+    p[0] = Url(p[2])
 
 def p_expression_mailbox(p):
     '''mailbox : addr_spec
@@ -45,16 +49,16 @@ def p_expression_mailbox(p):
     p[0] = p[1]
 
 def p_expression_name_addr(p):
-    'name_addr : phrase ofwsp angle_addr'
-    p[0] = Mailbox(p[1], p[3].local_part, p[3].domain)
+    'name_addr : ofwsp phrase angle_addr'
+    p[0] = Mailbox(p[2], p[3].local_part, p[3].domain)
 
 def p_expression_angle_addr(p):
-    'angle_addr : LANGLE ofwsp addr_spec ofwsp RANGLE'
+    'angle_addr : ofwsp LANGLE addr_spec RANGLE ofwsp'
     p[0] = Mailbox('', p[3].local_part, p[3].domain)
 
 def p_expression_addr_spec(p):
-    'addr_spec : local_part AT domain'
-    p[0] = Mailbox('', p[1], p[3])
+    'addr_spec : ofwsp local_part AT domain ofwsp'
+    p[0] = Mailbox('', p[2], p[4])
 
 def p_expression_local_part(p):
     '''local_part : DOT_ATOM
@@ -83,10 +87,7 @@ def p_expression_quoted_string_text(p):
                           | QTEXT
                           | QPAIR
                           | fwsp'''
-    if len(p) == 3:
-        p[0] = '{}{}'.format(p[1], p[2])
-    elif len(p) == 2:
-        p[0] = p[1]
+    p[0] = ''.join(p[1:])
 
 def p_expression_domain_literal(p):
     '''domain_literal : LBRACKET domain_literal_text RBRACKET
@@ -101,10 +102,19 @@ def p_expression_domain_literal_text(p):
                            | domain_literal_text fwsp
                            | DTEXT
                            | fwsp'''
-    if len(p) == 3:
-        p[0] = '{}{}'.format(p[1], p[2])
-    elif len(p) == 2:
-        p[0] = p[1]
+    p[0] = ''.join(p[1:])
+
+def p_expression_comment(p):
+    '''comment : LPAREN comment_text RPAREN
+               | LPAREN RPAREN'''
+    p[0] = ''
+
+def p_expression_comment_text(p):
+    '''comment_text : comment_text CTEXT
+                    | comment_text fwsp
+                    | CTEXT
+                    | fwsp'''
+    p[0] = ''.join(p[1:])
 
 def p_expression_phrase(p):
     '''phrase : phrase fwsp ATOM
@@ -127,12 +137,13 @@ def p_expression_phrase(p):
         p[0] = p[1]
 
 def p_expression_ofwsp(p):
-    '''ofwsp : fwsp
+    '''ofwsp : fwsp comment fwsp
+             | fwsp comment
+             | comment fwsp
+             | comment
+             | fwsp
              |'''
-    if len(p) == 2:
-        p[0] = p[1]
-    if len(p) == 1:
-        p[0] = ''
+    p[0] = ''.join(p[1:])
 
 def p_expression_fwsp(p):
     'fwsp : FWSP'

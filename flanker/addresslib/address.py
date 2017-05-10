@@ -115,6 +115,8 @@ def parse(address, addr_spec_only=False, metrics=False, fallback_last_word=False
 
             retval = _lift_parser_result(parser.parse(addr_spec, lexer=lexer.clone()))
             retval._display_name = display_name
+            if isinstance(retval._display_name, str):
+                retval._display_name = retval._display_name.decode('utf-8')
 
             mtimes['parsing'] += time() - bstart
 

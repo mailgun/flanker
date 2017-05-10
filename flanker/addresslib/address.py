@@ -56,7 +56,7 @@ MAX_ADDRESS_LIST_LENGTH = MAX_ADDRESS_LENGTH * MAX_ADDRESS_NUMBER
 
 
 @metrics_wrapper()
-def parse(address, addr_spec_only=False, metrics=False):
+def parse(address, addr_spec_only=False, metrics=False, fallback_last_word=False):
     """
     Given a string, returns a scalar object representing a single full
     mailbox (display name and addr-spec), addr-spec, or a url.
@@ -102,9 +102,31 @@ def parse(address, addr_spec_only=False, metrics=False):
         retval = _lift_parser_result(parser.parse(address.strip(), lexer=lexer.clone()))
         mtimes['parsing'] = time() - bstart
     except (LexError, YaccError, SyntaxError):
+        retval = None
+        mtimes['parsing'] = time() - bstart
+
+    if retval is None and fallback_last_word:
+        try:
+            bstart = time()
+
+            addr_parts = address.split(' ')
+            addr_spec = addr_parts[-1]
+            display_name = ' '.join(addr_parts[0:-1])
+
+            retval = _lift_parser_result(addr_spec_parser.parse(addr_spec, lexer=lexer.clone()))
+            retval._display_name = display_name
+
+            mtimes['parsing'] += time() - bstart
+
+            log.warning('Fallback to last word used for address: %s',
+                        address.decode('utf-8', 'replace'))
+        except (LexError, YaccError, SyntaxError):
+            retval = None
+            mtimes['parsing'] += time() - bstart
+
+    if retval is None:
         log.warning('Failed to parse address: %s',
                     address.decode('utf-8', 'replace'))
-        return None, mtimes
 
     return retval, mtimes
 

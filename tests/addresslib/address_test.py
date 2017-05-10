@@ -258,3 +258,10 @@ def test_requires_non_ascii():
 def test_contains_domain_literal():
     eq_(EmailAddress(None, 'foo@bar.com').contains_domain_literal(), False)
     eq_(EmailAddress(None, 'foo@[1.2.3.4]').contains_domain_literal(), True)
+
+
+def test_parse_fallback_last_word():
+    eq_('foo <foo@bar.com>',             parse('foo <foo@bar.com>', fallback_last_word=True).full_spec())
+    eq_('foo <foo@bar.com>',             parse('foo foo@bar.com', fallback_last_word=True).full_spec())
+    eq_('"foo (comment)" <foo@bar.com>', parse('foo (comment) foo@bar.com', fallback_last_word=True).full_spec())
+    eq_('"not@valid" <foo@bar.com>',     parse('not@valid foo@bar.com', fallback_last_word=True).full_spec())

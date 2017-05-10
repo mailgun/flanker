@@ -113,7 +113,7 @@ def parse(address, addr_spec_only=False, metrics=False, fallback_last_word=False
             addr_spec = addr_parts[-1]
             display_name = ' '.join(addr_parts[0:-1])
 
-            retval = _lift_parser_result(addr_spec_parser.parse(addr_spec, lexer=lexer.clone()))
+            retval = _lift_parser_result(parser.parse(addr_spec, lexer=lexer.clone()))
             retval._display_name = display_name
 
             mtimes['parsing'] += time() - bstart
@@ -179,7 +179,7 @@ def parse_discrete_list(address_list, metrics=False):
     return retval, mtimes
 
 @metrics_wrapper()
-def parse_list(address_list, strict=False, as_tuple=False, metrics=False):
+def parse_list(address_list, strict=False, as_tuple=False, metrics=False, fallback_last_word=False):
     """
     Given an string or list of email addresses and/or urls seperated by a
     delimiter (comma (,) or semi-colon (;)), returns an AddressList object
@@ -219,7 +219,7 @@ def parse_list(address_list, strict=False, as_tuple=False, metrics=False):
         parsed, unparsed = AddressList(), []
         for address in address_list:
             if isinstance(address, basestring):
-                retval, metrics = parse(address, metrics=True)
+                retval, metrics = parse(address, metrics=True, fallback_last_word=fallback_last_word)
                 mtimes['parsing'] += metrics['parsing']
                 if retval:
                     parsed.append(retval)
@@ -236,6 +236,8 @@ def parse_list(address_list, strict=False, as_tuple=False, metrics=False):
         log.warning('address list exceeds maximum length of %s', MAX_ADDRESS_LIST_LENGTH)
         parsed, unparsed = AddressList(), [address_list]
     elif isinstance(address_list, basestring):
+        if fallback_last_word:
+            log.warning('fallback parsing is not available for discrete lists, ignoring')
         retval, metrics = parse_discrete_list(address_list, metrics=True)
         mtimes['parsing'] += metrics['parsing']
         if retval:

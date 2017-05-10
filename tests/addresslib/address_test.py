@@ -263,5 +263,13 @@ def test_contains_domain_literal():
 def test_parse_fallback_last_word():
     eq_('foo <foo@bar.com>',             parse('foo <foo@bar.com>', fallback_last_word=True).full_spec())
     eq_('foo <foo@bar.com>',             parse('foo foo@bar.com', fallback_last_word=True).full_spec())
+    eq_('foo <foo@bar.com>',             parse('foo (comment) <foo@bar.com>', fallback_last_word=True).full_spec())
     eq_('"foo (comment)" <foo@bar.com>', parse('foo (comment) foo@bar.com', fallback_last_word=True).full_spec())
+    eq_('"not@valid" <foo@bar.com>',     parse('not@valid <foo@bar.com>', fallback_last_word=True).full_spec())
     eq_('"not@valid" <foo@bar.com>',     parse('not@valid foo@bar.com', fallback_last_word=True).full_spec())
+
+
+def test_parse_list_fallback_last_word():
+    addr_list = ['foo <foo@bar.com>', 'foo foo@bar.com', 'not@valid <foo@bar.com>']
+    expected = ['foo <foo@bar.com>', 'foo <foo@bar.com>', '"not@valid" <foo@bar.com>']
+    eq_(expected, [addr.full_spec() for addr in parse_list(addr_list, fallback_last_word=True)])

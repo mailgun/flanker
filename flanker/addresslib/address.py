@@ -244,7 +244,7 @@ def parse_list(address_list, strict=False, as_tuple=False, metrics=False):
         parsed, unparsed = AddressList(), [address_list]
     elif isinstance(address_list, basestring):
         if not strict:
-            log.warning('relaxed parsing is not available for discrete lists, ignoring')
+            log.info('relaxed parsing is not available for discrete lists, ignoring')
         retval, metrics = parse_discrete_list(address_list, metrics=True)
         mtimes['parsing'] += metrics['parsing']
         if retval:

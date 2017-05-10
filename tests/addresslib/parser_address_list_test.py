@@ -16,7 +16,7 @@ def powerset(iterable):
 
 @nottest
 def run_test(string, expected_mlist):
-    mlist = parse_list(string)
+    mlist = parse_list(string, strict=True)
     assert_equal(mlist, expected_mlist)
 
 
@@ -36,7 +36,7 @@ def test_sanity():
 
 def test_simple_valid():
     s = '''http://foo.com:8080; "Ev K." <ev@host.com>, "Alex K" <alex@yahoo.net>, "Tom, S" <"tom+[a]"@s.com>'''
-    addrs = parse_list(s)
+    addrs = parse_list(s, strict=True)
 
     assert_equal(4, len(addrs))
 
@@ -61,7 +61,7 @@ def test_simple_valid():
 
 
     s = '''"Allan G\'o"  <allan@example.com>, "Os Wi" <oswi@example.com>'''
-    addrs = parse_list(s)
+    addrs = parse_list(s, strict=True)
 
     assert_equal(2, len(addrs))
 
@@ -77,7 +77,7 @@ def test_simple_valid():
 
 
     s = u'''I am also A <a@HOST.com>, Zeka <EV@host.coM> ;Gonzalo Bañuelos<gonz@host.com>'''
-    addrs = parse_list(s)
+    addrs = parse_list(s, strict=True)
 
     assert_equal(3, len(addrs))
 
@@ -98,7 +98,7 @@ def test_simple_valid():
 
 
     s = r'''"Escaped" <"\e\s\c\a\p\e\d"@sld.com>; http://userid:password@example.com:8080, "Dmitry" <my|'`!#_~%$&{}?^+-*@host.com>'''
-    addrs = parse_list(s)
+    addrs = parse_list(s, strict=True)
 
     assert_equal(3, len(addrs))
 
@@ -118,7 +118,7 @@ def test_simple_valid():
 
 
     s = "http://foo.com/blah_blah_(wikipedia)"
-    addrs = parse_list(s)
+    addrs = parse_list(s, strict=True)
 
     assert_equal(1, len(addrs))
 
@@ -128,7 +128,7 @@ def test_simple_valid():
 
 
     s = "Sasha Klizhentas <klizhentas@gmail.com>"
-    addrs = parse_list(s)
+    addrs = parse_list(s, strict=True)
 
     assert_equal(1, len(addrs))
 
@@ -139,7 +139,7 @@ def test_simple_valid():
 
 
     s = "admin@mailgunhq.com,lift@example.com"
-    addrs = parse_list(s)
+    addrs = parse_list(s, strict=True)
 
     assert_equal(2, len(addrs))
 
@@ -156,13 +156,13 @@ def test_simple_valid():
 
 def test_simple_invalid():
     s = '''httd://foo.com:8080\r\n; "Ev K." <ev@ host.com>\n "Alex K" alex@ , "Tom, S" "tom+["  a]"@s.com'''
-    assert_equal(AddressList(), parse_list(s))
+    assert_equal(AddressList(), parse_list(s, strict=True))
 
     s = ""
-    assert_equal(AddressList(), parse_list(s))
+    assert_equal(AddressList(), parse_list(s, strict=True))
 
     s = "crap"
-    assert_equal(AddressList(), parse_list(s))
+    assert_equal(AddressList(), parse_list(s, strict=True))
 
 
 def test_endpoints():

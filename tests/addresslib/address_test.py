@@ -258,3 +258,19 @@ def test_requires_non_ascii():
 def test_contains_domain_literal():
     eq_(EmailAddress(None, 'foo@bar.com').contains_domain_literal(), False)
     eq_(EmailAddress(None, 'foo@[1.2.3.4]').contains_domain_literal(), True)
+
+
+def test_parse_relaxed():
+    eq_(u'foo <foo@bar.com>',             parse('foo <foo@bar.com>').to_unicode())
+    eq_(u'foo <foo@bar.com>',             parse('foo foo@bar.com').to_unicode())
+    eq_(u'foo <foo@bar.com>',             parse('foo (comment) <foo@bar.com>').to_unicode())
+    eq_(u'"foo (comment)" <foo@bar.com>', parse('foo (comment) foo@bar.com').to_unicode())
+    eq_(u'"not@valid" <foo@bar.com>',     parse('not@valid <foo@bar.com>').to_unicode())
+    eq_(u'"not@valid" <foo@bar.com>',     parse('not@valid foo@bar.com').to_unicode())
+    eq_(u'Маруся <мария@example.com>',    parse('Маруся мария@example.com').to_unicode())
+
+
+def test_parse_list_relaxed():
+    addr_list = ['foo <foo@bar.com>', 'foo foo@bar.com', 'not@valid <foo@bar.com>']
+    expected = ['foo <foo@bar.com>', 'foo <foo@bar.com>', '"not@valid" <foo@bar.com>']
+    eq_(expected, [addr.to_unicode() for addr in parse_list(addr_list)])

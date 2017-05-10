@@ -22,7 +22,7 @@ def test_mailbox_valid_set():
         if match:
             continue
 
-        mbox = address.parse(line)
+        mbox = address.parse(line, strict=True)
         assert_not_equal(mbox, None)
 
 def test_mailbox_invalid_set():
@@ -37,7 +37,7 @@ def test_mailbox_invalid_set():
         if match:
             continue
 
-        mbox = address.parse(line)
+        mbox = address.parse(line, strict=True)
         assert_equal(mbox, None)
 
 def test_url_valid_set():
@@ -52,7 +52,7 @@ def test_url_valid_set():
         if match:
             continue
 
-        mbox = address.parse(line)
+        mbox = address.parse(line, strict=True)
         assert_not_equal(mbox, None)
 
 def test_url_invalid_set():
@@ -67,5 +67,5 @@ def test_url_invalid_set():
         if match:
             continue
 
-        mbox = address.parse(line)
+        mbox = address.parse(line, strict=True)
         assert_equal(mbox, None)

@@ -22,19 +22,19 @@ def chunks(l, n):
 
 @nottest
 def run_full_mailbox_test(string, expected, full_spec=None):
-    mbox = address.parse(string)
+    mbox = address.parse(string, strict=True)
     if mbox:
         assert_equal(expected.display_name, mbox.display_name)
         assert_equal(expected.address, mbox.address)
         if full_spec:
             assert_equal(full_spec, mbox.full_spec())
-        assert_equal(mbox, address.parse(mbox.to_unicode())) # check symmetry
+        assert_equal(mbox, address.parse(mbox.to_unicode(), strict=True)) # check symmetry
         return
     assert_equal(expected, mbox)
 
 @nottest
 def run_mailbox_test(string, expected_string):
-    mbox = address.parse(string)
+    mbox = address.parse(string, strict=True)
     if mbox:
         assert_equal(expected_string, mbox.address)
         return

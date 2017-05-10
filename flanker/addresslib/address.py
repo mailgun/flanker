@@ -56,10 +56,14 @@ MAX_ADDRESS_LIST_LENGTH = MAX_ADDRESS_LENGTH * MAX_ADDRESS_NUMBER
 
 
 @metrics_wrapper()
-def parse(address, addr_spec_only=False, metrics=False, fallback_last_word=False):
+def parse(address, addr_spec_only=False, strict=False, metrics=False):
     """
     Given a string, returns a scalar object representing a single full
     mailbox (display name and addr-spec), addr-spec, or a url.
+
+    If parsing the entire string fails and strict is not set to True, fall back
+    to trying to parse the last word only and assume everything else is the
+    display name.
 
     Returns an Address object and optionally metrics on processing
     time if requested.
@@ -105,7 +109,7 @@ def parse(address, addr_spec_only=False, metrics=False, fallback_last_word=False
         retval = None
         mtimes['parsing'] = time() - bstart
 
-    if retval is None and fallback_last_word:
+    if retval is None and not strict:
         try:
             bstart = time()
 
@@ -120,7 +124,7 @@ def parse(address, addr_spec_only=False, metrics=False, fallback_last_word=False
 
             mtimes['parsing'] += time() - bstart
 
-            log.warning('Fallback to last word used for address: %s',
+            log.warning('Relaxed parsing matched address: %s',
                         address.decode('utf-8', 'replace'))
         except (LexError, YaccError, SyntaxError):
             retval = None
@@ -181,11 +185,15 @@ def parse_discrete_list(address_list, metrics=False):
     return retval, mtimes
 
 @metrics_wrapper()
-def parse_list(address_list, strict=False, as_tuple=False, metrics=False, fallback_last_word=False):
+def parse_list(address_list, strict=False, as_tuple=False, metrics=False):
     """
     Given an string or list of email addresses and/or urls seperated by a
     delimiter (comma (,) or semi-colon (;)), returns an AddressList object
     (an iterable list representing parsed email addresses and urls).
+
+    Given a list of email addresses, the strict parameter is passed to the
+    parse call for each element. Given a string the strict parameter is
+    ignored.
 
     The parser can return a list of parsed addresses or a tuple containing
     the parsed and unparsed portions. The parser also returns the parsing
@@ -207,9 +215,6 @@ def parse_list(address_list, strict=False, as_tuple=False, metrics=False, fallba
         >>> address.parse_list('A <a@b>, D <d@e>, http://localhost')
         [A <a@b>, D <d@e>, http://localhost]
     """
-    if strict:
-        log.warning('strict parsing has been removed, ignoring')
-
     mtimes = {'parsing': 0}
 
     if not address_list:
@@ -221,7 +226,7 @@ def parse_list(address_list, strict=False, as_tuple=False, metrics=False, fallba
         parsed, unparsed = AddressList(), []
         for address in address_list:
             if isinstance(address, basestring):
-                retval, metrics = parse(address, metrics=True, fallback_last_word=fallback_last_word)
+                retval, metrics = parse(address, strict=strict, metrics=True)
                 mtimes['parsing'] += metrics['parsing']
                 if retval:
                     parsed.append(retval)
@@ -238,8 +243,8 @@ def parse_list(address_list, strict=False, as_tuple=False, metrics=False, fallba
         log.warning('address list exceeds maximum length of %s', MAX_ADDRESS_LIST_LENGTH)
         parsed, unparsed = AddressList(), [address_list]
     elif isinstance(address_list, basestring):
-        if fallback_last_word:
-            log.warning('fallback parsing is not available for discrete lists, ignoring')
+        if not strict:
+            log.warning('relaxed parsing is not available for discrete lists, ignoring')
         retval, metrics = parse_discrete_list(address_list, metrics=True)
         mtimes['parsing'] += metrics['parsing']
         if retval:
@@ -290,7 +295,7 @@ def validate_address(addr_spec, metrics=False):
 
     # run parser against address
     bstart = time()
-    paddr = parse('@'.join(addr_parts), addr_spec_only=True)
+    paddr = parse('@'.join(addr_parts), addr_spec_only=True, strict=True)
     mtimes['parsing'] = time() - bstart
     if paddr is None:
         log.warning('failed parse check for %s', addr_spec)
@@ -344,7 +349,7 @@ def validate_list(addr_list, as_tuple=False, metrics=False):
 
     # parse addresses
     bstart = time()
-    parsed_addresses, unparseable = parse_list(addr_list, as_tuple=True)
+    parsed_addresses, unparseable = parse_list(addr_list, strict=True, as_tuple=True)
     mtimes['parsing'] = time() - bstart
 
     plist = AddressList()

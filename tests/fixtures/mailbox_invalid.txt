@@ -98,6 +98,7 @@ a@bar.com.
 -@..com
 -@a..com
 test@...........com
+test@xn--example.com
 # first.last@[IPv6::]                                                                   # domain literal
 # first.last@[IPv6::::]                                                                 # domain literal
 # first.last@[IPv6::b4]                                                                 # domain literal

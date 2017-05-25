@@ -196,7 +196,6 @@ cdburgess+!#$%&'*-/=?+_{}|~test@mail.com
 # first.last@[IPv6:0123:4567:89ab:CDEF::11.22.33.44]                                    # domain literal
 # first.last@[IPv6:a1::b2:11.22.33.44]                                                  # domain literal
 test@test.com
-test@xn--example.com
 test@example.com
 (this is a comment) test@example.com
 (this is a comment)test@example.com

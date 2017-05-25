@@ -38,17 +38,23 @@ from time import time
 from urlparse import urlparse
 
 import idna
+from idna import IDNAError
 from ply.lex import LexError
 from ply.yacc import YaccError
 
 from flanker.addresslib.lexer import lexer
-from flanker.addresslib.parser import Mailbox, Url, mailbox_parser, mailbox_or_url_parser, mailbox_or_url_list_parser, addr_spec_parser, url_parser
+from flanker.addresslib.parser import (Mailbox, Url, mailbox_parser,
+                                       mailbox_or_url_parser,
+                                       mailbox_or_url_list_parser,
+                                       addr_spec_parser, url_parser)
 from flanker.addresslib.quote import smart_unquote, smart_quote
-from flanker.addresslib.validate import mail_exchanger_lookup, preparse_address, plugin_for_esp
+from flanker.addresslib.validate import (mail_exchanger_lookup,
+                                         preparse_address, plugin_for_esp)
+from flanker.mime.message.headers.encodedword import mime_to_unicode
 from flanker.mime.message.headers.encoding import encode_string
 from flanker.utils import is_pure_ascii, metrics_wrapper
 
-log = getLogger(__name__)
+_log = getLogger(__name__)
 
 MAX_ADDRESS_LENGTH = 1024
 MAX_ADDRESS_NUMBER = 1024
@@ -98,7 +104,7 @@ def parse(address, addr_spec_only=False, strict=False, metrics=False):
     if not address:
         return None, mtimes
     if len(address) > MAX_ADDRESS_LENGTH:
-        log.warning('address exceeds maximum length of %s', MAX_ADDRESS_LENGTH)
+        _log.warning('address exceeds maximum length of %s', MAX_ADDRESS_LENGTH)
         return None, mtimes
 
     try:
@@ -123,16 +129,13 @@ def parse(address, addr_spec_only=False, strict=False, metrics=False):
                 retval._display_name = retval._display_name.decode('utf-8')
 
             mtimes['parsing'] += time() - bstart
-
-            log.warning('Relaxed parsing matched address: %s',
-                        address.decode('utf-8', 'replace'))
         except (LexError, YaccError, SyntaxError):
             retval = None
             mtimes['parsing'] += time() - bstart
 
     if retval is None:
-        log.warning('Failed to parse address: %s',
-                    address.decode('utf-8', 'replace'))
+        _log.warning('Failed to parse address: %s',
+                     address.decode('utf-8', 'replace'))
 
     return retval, mtimes
 
@@ -170,7 +173,7 @@ def parse_discrete_list(address_list, metrics=False):
     if not address_list:
         return None, mtimes
     elif len(address_list) > MAX_ADDRESS_LIST_LENGTH:
-        log.warning('address list exceeds maximum length of %s', MAX_ADDRESS_LIST_LENGTH)
+        _log.warning('address list exceeds maximum length of %s', MAX_ADDRESS_LIST_LENGTH)
         return None, mtimes
 
     try:
@@ -178,8 +181,8 @@ def parse_discrete_list(address_list, metrics=False):
         retval = _lift_parser_result(parser.parse(address_list.strip(), lexer=lexer.clone()))
         mtimes['parsing'] = time() - bstart
     except (LexError, YaccError, SyntaxError):
-        log.warning('Failed to parse address list: %s',
-                    address_list.decode('utf-8', 'replace'))
+        _log.warning('Failed to parse address list: %s',
+                     address_list.decode('utf-8', 'replace'))
         return None, mtimes
 
     return retval, mtimes
@@ -220,7 +223,7 @@ def parse_list(address_list, strict=False, as_tuple=False, metrics=False):
     if not address_list:
         parsed, unparsed = AddressList(), []
     elif isinstance(address_list, list) and len(address_list) > MAX_ADDRESS_NUMBER:
-        log.warning('address list exceeds maximum items of %s', MAX_ADDRESS_NUMBER)
+        _log.warning('address list exceeds maximum items of %s', MAX_ADDRESS_NUMBER)
         parsed, unparsed = AddressList(), address_list
     elif isinstance(address_list, list):
         parsed, unparsed = AddressList(), []
@@ -237,14 +240,14 @@ def parse_list(address_list, strict=False, as_tuple=False, metrics=False):
             elif isinstance(address, UrlAddress):
                 parsed.append(address)
             else:
-                log.warning('couldnt attempt to parse address list item')
+                _log.warning('couldnt attempt to parse address list item')
                 unparsed.append(address)
     elif isinstance(address_list, basestring) and len(address_list) > MAX_ADDRESS_LIST_LENGTH:
-        log.warning('address list exceeds maximum length of %s', MAX_ADDRESS_LIST_LENGTH)
+        _log.warning('address list exceeds maximum length of %s', MAX_ADDRESS_LIST_LENGTH)
         parsed, unparsed = AddressList(), [address_list]
     elif isinstance(address_list, basestring):
         if not strict:
-            log.info('relaxed parsing is not available for discrete lists, ignoring')
+            _log.info('relaxed parsing is not available for discrete lists, ignoring')
         retval, metrics = parse_discrete_list(address_list, metrics=True)
         mtimes['parsing'] += metrics['parsing']
         if retval:
@@ -252,7 +255,7 @@ def parse_list(address_list, strict=False, as_tuple=False, metrics=False):
         else:
             parsed, unparsed = AddressList(), [address_list]
     else:
-        log.warning('couldnt attempt to parse address list')
+        _log.warning('couldnt attempt to parse address list')
         parsed, unparsed = AddressList(), None
 
     if as_tuple:
@@ -290,7 +293,7 @@ def validate_address(addr_spec, metrics=False):
     # preparse address into its parts and perform any ESP specific pre-parsing
     addr_parts = preparse_address(addr_spec)
     if addr_parts is None:
-        log.warning('failed preparse check for %s', addr_spec)
+        _log.warning('failed preparse check for %s', addr_spec)
         return None, mtimes
 
     # run parser against address
@@ -298,7 +301,7 @@ def validate_address(addr_spec, metrics=False):
     paddr = parse('@'.join(addr_parts), addr_spec_only=True, strict=True)
     mtimes['parsing'] = time() - bstart
     if paddr is None:
-        log.warning('failed parse check for %s', addr_spec)
+        _log.warning('failed parse check for %s', addr_spec)
         return None, mtimes
 
     # lookup if this domain has a mail exchanger
@@ -307,7 +310,7 @@ def validate_address(addr_spec, metrics=False):
     mtimes['dns_lookup'] = mx_metrics['dns_lookup']
     mtimes['mx_conn'] = mx_metrics['mx_conn']
     if exchanger is None:
-        log.warning('failed mx check for %s', addr_spec)
+        _log.warning('failed mx check for %s', addr_spec)
         return None, mtimes
 
     # lookup custom local-part grammar if it exists
@@ -315,7 +318,7 @@ def validate_address(addr_spec, metrics=False):
     plugin = plugin_for_esp(exchanger)
     mtimes['custom_grammar'] = time() - bstart
     if plugin and plugin.validate(addr_parts[0]) is False:
-        log.warning('failed custom grammer check for %s/%s', addr_spec, plugin.__name__)
+        _log.warning('failed custom grammer check for %s/%s', addr_spec, plugin.__name__)
         return None, mtimes
 
     return paddr, mtimes
@@ -454,20 +457,15 @@ class EmailAddress(Address):
        'Bob Silva <bob@host.com>'
     """
 
-    _display_name = None
-    _mailbox = None
-    _hostname = None
     _addr_type = Address.Type.Email
 
     def __init__(self, raw_display_name=None, raw_addr_spec=None, display_name=None, mailbox=None, hostname=None):
-
         if isinstance(raw_display_name, unicode):
             raw_display_name = raw_display_name.encode('utf-8')
         if isinstance(raw_addr_spec, unicode):
             raw_addr_spec = raw_addr_spec.encode('utf-8')
 
         if raw_display_name and raw_addr_spec:
-
             parser = addr_spec_parser
             mailbox = parser.parse(raw_addr_spec.strip(), lexer=lexer.clone())
 
@@ -476,7 +474,6 @@ class EmailAddress(Address):
             self._hostname = mailbox.domain
 
         elif raw_display_name:
-
             parser = mailbox_parser
             mailbox = parser.parse(raw_display_name.strip(), lexer=lexer.clone())
 
@@ -485,7 +482,6 @@ class EmailAddress(Address):
             self._hostname = mailbox.domain
 
         elif raw_addr_spec:
-
             parser = addr_spec_parser
             mailbox = parser.parse(raw_addr_spec.strip(), lexer=lexer.clone())
 
@@ -501,14 +497,28 @@ class EmailAddress(Address):
         else:
             raise SyntaxError('failed to create EmailAddress: bad parameters')
 
-        if self._display_name.startswith('"') and self._display_name.endswith('"') and len(self._display_name) > 2:
+        # Convert display name to decoded unicode string.
+        if (self._display_name.startswith('"') and
+                self._display_name.endswith('"') and
+                len(self._display_name) > 2):
             self._display_name = smart_unquote(self._display_name)
+        if (self._display_name.startswith('=?') and
+                self._display_name.endswith('?=')):
+            self._display_name = mime_to_unicode(self._display_name)
         if isinstance(self._display_name, str):
             self._display_name = self._display_name.decode('utf-8')
+
+        # Convert localpart to unicode string.
+        # TODO consider lowercasing it here.
         if isinstance(self._mailbox, str):
             self._mailbox = self._mailbox.decode('utf-8')
+
+        # Convert hostname to lowercase unicode string.
+        if self._hostname.startswith('xn--'):
+            self._hostname = idna.decode(self._hostname)
         if isinstance(self._hostname, str):
             self._hostname = self._hostname.decode('utf-8')
+        self._hostname = self._hostname.lower()
 
     @property
     def addr_type(self):
@@ -519,16 +529,35 @@ class EmailAddress(Address):
         return self._display_name
 
     @property
+    def ace_display_name(self):
+        return smart_quote(encode_string(None, self.display_name,
+                                         maxlinelen=MAX_ADDRESS_LENGTH))
+
+    @property
     def mailbox(self):
         return self._mailbox
 
     @property
     def hostname(self):
-        return self._hostname.lower()
+        return self._hostname
 
     @property
     def address(self):
         return u'{}@{}'.format(self.mailbox, self.hostname)
+
+    @property
+    def ace_address(self):
+        if not is_pure_ascii(self.mailbox):
+            raise ValueError('address {} has no ASCII-compatable encoding'
+                             .format(self.address.encode('utf-8')))
+        ace_hostname = self.hostname
+        if not is_pure_ascii(self.hostname):
+            try:
+                ace_hostname = idna.encode(self.hostname)
+            except idna.IDNAError:
+                raise ValueError('address {} has no ASCII-compatable encoding'
+                                 .format(self.address.encode('utf-8')))
+        return '{}@{}'.format(self.mailbox, ace_hostname)
 
     @property
     def supports_routing(self):
@@ -563,22 +592,11 @@ class EmailAddress(Address):
            >>> EmailAddress("Жека", "ev@example.com").full_spec()
            '=?utf-8?b?0JbQtdC60LA=?= <ev@example.com>'
         """
-        if not is_pure_ascii(self.mailbox):
-            raise ValueError('address {} has no ASCII-compatable encoding'
-                             .format(self.address.encode('utf-8')))
-        if not is_pure_ascii(self.hostname):
-            try:
-                ace_hostname = idna.encode(self.hostname)
-            except idna.IDNAError:
-                raise ValueError('address {} has no ASCII-compatable encoding'
-                                 .format(self.address.encode('utf-8')))
-        else:
-            ace_hostname = self.hostname
-        if self.display_name:
-            ace_display_name = smart_quote(encode_string(
-                None, self.display_name, maxlinelen=MAX_ADDRESS_LENGTH))
-            return u'{} <{}@{}>'.format(ace_display_name, self.mailbox, ace_hostname)
-        return u'{}@{}'.format(self.mailbox, ace_hostname)
+        ace_address = self.ace_address
+        if not self.display_name:
+            return self.ace_address
+
+        return '{} <{}>'.format(self.ace_display_name, ace_address)
 
     def contains_non_ascii(self):
         """
@@ -840,10 +858,13 @@ class AddressList(object):
 
 def _lift_parser_result(retval):
     if isinstance(retval, Mailbox):
-        return EmailAddress(
-            display_name=smart_unquote(retval.display_name.decode('utf-8')),
-            mailbox=retval.local_part.decode('utf-8'),
-            hostname=retval.domain.decode('utf-8'))
+        try:
+            return EmailAddress(
+                display_name=smart_unquote(retval.display_name.decode('utf-8')),
+                mailbox=retval.local_part.decode('utf-8'),
+                hostname=retval.domain.decode('utf-8'))
+        except (UnicodeError, IDNAError):
+            return None
     if isinstance(retval, Url):
         return UrlAddress(
             address=retval.address.decode('utf-8'))

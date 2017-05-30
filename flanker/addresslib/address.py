@@ -509,12 +509,11 @@ class EmailAddress(Address):
             self._display_name = self._display_name.decode('utf-8')
 
         # Convert localpart to unicode string.
-        # TODO consider lowercasing it here.
         if isinstance(self._mailbox, str):
             self._mailbox = self._mailbox.decode('utf-8')
 
         # Convert hostname to lowercase unicode string.
-        if self._hostname.startswith('xn--'):
+        if self._hostname.startswith('xn--') or '.xn--' in self._hostname:
             self._hostname = idna.decode(self._hostname)
         if isinstance(self._hostname, str):
             self._hostname = self._hostname.decode('utf-8')

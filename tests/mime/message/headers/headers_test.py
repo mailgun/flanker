@@ -10,7 +10,7 @@ from flanker.mime.message.errors import DecodingError
 from flanker.mime.message.headers import encoding
 from flanker.mime.message.headers import MimeHeaders
 from flanker.mime import create
-from tests import PARTIAL_MSG, NO_BREAK_SPACE
+from tests import PARTIAL_MSG, NO_BREAK_SPACE, LONG_ATTS_MSG
 
 from .... import *
 
@@ -199,4 +199,9 @@ def test_folding_combinations():
 def no_break_space_test():
     from_addr = '"RetailMeNot" <mail@e.retailmenot.com>'
     message = create.from_string(NO_BREAK_SPACE)
+    eq_(message.headers.getraw('from'), from_addr)
+
+def long_att_test():
+    from_addr = 'Heatherm Huang <heathermhuang@gmail.com>'
+    message = create.from_string(LONG_ATTS_MSG)
     eq_(message.headers.getraw('from'), from_addr)

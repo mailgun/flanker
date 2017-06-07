@@ -53,9 +53,8 @@ def _make_unicode(value, charset=None):
     try:
         value = value.decode(charset, "strict")
     except UnicodeError as e:
-        print e.reason
         if e.reason == "unexpected end of data":
-            raise errors.DecodingDataCorruptionError()
+            raise errors.DecodingDataCorruptionError(e.reason)
 
         value = _guess_and_convert(value)
     except LookupError as e:

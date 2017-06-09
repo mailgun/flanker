@@ -5,8 +5,7 @@ from itertools import chain, combinations, permutations
 from nose.tools import assert_equal, assert_not_equal
 from nose.tools import nottest
 
-from flanker.addresslib import address
-from flanker.addresslib.address import EmailAddress, AddressList
+from flanker.addresslib.address import EmailAddress, AddressList, parse_list
 
 
 @nottest
@@ -16,14 +15,8 @@ def powerset(iterable):
     return chain.from_iterable(combinations(s, r) for r in range(len(s)+1))
 
 @nottest
-def run_relaxed_test(string, expected_mlist, expected_unpar):
-    mlist, unpar = address.parse_list(string, strict=False, as_tuple=True)
-    assert_equal(mlist, expected_mlist)
-    assert_equal(unpar, expected_unpar)
-
-@nottest
-def run_strict_test(string, expected_mlist):
-    mlist = address.parse_list(string, strict=True)
+def run_test(string, expected_mlist):
+    mlist = parse_list(string, strict=True)
     assert_equal(mlist, expected_mlist)
 
 
@@ -38,13 +31,12 @@ LINUS_MBX = EmailAddress('Linus Torvalds', 'torvalds@kernel.org')
 
 def test_sanity():
     addr_string = 'Bill Gates <bill@microsoft.com>, Steve Jobs <steve@apple.com>; torvalds@kernel.org'
-    run_relaxed_test(addr_string, [BILL_MBX, STEVE_MBX, LINUS_AS], [])
-    run_strict_test(addr_string,  [BILL_MBX, STEVE_MBX, LINUS_AS])
+    run_test(addr_string,  [BILL_MBX, STEVE_MBX, LINUS_AS])
 
 
 def test_simple_valid():
-    s = '''http://foo.com:8080; "Ev K." <ev@host.com>, "Alex K" alex@yahoo.net, "Tom, S" "tom+[a]"@s.com'''
-    addrs = address.parse_list(s)
+    s = '''http://foo.com:8080; "Ev K." <ev@host.com>, "Alex K" <alex@yahoo.net>, "Tom, S" <"tom+[a]"@s.com>'''
+    addrs = parse_list(s, strict=True)
 
     assert_equal(4, len(addrs))
 
@@ -69,7 +61,7 @@ def test_simple_valid():
 
 
     s = '''"Allan G\'o"  <allan@example.com>, "Os Wi" <oswi@example.com>'''
-    addrs = address.parse_list(s)
+    addrs = parse_list(s, strict=True)
 
     assert_equal(2, len(addrs))
 
@@ -85,7 +77,7 @@ def test_simple_valid():
 
 
     s = u'''I am also A <a@HOST.com>, Zeka <EV@host.coM> ;Gonzalo Bañuelos<gonz@host.com>'''
-    addrs = address.parse_list(s)
+    addrs = parse_list(s, strict=True)
 
     assert_equal(3, len(addrs))
 
@@ -105,8 +97,8 @@ def test_simple_valid():
     assert_equal(addrs[2].full_spec(), '=?utf-8?q?Gonzalo_Ba=C3=B1uelos?= <gonz@host.com>')
 
 
-    s = r'''"Escaped" "\e\s\c\a\p\e\d"@sld.com; http://userid:password@example.com:8080, "Dmitry" <my|'`!#_~%$&{}?^+-*@host.com>'''
-    addrs = address.parse_list(s)
+    s = r'''"Escaped" <"\e\s\c\a\p\e\d"@sld.com>; http://userid:password@example.com:8080, "Dmitry" <my|'`!#_~%$&{}?^+-*@host.com>'''
+    addrs = parse_list(s, strict=True)
 
     assert_equal(3, len(addrs))
 
@@ -126,7 +118,7 @@ def test_simple_valid():
 
 
     s = "http://foo.com/blah_blah_(wikipedia)"
-    addrs = address.parse_list(s)
+    addrs = parse_list(s, strict=True)
 
     assert_equal(1, len(addrs))
 
@@ -136,7 +128,7 @@ def test_simple_valid():
 
 
     s = "Sasha Klizhentas <klizhentas@gmail.com>"
-    addrs = address.parse_list(s)
+    addrs = parse_list(s, strict=True)
 
     assert_equal(1, len(addrs))
 
@@ -147,7 +139,7 @@ def test_simple_valid():
 
 
     s = "admin@mailgunhq.com,lift@example.com"
-    addrs = address.parse_list(s)
+    addrs = parse_list(s, strict=True)
 
     assert_equal(2, len(addrs))
 
@@ -164,44 +156,33 @@ def test_simple_valid():
 
 def test_simple_invalid():
     s = '''httd://foo.com:8080\r\n; "Ev K." <ev@ host.com>\n "Alex K" alex@ , "Tom, S" "tom+["  a]"@s.com'''
-    assert_equal(address.AddressList(), address.parse_list(s))
+    assert_equal(AddressList(), parse_list(s, strict=True))
 
     s = ""
-    assert_equal(address.AddressList(), address.parse_list(s))
+    assert_equal(AddressList(), parse_list(s, strict=True))
 
     s = "crap"
-    assert_equal(address.AddressList(), address.parse_list(s))
+    assert_equal(AddressList(), parse_list(s, strict=True))
 
 
 def test_endpoints():
     # expected result: [foo@example.com, baz@example.com]
-    presult = address.parse_list('foo@example.com, bar, baz@example.com', strict=False, as_tuple=False)
+    presult = parse_list('foo@example.com, bar, baz@example.com', as_tuple=False)
     assert isinstance(presult, AddressList)
-    assert_equal(2, len(presult))
+    assert_equal(0, len(presult))
 
     # expected result: ([foo@example.com, baz@example.com], ['bar'])
-    presult = address.parse_list('foo@example.com, bar, baz@example.com', strict=False, as_tuple=True)
+    presult = parse_list(['foo@example.com', 'bar', 'baz@example.com'], as_tuple=True)
     assert type(presult) is tuple
     assert_equal(2, len(presult[0]))
     assert_equal(1, len(presult[1]))
 
-    # expected result: [foo@example.com]
-    presult = address.parse_list('foo@example.com, bar, baz@example.com', strict=True, as_tuple=False)
-    assert isinstance(presult, AddressList)
-    assert_equal(1, len(presult))
 
-    # expected result: ([foo@example.com], [])
-    presult = address.parse_list('foo@example.com, bar, baz@example.com', strict=True, as_tuple=True)
-    assert type(presult) is tuple
-    assert_equal(1, len(presult[0]))
-    assert_equal(0, len(presult[1]))
-
-
-def test_delimiters_relaxed():
+def test_delimiters():
     # permutations
     for e in permutations('  ,,;;'):
         addr_string = 'bill@microsoft.com' + ''.join(e) + 'steve@apple.com, torvalds@kernel.org'
-        run_relaxed_test(addr_string, [BILL_AS, STEVE_AS, LINUS_AS], [])
+        run_test(addr_string, [BILL_AS, STEVE_AS, LINUS_AS])
 
     # powerset
     for e in powerset('  ,,;;'):
@@ -210,64 +191,4 @@ def test_delimiters_relaxed():
             continue
 
         addr_string = 'bill@microsoft.com' + ''.join(e) + 'steve@apple.com, torvalds@kernel.org'
-        run_relaxed_test(addr_string, [BILL_AS, STEVE_AS, LINUS_AS], [])
-
-def test_delimiters_strict():
-    # permutations
-    for e in permutations('  ,,;;'):
-        addr_string = 'bill@microsoft.com' + ''.join(e) + 'steve@apple.com, torvalds@kernel.org'
-        run_strict_test(addr_string, [BILL_AS, STEVE_AS, LINUS_AS])
-
-    # powerset
-    for e in powerset('  ,,;;'):
-        # empty sets will be tested by the synchronize tests
-        if ''.join(e).strip() == '':
-            continue
-
-        addr_string = 'bill@microsoft.com' + ''.join(e) + 'steve@apple.com, torvalds@kernel.org'
-        run_strict_test(addr_string, [BILL_AS, STEVE_AS, LINUS_AS])
-
-
-def test_synchronize_relaxed():
-    run_relaxed_test('"@microsoft.com, steve@apple.com', [STEVE_AS], ['"@microsoft.com'])
-    run_relaxed_test('"@microsoft.com steve@apple.com', [], ['"@microsoft.com steve@apple.com'])
-    run_relaxed_test('"@microsoft.comsteve@apple.com', [], ['"@microsoft.comsteve@apple.com'])
-
-    run_relaxed_test('bill@microsoft.com, steve, torvalds@kernel.org', [BILL_AS, LINUS_AS], ['steve'])
-    run_relaxed_test('bill@microsoft.com, steve torvalds', [BILL_AS], ['steve torvalds'])
-
-    run_relaxed_test('bill;  ', [], ['bill'])
-    run_relaxed_test('bill ;', [], ['bill '])
-    run_relaxed_test('bill ; ', [], ['bill '])
-
-    run_relaxed_test('bill@microsoft.com;  ', [BILL_AS],  [])
-    run_relaxed_test('bill@microsoft.com ;', [BILL_AS], [])
-    run_relaxed_test('bill@microsoft.com ; ', [BILL_AS], [] )
-
-    run_relaxed_test('bill; steve; linus', [], ['bill', 'steve', 'linus'])
-
-    run_relaxed_test(',;@microsoft.com, steve@apple.com', [STEVE_AS], ['@microsoft.com'])
-    run_relaxed_test(',;"@microsoft.comsteve@apple.com', [], ['"@microsoft.comsteve@apple.com'])
-
-
-def test_synchronize_strict():
-    run_strict_test('"@microsoft.com, steve@apple.com', [])
-    run_strict_test('"@microsoft.com steve@apple.com', [])
-    run_strict_test('"@microsoft.comsteve@apple.com', [])
-
-    run_strict_test('bill@microsoft.com, steve, torvalds@kernel.org', [BILL_AS])
-    run_strict_test('bill@microsoft.com, steve torvalds', [BILL_AS])
-
-    run_strict_test('bill;  ', [])
-    run_strict_test('bill ;', [])
-    run_strict_test('bill ; ', [])
-
-    run_strict_test('bill@microsoft.com;  ', [BILL_AS])
-    run_strict_test('bill@microsoft.com ;', [BILL_AS])
-    run_strict_test('bill@microsoft.com ; ', [BILL_AS])
-
-    run_strict_test('bill; steve; linus', [])
-
-    run_strict_test(',;@microsoft.com, steve@apple.com', [])
-    run_strict_test('",;@microsoft.com steve@apple.com', [])
-    run_strict_test(',;"@microsoft.comsteve@apple.com', [])
+        run_test(addr_string, [BILL_AS, STEVE_AS, LINUS_AS])

@@ -3,7 +3,7 @@
 from nose.tools import *
 from mock import *
 from flanker.mime.message.headers import encodedword
-from flanker import utils
+from flanker.mime.message import utils
 from flanker.mime.message import errors, charsets
 
 def encoded_word_test():

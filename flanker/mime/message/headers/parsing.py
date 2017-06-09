@@ -4,7 +4,8 @@ from collections import deque
 from flanker.mime.message.headers import encodedword, parametrized
 from flanker.mime.message.headers.wrappers import ContentType, WithParams
 from flanker.mime.message.errors import DecodingError
-from flanker.utils import to_unicode, is_pure_ascii
+from flanker.mime.message.utils import to_unicode
+from flanker.utils import is_pure_ascii
 
 MAX_LINE_LENGTH = 50000
 

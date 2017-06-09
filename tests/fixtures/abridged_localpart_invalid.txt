@@ -24,11 +24,9 @@ ote"
 @
 a"bcd,e:f;g<h>i[j\k]l
 a"bcde:fg<h>i[j\k]l
-just"not"right
 this is"not\allowed
 this\ still\"not\\allowed
 partially."quoted"
-just"not"right
 this is"not\allowed
 this\ still\"not\\allowed
 .first.last
@@ -39,7 +37,6 @@ first..last
 "\"
 abc\
 Doug\ \"Ace\"\ Lovell
-"Doug "Ace" L."
 Doug\ \"Ace\"\ L\.
 abc\
 [test]

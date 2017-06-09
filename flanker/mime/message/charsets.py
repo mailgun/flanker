@@ -1,4 +1,4 @@
-from flanker.utils import to_unicode
+from flanker.mime.message.utils import to_unicode
 
 
 def convert_to_unicode(charset, value):

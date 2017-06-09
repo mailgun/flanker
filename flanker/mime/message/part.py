@@ -1,21 +1,23 @@
-import email.utils
+import base64
 import email.encoders
+import imghdr
 import logging
 import mimetypes
-import imghdr
+import quopri
 from contextlib import closing
 from cStringIO import StringIO
 
 from os import path
 from email.mime import audio
 
-from flanker.utils import is_pure_ascii
+from flanker import metrics
 from flanker.mime import bounce
 from flanker.mime.message import headers, charsets
 from flanker.mime.message.headers import (WithParams, ContentType, MessageId,
                                           Subject)
 from flanker.mime.message.headers.parametrized import fix_content_type
 from flanker.mime.message.errors import EncodingError, DecodingError
+from flanker.utils import is_pure_ascii
 
 
 log = logging.getLogger(__name__)
@@ -569,10 +571,7 @@ class MimePart(RichPartMixin):
 
 def decode_body(content_type, content_encoding, body):
     # decode the transfer encoding
-    try:
-        body = decode_transfer_encoding(content_encoding, body)
-    except Exception:
-        raise DecodingError("Failed to decode body")
+    body = decode_transfer_encoding(content_encoding, body)
 
     # decode the charset next
     return decode_charset(content_type, body)
@@ -580,9 +579,9 @@ def decode_body(content_type, content_encoding, body):
 
 def decode_transfer_encoding(encoding, body):
     if encoding == 'base64':
-        return email.utils._bdecode(body)
+        return _base64_decode(body)
     elif encoding == 'quoted-printable':
-        return email.utils._qdecode(body)
+        return quopri.decodestring(body)
     else:
         return body
 
@@ -611,8 +610,13 @@ def encode_body(part):
     charset = content_type.get_charset()
     if content_type.main == 'text':
         charset, body = encode_charset(charset, body)
-        content_encoding = choose_text_encoding(
-            charset, content_encoding, body)
+        if not part.is_attachment():
+            content_encoding = choose_text_encoding(charset, content_encoding,
+                                                    body)
+            # report which text encoding is chosen
+            metrics.incr('encoding.' + content_encoding)
+        else:
+            content_encoding = 'base64'
     else:
         content_encoding = 'base64'
 
@@ -632,7 +636,7 @@ def encode_charset(preferred_charset, text):
 
 def encode_transfer_encoding(encoding, body):
     if encoding == 'quoted-printable':
-        return email.encoders._qencode(body)
+        return quopri.encodestring(body, quotetabs=False)
     elif encoding == 'base64':
         return email.encoders._bencode(body)
     else:
@@ -646,7 +650,8 @@ def choose_text_encoding(charset, preferred_encoding, body):
         else:
             return preferred_encoding
     else:
-        return stronger_encoding(preferred_encoding, 'base64')
+        encoding = stronger_encoding(preferred_encoding, 'quoted-printable')
+        return encoding
 
 
 def stronger_encoding(a, b):
@@ -657,11 +662,11 @@ def stronger_encoding(a, b):
 
 
 def has_long_lines(text, max_line_len=599):
-    '''
+    """
     Returns True if text contains lines longer than a certain length.
     Some SMTP servers (Exchange) refuse to accept messages "wider" than
     certain length.
-    '''
+    """
     if not text:
         return False
     for line in text.splitlines():
@@ -669,7 +674,22 @@ def has_long_lines(text, max_line_len=599):
             return True
     return False
 
-CRLF = "\r\n"
+
+def _base64_decode(s):
+    """Recover base64 if it is broken."""
+    try:
+        return base64.b64decode(s)
+
+    except TypeError:
+        s = s.translate(None, _b64_invalid_chars)
+        tail_size = len(s) & 3
+        if tail_size == 1:
+            # crop last character as adding padding does not help
+            return base64.b64decode(s[:-1])
+
+        # add padding
+        return base64.b64decode(s + "=" * (4 - tail_size))
+
 
 class _CounterIO(object):
     def __init__(self):
@@ -684,3 +704,14 @@ class _CounterIO(object):
         return self.length
     def close(self):
         pass
+
+
+CRLF = "\r\n"
+
+
+# To recover base64 we need to translate the part to the base64 alphabet.
+_b64_alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
+_b64_invalid_chars = ""
+for ch in range(256):
+    if chr(ch) not in _b64_alphabet:
+        _b64_invalid_chars += chr(ch)

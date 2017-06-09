@@ -60,10 +60,10 @@ def create_singlepart_ascii_test():
     eq_("Hello", message.body)
 
 
-def create_singlepart_unicode_test():
+def create_singlepart_unicode_qp_test():
     message = create.text("plain", u"Привет, курилка")
     message = create.from_string(message.to_string())
-    eq_("base64", message.content_encoding.value)
+    eq_("quoted-printable", message.content_encoding.value)
     eq_(u"Привет, курилка", message.body)
 
 
@@ -127,7 +127,8 @@ def create_multipart_with_attachment_test():
 
 
 def create_multipart_with_text_non_unicode_attachment_test():
-    """Make sure we encode text attachment in base64
+    """
+    Make sure we encode text attachment in base64
     """
     message = create.multipart("mixed")
     filename = "text-attachment.txt"
@@ -190,6 +191,61 @@ def create_multipart_nested_test():
 
     eq_(u"Саша с уралмаша", message2.parts[1].parts[0].body)
     eq_(u"<html>Саша с уралмаша</html>", message2.parts[1].parts[1].body)
+
+def create_bounced_email_test():
+    google_delivery_failed = """Delivered-To: user@gmail.com
+Content-Type: multipart/report; boundary=f403045f50f42d03f10546f0cb14; report-type=delivery-status
+
+--f403045f50f42d03f10546f0cb14
+Content-Type: message/delivery-status
+
+--f403045f50f42d03f10546f0cb14
+Content-Type: message/rfc822
+
+MIME-Version: 1.0
+From: Test <test@test.com>
+To: fake@faketestemail.xxx
+Content-Type: multipart/alternative; boundary=f403045f50f42690580546f0cb4d
+
+There should be a boundary here!
+
+--f403045f50f42d03f10546f0cb14--
+"""
+
+    message = create.from_string(google_delivery_failed)
+    eq_(google_delivery_failed, message.to_string())
+    eq_(None, message.get_attached_message())
+
+def create_bounced_email_attached_message_test():
+    attached_message = """MIME-Version: 1.0
+From: Test <test@test.com>
+To: fake@faketestemail.xxx
+Content-Type: multipart/alternative; boundary=f403045f50f42690580546f0cb4d
+
+--f403045f50f42690580546f0cb4d
+Content-Type: text/plain
+Content-Transfer-Encoding: 8bit
+
+how are you?
+
+--f403045f50f42690580546f0cb4d--
+"""
+    google_delivery_failed = """Delivered-To: user@gmail.com
+Content-Type: multipart/report; boundary=f403045f50f42d03f10546f0cb14; report-type=delivery-status
+
+--f403045f50f42d03f10546f0cb14
+Content-Type: message/delivery-status
+
+--f403045f50f42d03f10546f0cb14
+Content-Type: message/rfc822
+
+{msg}
+--f403045f50f42d03f10546f0cb14--
+""".format(msg=attached_message)
+
+    message = create.from_string(google_delivery_failed)
+    eq_(google_delivery_failed, message.to_string())
+    eq_(attached_message, message.get_attached_message().to_string())
 
 
 def create_enclosed_test():

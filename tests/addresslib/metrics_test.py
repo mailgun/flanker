@@ -5,7 +5,7 @@ from mock import patch
 from nose.tools import assert_equal, assert_not_equal
 from nose.tools import nottest
 
-from flanker.addresslib import address, validate
+from flanker.addresslib import address
 
 @nottest
 def mock_exchanger_lookup(arg, metrics=False):
@@ -40,7 +40,7 @@ def test_metrics_parse_list():
 
 def test_metrics_validate_address():
     # validate
-    with patch.object(validate, 'mail_exchanger_lookup') as mock_method:
+    with patch.object(address, 'mail_exchanger_lookup') as mock_method:
         mock_method.side_effect = mock_exchanger_lookup
 
         assert_equal(len(address.validate_address('foo@mailgun.net', metrics=True)), 2)
@@ -55,7 +55,7 @@ def test_metrics_validate_address():
 
 def test_metrics_validate_list():
     # validate_list
-    with patch.object(validate, 'mail_exchanger_lookup') as mock_method:
+    with patch.object(address, 'mail_exchanger_lookup') as mock_method:
         mock_method.side_effect = mock_exchanger_lookup
 
         assert_equal(len(address.validate_list('foo@mailgun.org, bar@mailgun.org', metrics=True)), 2)

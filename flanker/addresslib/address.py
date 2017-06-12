@@ -129,7 +129,7 @@ def parse(address, addr_spec_only=False, strict=False, metrics=False):
                 retval._display_name = retval._display_name.decode('utf-8')
 
             mtimes['parsing'] += time() - bstart
-        except (LexError, YaccError, SyntaxError):
+        except (LexError, YaccError, SyntaxError, AttributeError):
             retval = None
             mtimes['parsing'] += time() - bstart
 

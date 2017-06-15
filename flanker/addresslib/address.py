@@ -529,8 +529,8 @@ class EmailAddress(Address):
 
     @property
     def ace_display_name(self):
-        return smart_quote(encode_string(None, self.display_name,
-                                         maxlinelen=MAX_ADDRESS_LENGTH))
+        return encode_string(None, smart_quote(self.display_name),
+                             maxlinelen=MAX_ADDRESS_LENGTH)
 
     @property
     def mailbox(self):

@@ -339,6 +339,18 @@ def test_address_convertible_2_ascii():
         'str':              u'Foo@mail.comñ'.encode('utf-8'),
         'unicode':          u'Федот <Foo@mail.comñ>',
         'full_spec':         '=?utf-8?b?0KTQtdC00L7Rgg==?= <Foo@mail.xn--com-9ma>',
+    }, {
+        'desc': 'display_name=quoted-utf8-with-specials, domain=ascii',
+        'addr': u'"Федот @ Федот" <Foo@Bar.com>',
+
+        'display_name':     u'Федот @ Федот',
+        'ace_display_name':  '=?utf-8?b?ItCk0LXQtNC+0YIgQCDQpNC10LTQvtGCIg==?=',
+        'address':          u'Foo@bar.com',
+        'ace_address':       'Foo@bar.com',
+        'repr':             u'"Федот @ Федот" <Foo@bar.com>'.encode('utf-8'),
+        'str':              u'Foo@bar.com'.encode('utf-8'),
+        'unicode':          u'"Федот @ Федот" <Foo@bar.com>',
+        'full_spec':         '=?utf-8?b?ItCk0LXQtNC+0YIgQCDQpNC10LTQvtGCIg==?= <Foo@bar.com>',
     }]):
         print('Test case #%d: %s' % (i, tc['desc']))
         # When

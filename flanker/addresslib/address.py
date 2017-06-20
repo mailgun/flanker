@@ -107,37 +107,32 @@ def parse(address, addr_spec_only=False, strict=False, metrics=False):
         _log.warning('address exceeds maximum length of %s', MAX_ADDRESS_LENGTH)
         return None, mtimes
 
+    bstart = time()
     try:
-        bstart = time()
-        retval = _lift_parser_result(parser.parse(address.strip(), lexer=lexer.clone()))
-        mtimes['parsing'] = time() - bstart
+        addr_obj = _lift_parser_result(parser.parse(address.strip(), lexer=lexer.clone()))
     except (LexError, YaccError, SyntaxError):
-        retval = None
-        mtimes['parsing'] = time() - bstart
+        addr_obj = None
 
-    if retval is None and not strict:
-        try:
-            bstart = time()
+    if addr_obj is None and not strict:
+        addr_parts = address.split(' ')
+        addr_spec = addr_parts[-1]
+        if len(addr_spec) < len(address):
+            try:
+                addr_obj = _lift_parser_result(parser.parse(addr_spec, lexer=lexer.clone()))
+                if addr_obj:
+                    addr_obj._display_name = ' '.join(addr_parts[:-1])
+                    if isinstance(addr_obj._display_name, str):
+                        addr_obj._display_name = addr_obj._display_name.decode('utf-8')
 
-            addr_parts = address.split(' ')
-            addr_spec = addr_parts[-1]
-            display_name = ' '.join(addr_parts[0:-1])
+            except (LexError, YaccError, SyntaxError):
+                addr_obj = None
 
-            retval = _lift_parser_result(parser.parse(addr_spec, lexer=lexer.clone()))
-            retval._display_name = display_name
-            if isinstance(retval._display_name, str):
-                retval._display_name = retval._display_name.decode('utf-8')
-
-            mtimes['parsing'] += time() - bstart
-        except (LexError, YaccError, SyntaxError):
-            retval = None
-            mtimes['parsing'] += time() - bstart
-
-    if retval is None:
+    mtimes['parsing'] = time() - bstart
+    if addr_obj is None:
         _log.warning('Failed to parse address: %s',
                      address.decode('utf-8', 'replace'))
 
-    return retval, mtimes
+    return addr_obj, mtimes
 
 
 @metrics_wrapper()

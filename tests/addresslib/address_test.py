@@ -540,6 +540,19 @@ def test_address_requires_utf8():
             addr.full_spec()
 
 
+def test_parse_bad_address():
+    for i, tc in enumerate([{
+        'desc': 'Invalid IDNA domain',
+        'addr': 'n1a2m3@xn--eckwd4c7c.xn--8sd3676g',
+    }, {
+        'desc': 'Invalid IDNA alabel',
+        'addr': 'stay@reluctantpanther.xn--com-to0a',
+    }]):
+        print('Test case #%d: %s' % (i, tc['desc']))
+        # When/Then
+        eq_(None, parse(tc['addr']))
+
+
 def test_address_properties_req_utf8():
     for i, tc in enumerate([{
         'desc': 'utf8',

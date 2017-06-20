@@ -2,17 +2,21 @@
 
 from itertools import chain, combinations, permutations
 
-from nose.tools import assert_equal, assert_not_equal
+from nose.tools import assert_equal, assert_not_equal, assert_raises
 from nose.tools import nottest
 
-from flanker.addresslib.address import EmailAddress, AddressList, parse_list
+from flanker.addresslib.address import EmailAddress, AddressList, parse_list, \
+    parse
 
 
 @nottest
 def powerset(iterable):
-    "powerset([1,2,3]) --> () (1,) (2,) (3,) (1,2) (1,3) (2,3) (1,2,3)"
+    """
+    powerset([1,2,3]) --> () (1,) (2,) (3,) (1,2) (1,3) (2,3) (1,2,3)
+    """
     s = list(iterable)
     return chain.from_iterable(combinations(s, r) for r in range(len(s)+1))
+
 
 @nottest
 def run_test(string, expected_mlist):
@@ -192,3 +196,14 @@ def test_delimiters():
 
         addr_string = 'bill@microsoft.com' + ''.join(e) + 'steve@apple.com, torvalds@kernel.org'
         run_test(addr_string, [BILL_AS, STEVE_AS, LINUS_AS])
+
+
+def test_append_address_only():
+    # Only Address types can be added to an AddressList.
+
+    al = AddressList()
+    al.append(parse(u'Федот <стрелец@почта.рф>'))
+    al.append(parse('https://mailgun.net/webhooks'))
+
+    with assert_raises(TypeError):
+        al.append('foo@bar.com')

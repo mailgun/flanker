@@ -762,57 +762,67 @@ class AddressList(object):
         True
     """
 
-    container = None
-
     def __init__(self, container=None):
-        if container is None:
-            self.container = []
-        else:
-            self.container = container
+        self._container = []
+        if not container:
+            return
 
-    def append(self, n):
-        self.container.append(n)
+        for i, addr in enumerate(container):
+            if not isinstance(addr, Address):
+                raise TypeError('Unexpected type %s in position %d'
+                                % (type(addr), i))
+            self._container.append(addr)
 
-    def remove(self, n):
-        self.container.remove(n)
+    def append(self, addr):
+        if not isinstance(addr, Address):
+            raise TypeError('Unexpected type %s' % type(addr))
+        self._container.append(addr)
+
+    def remove(self, addr):
+        self._container.remove(addr)
 
     def __iter__(self):
-        return iter(self.container)
+        return iter(self._container)
 
     def __getitem__(self, key):
-        return self.container[key]
+        return self._container[key]
 
     def __len__(self):
-        return len(self.container)
+        return len(self._container)
 
     def __eq__(self, other):
         """
         When comparing ourselves to other lists we must ignore order.
         """
-        if isinstance(other, list):
+        if isinstance(other, (list, str, unicode)):
             other = parse_list(other)
-        if isinstance(other, basestring):
-            other = parse_list(other)
-        return set(self.container) == set(other.container)
+        if not isinstance(other, AddressList):
+            raise TypeError('Cannot compare with %s' % type(other))
+        return set(self._container) == set(other._container)
 
     def __repr__(self):
         return ''.join(['[', self.to_unicode().encode('utf-8'), ']'])
 
     def __str__(self):
-        return ', '.join(str(addr) for addr in self.container)
+        return ', '.join(str(addr) for addr in self._container)
 
     def __unicode__(self):
-        return u', '.join(unicode(addr) for addr in self.container)
+        return u', '.join(unicode(addr) for addr in self._container)
 
     def __add__(self, other):
         """
         Adding two AddressLists together yields another AddressList.
         """
         if isinstance(other, list):
-            result = self.container + parse_list(other).container
-        else:
-            result = self.container + other.container
-        return AddressList(result)
+            other = parse_list(other)
+
+        if not isinstance(other, AddressList):
+            raise TypeError('Cannot add %s' % type(other))
+
+        container = self._container + other._container
+        addr_lst = AddressList()
+        addr_lst._container = container
+        return addr_lst
 
     def full_spec(self, delimiter=", "):
         """
@@ -822,13 +832,13 @@ class AddressList(object):
             >>> adl.full_spec(delimiter='; ')
             'Foo <foo@host.com; Bar <bar@host.com>'
         """
-        return delimiter.join(addr.full_spec() for addr in self.container)
+        return delimiter.join(addr.full_spec() for addr in self._container)
 
     def to_unicode(self, delimiter=u", "):
-        return delimiter.join(addr.to_unicode() for addr in self.container)
+        return delimiter.join(addr.to_unicode() for addr in self._container)
 
     def to_ascii_list(self):
-        return [addr.full_spec() for addr in self.container]
+        return [addr.full_spec() for addr in self._container]
 
     @property
     def addresses(self):
@@ -838,21 +848,21 @@ class AddressList(object):
             >>> adl.addresses
             ['foo@host.com', 'bar@host.com']
         """
-        return [addr.address for addr in self.container]
+        return [addr.address for addr in self._container]
 
     @property
     def hostnames(self):
         """
         Returns a set of hostnames used in addresses in this list.
         """
-        return set([addr.hostname for addr in self.container])
+        return set([addr.hostname for addr in self._container])
 
     @property
     def addr_types(self):
         """
         Returns a set of address types used in addresses in this list.
         """
-        return set([addr.addr_type for addr in self.container])
+        return set([addr.addr_type for addr in self._container])
 
 
 def _lift_parser_result(retval):

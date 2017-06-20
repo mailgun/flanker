@@ -536,6 +536,10 @@ class EmailAddress(Address):
         return self._hostname
 
     @property
+    def ace_hostname(self):
+        return idna.encode(self._hostname)
+
+    @property
     def address(self):
         return u'{}@{}'.format(self.mailbox, self.hostname)
 

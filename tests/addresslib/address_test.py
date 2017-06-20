@@ -153,6 +153,8 @@ def test_address_convertible_2_ascii():
 
         'display_name':      '',
         'ace_display_name':  '',
+        'hostname':          'bar.com',
+        'ace_hostname':      'bar.com',
         'address':           'Foo@bar.com',
         'ace_address':       'Foo@bar.com',
         'repr':              'Foo@bar.com',
@@ -165,6 +167,8 @@ def test_address_convertible_2_ascii():
 
         'display_name':      'Blah',
         'ace_display_name':  'Blah',
+        'hostname':          'bar.com',
+        'ace_hostname':      'bar.com',
         'address':           'Foo@bar.com',
         'ace_address':       'Foo@bar.com',
         'repr':              'Blah <Foo@bar.com>',
@@ -177,6 +181,8 @@ def test_address_convertible_2_ascii():
 
         'display_name':     u'Федот',
         'ace_display_name':  '=?utf-8?b?0KTQtdC00L7Rgg==?=',
+        'hostname':          'bar.com',
+        'ace_hostname':      'bar.com',
         'address':           'Foo@bar.com',
         'ace_address':       'Foo@bar.com',
         'repr':             u'Федот <Foo@bar.com>'.encode('utf-8'),
@@ -189,6 +195,8 @@ def test_address_convertible_2_ascii():
 
         'display_name':     u'Федот',
         'ace_display_name':  '=?utf-8?b?0KTQtdC00L7Rgg==?=',
+        'hostname':          'bar.com',
+        'ace_hostname':      'bar.com',
         'address':           'Foo@bar.com',
         'ace_address':       'Foo@bar.com',
         'repr':             u'Федот <Foo@bar.com>'.encode('utf-8'),
@@ -201,6 +209,8 @@ def test_address_convertible_2_ascii():
 
         'display_name':      '=?blah0KTQtdC00L7Rgg==?=',
         'ace_display_name':  '=?blah0KTQtdC00L7Rgg==?=',
+        'hostname':          'bar.com',
+        'ace_hostname':      'bar.com',
         'address':           'Foo@bar.com',
         'ace_address':       'Foo@bar.com',
         'repr':             u'=?blah0KTQtdC00L7Rgg==?= <Foo@bar.com>'.encode('utf-8'),
@@ -213,6 +223,8 @@ def test_address_convertible_2_ascii():
 
         'display_name':      '',
         'ace_display_name':  '',
+        'hostname':         u'почта.рф',
+        'ace_hostname':      'xn--80a1acny.xn--p1ai',
         'address':          u'Foo@почта.рф',
         'ace_address':       'Foo@xn--80a1acny.xn--p1ai',
         'repr':             u'Foo@почта.рф'.encode('utf-8'),
@@ -225,6 +237,8 @@ def test_address_convertible_2_ascii():
 
         'display_name':      'Blah',
         'ace_display_name':  'Blah',
+        'hostname':         u'почта.рф',
+        'ace_hostname':      'xn--80a1acny.xn--p1ai',
         'address':          u'Foo@почта.рф',
         'ace_address':       'Foo@xn--80a1acny.xn--p1ai',
         'repr':             u'Blah <Foo@почта.рф>'.encode('utf-8'),
@@ -237,6 +251,8 @@ def test_address_convertible_2_ascii():
 
         'display_name':     u'Федот',
         'ace_display_name':  '=?utf-8?b?0KTQtdC00L7Rgg==?=',
+        'hostname':         u'почта.рф',
+        'ace_hostname':      'xn--80a1acny.xn--p1ai',
         'address':          u'Foo@почта.рф',
         'ace_address':       'Foo@xn--80a1acny.xn--p1ai',
         'repr':             u'Федот <Foo@почта.рф>'.encode('utf-8'),
@@ -249,6 +265,8 @@ def test_address_convertible_2_ascii():
 
         'display_name':     u'Федот',
         'ace_display_name':  '=?utf-8?b?0KTQtdC00L7Rgg==?=',
+        'hostname':         u'почта.рф',
+        'ace_hostname':      'xn--80a1acny.xn--p1ai',
         'address':          u'Foo@почта.рф',
         'ace_address':       'Foo@xn--80a1acny.xn--p1ai',
         'repr':             u'Федот <Foo@почта.рф>'.encode('utf-8'),
@@ -261,6 +279,8 @@ def test_address_convertible_2_ascii():
 
         'display_name':      '=?blah0KTQtdC00L7Rgg==?=',
         'ace_display_name':  '=?blah0KTQtdC00L7Rgg==?=',
+        'hostname':         u'почта.рф',
+        'ace_hostname':      'xn--80a1acny.xn--p1ai',
         'address':          u'Foo@почта.рф',
         'ace_address':       'Foo@xn--80a1acny.xn--p1ai',
         'repr':             u'=?blah0KTQtdC00L7Rgg==?= <Foo@почта.рф>'.encode('utf-8'),
@@ -273,6 +293,8 @@ def test_address_convertible_2_ascii():
 
         'display_name':      '',
         'ace_display_name':  '',
+        'hostname':         u'почта.рф',
+        'ace_hostname':      'xn--80a1acny.xn--p1ai',
         'address':          u'Foo@почта.рф',
         'ace_address':       'Foo@xn--80a1acny.xn--p1ai',
         'repr':             u'Foo@почта.рф'.encode('utf-8'),
@@ -285,6 +307,8 @@ def test_address_convertible_2_ascii():
 
         'display_name':      'Blah',
         'ace_display_name':  'Blah',
+        'hostname':         u'почта.рф',
+        'ace_hostname':      'xn--80a1acny.xn--p1ai',
         'address':          u'Foo@почта.рф',
         'ace_address':       'Foo@xn--80a1acny.xn--p1ai',
         'repr':             u'Blah <Foo@почта.рф>'.encode('utf-8'),
@@ -297,6 +321,8 @@ def test_address_convertible_2_ascii():
 
         'display_name':     u'Федот',
         'ace_display_name':  '=?utf-8?b?0KTQtdC00L7Rgg==?=',
+        'hostname':         u'почта.рф',
+        'ace_hostname':      'xn--80a1acny.xn--p1ai',
         'address':          u'Foo@почта.рф',
         'ace_address':       'Foo@xn--80a1acny.xn--p1ai',
         'repr':             u'Федот <Foo@почта.рф>'.encode('utf-8'),
@@ -309,6 +335,8 @@ def test_address_convertible_2_ascii():
 
         'display_name':     u'Федот',
         'ace_display_name':  '=?utf-8?b?0KTQtdC00L7Rgg==?=',
+        'hostname':         u'почта.рф',
+        'ace_hostname':      'xn--80a1acny.xn--p1ai',
         'address':          u'Foo@почта.рф',
         'ace_address':       'Foo@xn--80a1acny.xn--p1ai',
         'repr':             u'Федот <Foo@почта.рф>'.encode('utf-8'),
@@ -321,6 +349,8 @@ def test_address_convertible_2_ascii():
 
         'display_name':      '=?blah0KTQtdC00L7Rgg==?=',
         'ace_display_name':  '=?blah0KTQtdC00L7Rgg==?=',
+        'hostname':         u'почта.рф',
+        'ace_hostname':      'xn--80a1acny.xn--p1ai',
         'address':          u'Foo@почта.рф',
         'ace_address':       'Foo@xn--80a1acny.xn--p1ai',
         'repr':             u'=?blah0KTQtdC00L7Rgg==?= <Foo@почта.рф>'.encode('utf-8'),
@@ -333,6 +363,8 @@ def test_address_convertible_2_ascii():
 
         'display_name':     u'Федот',
         'ace_display_name':  '=?utf-8?b?0KTQtdC00L7Rgg==?=',
+        'hostname':         u'mail.comñ',
+        'ace_hostname':      'mail.xn--com-9ma',
         'address':          u'Foo@mail.comñ',
         'ace_address':       'Foo@mail.xn--com-9ma',
         'repr':             u'Федот <Foo@mail.comñ>'.encode('utf-8'),
@@ -345,6 +377,8 @@ def test_address_convertible_2_ascii():
 
         'display_name':     u'Федот @ Федот',
         'ace_display_name':  '=?utf-8?b?ItCk0LXQtNC+0YIgQCDQpNC10LTQvtGCIg==?=',
+        'hostname':          'bar.com',
+        'ace_hostname':      'bar.com',
         'address':          u'Foo@bar.com',
         'ace_address':       'Foo@bar.com',
         'repr':             u'"Федот @ Федот" <Foo@bar.com>'.encode('utf-8'),
@@ -360,6 +394,8 @@ def test_address_convertible_2_ascii():
         eq_(False, addr.requires_non_ascii())
         eq_(tc['display_name'], addr.display_name)
         eq_(tc['ace_display_name'], addr.ace_display_name)
+        eq_(tc['hostname'], addr.hostname)
+        eq_(tc['ace_hostname'], addr.ace_hostname)
         eq_(tc['address'], addr.address)
         eq_(tc['ace_address'], addr.ace_address)
         eq_(tc['repr'], repr(addr))
@@ -376,6 +412,8 @@ def test_address_requires_utf8():
 
         'display_name':      '',
         'ace_display_name':  '',
+        'hostname':          'bar.com',
+        'ace_hostname':      'bar.com',
         'address':          u'Фью@bar.com',
         'repr':             u'Фью@bar.com'.encode('utf-8'),
         'str':              u'Фью@bar.com'.encode('utf-8'),
@@ -386,6 +424,8 @@ def test_address_requires_utf8():
 
         'display_name':      'Blah',
         'ace_display_name':  'Blah',
+        'hostname':          'bar.com',
+        'ace_hostname':      'bar.com',
         'address':          u'Фью@bar.com',
         'repr':             u'Blah <Фью@bar.com>'.encode('utf-8'),
         'str':              u'Фью@bar.com'.encode('utf-8'),
@@ -396,6 +436,8 @@ def test_address_requires_utf8():
 
         'display_name':     u'Федот',
         'ace_display_name':  '=?utf-8?b?0KTQtdC00L7Rgg==?=',
+        'hostname':          'bar.com',
+        'ace_hostname':      'bar.com',
         'address':          u'Фью@bar.com',
         'repr':             u'Федот <Фью@bar.com>'.encode('utf-8'),
         'str':              u'Фью@bar.com'.encode('utf-8'),
@@ -406,6 +448,8 @@ def test_address_requires_utf8():
 
         'display_name':     u'Федот',
         'ace_display_name':  '=?utf-8?b?0KTQtdC00L7Rgg==?=',
+        'hostname':          'bar.com',
+        'ace_hostname':      'bar.com',
         'address':          u'Фью@bar.com',
         'repr':             u'Федот <Фью@bar.com>'.encode('utf-8'),
         'str':              u'Фью@bar.com'.encode('utf-8'),
@@ -416,6 +460,8 @@ def test_address_requires_utf8():
 
         'display_name':      '=?blah0KTQtdC00L7Rgg==?=',
         'ace_display_name':  '=?blah0KTQtdC00L7Rgg==?=',
+        'hostname':          'bar.com',
+        'ace_hostname':      'bar.com',
         'address':          u'Фью@bar.com',
         'repr':             u'=?blah0KTQtdC00L7Rgg==?= <Фью@bar.com>'.encode('utf-8'),
         'str':              u'Фью@bar.com'.encode('utf-8'),
@@ -426,6 +472,8 @@ def test_address_requires_utf8():
 
         'display_name':      '',
         'ace_display_name':  '',
+        'hostname':         u'почта.рф',
+        'ace_hostname':      'xn--80a1acny.xn--p1ai',
         'address':          u'Фью@почта.рф',
         'repr':             u'Фью@почта.рф'.encode('utf-8'),
         'str':              u'Фью@почта.рф'.encode('utf-8'),
@@ -436,6 +484,8 @@ def test_address_requires_utf8():
 
         'display_name':      'Blah',
         'ace_display_name':  'Blah',
+        'hostname':         u'почта.рф',
+        'ace_hostname':      'xn--80a1acny.xn--p1ai',
         'address':          u'Фью@почта.рф',
         'repr':             u'Blah <Фью@почта.рф>'.encode('utf-8'),
         'str':              u'Фью@почта.рф'.encode('utf-8'),
@@ -446,6 +496,8 @@ def test_address_requires_utf8():
 
         'display_name':     u'Федот',
         'ace_display_name':  '=?utf-8?b?0KTQtdC00L7Rgg==?=',
+        'hostname':         u'почта.рф',
+        'ace_hostname':      'xn--80a1acny.xn--p1ai',
         'address':          u'Фью@почта.рф',
         'repr':             u'Федот <Фью@почта.рф>'.encode('utf-8'),
         'str':              u'Фью@почта.рф'.encode('utf-8'),
@@ -456,6 +508,8 @@ def test_address_requires_utf8():
 
         'display_name':     u'Федот',
         'ace_display_name':  '=?utf-8?b?0KTQtdC00L7Rgg==?=',
+        'hostname':         u'почта.рф',
+        'ace_hostname':      'xn--80a1acny.xn--p1ai',
         'address':          u'Фью@почта.рф',
         'repr':             u'Федот <Фью@почта.рф>'.encode('utf-8'),
         'str':              u'Фью@почта.рф'.encode('utf-8'),
@@ -466,6 +520,8 @@ def test_address_requires_utf8():
 
         'display_name':      '=?blah0KTQtdC00L7Rgg==?=',
         'ace_display_name':  '=?blah0KTQtdC00L7Rgg==?=',
+        'hostname':         u'почта.рф',
+        'ace_hostname':      'xn--80a1acny.xn--p1ai',
         'address':          u'Фью@почта.рф',
         'repr':             u'=?blah0KTQtdC00L7Rgg==?= <Фью@почта.рф>'.encode('utf-8'),
         'str':              u'Фью@почта.рф'.encode('utf-8'),
@@ -476,6 +532,8 @@ def test_address_requires_utf8():
 
         'display_name':      '',
         'ace_display_name':  '',
+        'hostname':         u'почта.рф',
+        'ace_hostname':      'xn--80a1acny.xn--p1ai',
         'address':          u'Фью@почта.рф',
         'repr':             u'Фью@почта.рф'.encode('utf-8'),
         'str':              u'Фью@почта.рф'.encode('utf-8'),
@@ -486,6 +544,8 @@ def test_address_requires_utf8():
 
         'display_name':     'Blah',
         'ace_display_name': 'Blah',
+        'hostname':         u'почта.рф',
+        'ace_hostname':      'xn--80a1acny.xn--p1ai',
         'address':         u'Фью@почта.рф',
         'repr':            u'Blah <Фью@почта.рф>'.encode('utf-8'),
         'str':             u'Фью@почта.рф'.encode('utf-8'),
@@ -496,6 +556,8 @@ def test_address_requires_utf8():
 
         'display_name':    u'Федот',
         'ace_display_name': '=?utf-8?b?0KTQtdC00L7Rgg==?=',
+        'hostname':         u'почта.рф',
+        'ace_hostname':      'xn--80a1acny.xn--p1ai',
         'address':         u'Фью@почта.рф',
         'repr':            u'Федот <Фью@почта.рф>'.encode('utf-8'),
         'str':             u'Фью@почта.рф'.encode('utf-8'),
@@ -506,6 +568,8 @@ def test_address_requires_utf8():
 
         'display_name':     u'Федот',
         'ace_display_name':  '=?utf-8?b?0KTQtdC00L7Rgg==?=',
+        'hostname':         u'почта.рф',
+        'ace_hostname':      'xn--80a1acny.xn--p1ai',
         'address':          u'Фью@почта.рф',
         'repr':             u'Федот <Фью@почта.рф>'.encode('utf-8'),
         'str':              u'Фью@почта.рф'.encode('utf-8'),
@@ -516,6 +580,8 @@ def test_address_requires_utf8():
 
         'display_name':      '=?blah0KTQtdC00L7Rgg==?=',
         'ace_display_name':  '=?blah0KTQtdC00L7Rgg==?=',
+        'hostname':         u'почта.рф',
+        'ace_hostname':      'xn--80a1acny.xn--p1ai',
         'address':          u'Фью@почта.рф',
         'repr':             u'=?blah0KTQtdC00L7Rgg==?= <Фью@почта.рф>'.encode('utf-8'),
         'str':              u'Фью@почта.рф'.encode('utf-8'),
@@ -529,6 +595,8 @@ def test_address_requires_utf8():
         eq_(True, addr.requires_non_ascii())
         eq_(tc['display_name'], addr.display_name)
         eq_(tc['ace_display_name'], addr.ace_display_name)
+        eq_(tc['hostname'], addr.hostname)
+        eq_(tc['ace_hostname'], addr.ace_hostname)
         eq_(tc['address'], addr.address)
         with assert_raises(ValueError):
             _ = addr.ace_address

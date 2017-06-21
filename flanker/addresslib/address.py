@@ -107,37 +107,32 @@ def parse(address, addr_spec_only=False, strict=False, metrics=False):
         _log.warning('address exceeds maximum length of %s', MAX_ADDRESS_LENGTH)
         return None, mtimes
 
+    bstart = time()
     try:
-        bstart = time()
-        retval = _lift_parser_result(parser.parse(address.strip(), lexer=lexer.clone()))
-        mtimes['parsing'] = time() - bstart
+        addr_obj = _lift_parser_result(parser.parse(address.strip(), lexer=lexer.clone()))
     except (LexError, YaccError, SyntaxError):
-        retval = None
-        mtimes['parsing'] = time() - bstart
+        addr_obj = None
 
-    if retval is None and not strict:
-        try:
-            bstart = time()
+    if addr_obj is None and not strict:
+        addr_parts = address.split(' ')
+        addr_spec = addr_parts[-1]
+        if len(addr_spec) < len(address):
+            try:
+                addr_obj = _lift_parser_result(parser.parse(addr_spec, lexer=lexer.clone()))
+                if addr_obj:
+                    addr_obj._display_name = ' '.join(addr_parts[:-1])
+                    if isinstance(addr_obj._display_name, str):
+                        addr_obj._display_name = addr_obj._display_name.decode('utf-8')
 
-            addr_parts = address.split(' ')
-            addr_spec = addr_parts[-1]
-            display_name = ' '.join(addr_parts[0:-1])
+            except (LexError, YaccError, SyntaxError):
+                addr_obj = None
 
-            retval = _lift_parser_result(parser.parse(addr_spec, lexer=lexer.clone()))
-            retval._display_name = display_name
-            if isinstance(retval._display_name, str):
-                retval._display_name = retval._display_name.decode('utf-8')
-
-            mtimes['parsing'] += time() - bstart
-        except (LexError, YaccError, SyntaxError):
-            retval = None
-            mtimes['parsing'] += time() - bstart
-
-    if retval is None:
+    mtimes['parsing'] = time() - bstart
+    if addr_obj is None:
         _log.warning('Failed to parse address: %s',
                      address.decode('utf-8', 'replace'))
 
-    return retval, mtimes
+    return addr_obj, mtimes
 
 
 @metrics_wrapper()
@@ -513,11 +508,13 @@ class EmailAddress(Address):
             self._mailbox = self._mailbox.decode('utf-8')
 
         # Convert hostname to lowercase unicode string.
+        self._hostname = self._hostname.lower()
         if self._hostname.startswith('xn--') or '.xn--' in self._hostname:
             self._hostname = idna.decode(self._hostname)
         if isinstance(self._hostname, str):
             self._hostname = self._hostname.decode('utf-8')
-        self._hostname = self._hostname.lower()
+        if not is_pure_ascii(self._hostname):
+            idna.encode(self._hostname)
 
     @property
     def addr_type(self):
@@ -539,6 +536,10 @@ class EmailAddress(Address):
     @property
     def hostname(self):
         return self._hostname
+
+    @property
+    def ace_hostname(self):
+        return idna.encode(self._hostname)
 
     @property
     def address(self):
@@ -762,57 +763,67 @@ class AddressList(object):
         True
     """
 
-    container = None
-
     def __init__(self, container=None):
-        if container is None:
-            self.container = []
-        else:
-            self.container = container
+        self._container = []
+        if not container:
+            return
 
-    def append(self, n):
-        self.container.append(n)
+        for i, addr in enumerate(container):
+            if not isinstance(addr, Address):
+                raise TypeError('Unexpected type %s in position %d'
+                                % (type(addr), i))
+            self._container.append(addr)
 
-    def remove(self, n):
-        self.container.remove(n)
+    def append(self, addr):
+        if not isinstance(addr, Address):
+            raise TypeError('Unexpected type %s' % type(addr))
+        self._container.append(addr)
+
+    def remove(self, addr):
+        self._container.remove(addr)
 
     def __iter__(self):
-        return iter(self.container)
+        return iter(self._container)
 
     def __getitem__(self, key):
-        return self.container[key]
+        return self._container[key]
 
     def __len__(self):
-        return len(self.container)
+        return len(self._container)
 
     def __eq__(self, other):
         """
         When comparing ourselves to other lists we must ignore order.
         """
-        if isinstance(other, list):
+        if isinstance(other, (list, str, unicode)):
             other = parse_list(other)
-        if isinstance(other, basestring):
-            other = parse_list(other)
-        return set(self.container) == set(other.container)
+        if not isinstance(other, AddressList):
+            raise TypeError('Cannot compare with %s' % type(other))
+        return set(self._container) == set(other._container)
 
     def __repr__(self):
         return ''.join(['[', self.to_unicode().encode('utf-8'), ']'])
 
     def __str__(self):
-        return ', '.join(str(addr) for addr in self.container)
+        return ', '.join(str(addr) for addr in self._container)
 
     def __unicode__(self):
-        return u', '.join(unicode(addr) for addr in self.container)
+        return u', '.join(unicode(addr) for addr in self._container)
 
     def __add__(self, other):
         """
         Adding two AddressLists together yields another AddressList.
         """
         if isinstance(other, list):
-            result = self.container + parse_list(other).container
-        else:
-            result = self.container + other.container
-        return AddressList(result)
+            other = parse_list(other)
+
+        if not isinstance(other, AddressList):
+            raise TypeError('Cannot add %s' % type(other))
+
+        container = self._container + other._container
+        addr_lst = AddressList()
+        addr_lst._container = container
+        return addr_lst
 
     def full_spec(self, delimiter=", "):
         """
@@ -822,13 +833,13 @@ class AddressList(object):
             >>> adl.full_spec(delimiter='; ')
             'Foo <foo@host.com; Bar <bar@host.com>'
         """
-        return delimiter.join(addr.full_spec() for addr in self.container)
+        return delimiter.join(addr.full_spec() for addr in self._container)
 
     def to_unicode(self, delimiter=u", "):
-        return delimiter.join(addr.to_unicode() for addr in self.container)
+        return delimiter.join(addr.to_unicode() for addr in self._container)
 
     def to_ascii_list(self):
-        return [addr.full_spec() for addr in self.container]
+        return [addr.full_spec() for addr in self._container]
 
     @property
     def addresses(self):
@@ -838,21 +849,21 @@ class AddressList(object):
             >>> adl.addresses
             ['foo@host.com', 'bar@host.com']
         """
-        return [addr.address for addr in self.container]
+        return [addr.address for addr in self._container]
 
     @property
     def hostnames(self):
         """
         Returns a set of hostnames used in addresses in this list.
         """
-        return set([addr.hostname for addr in self.container])
+        return set([addr.hostname for addr in self._container])
 
     @property
     def addr_types(self):
         """
         Returns a set of address types used in addresses in this list.
         """
-        return set([addr.addr_type for addr in self.container])
+        return set([addr.addr_type for addr in self._container])
 
 
 def _lift_parser_result(retval):

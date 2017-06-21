@@ -508,11 +508,13 @@ class EmailAddress(Address):
             self._mailbox = self._mailbox.decode('utf-8')
 
         # Convert hostname to lowercase unicode string.
+        self._hostname = self._hostname.lower()
         if self._hostname.startswith('xn--') or '.xn--' in self._hostname:
             self._hostname = idna.decode(self._hostname)
         if isinstance(self._hostname, str):
             self._hostname = self._hostname.decode('utf-8')
-        self._hostname = self._hostname.lower()
+        if not is_pure_ascii(self._hostname):
+            idna.encode(self._hostname)
 
     @property
     def addr_type(self):

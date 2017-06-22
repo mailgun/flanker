@@ -2,7 +2,6 @@
 
 from setuptools import setup, find_packages
 
-
 setup(name='flanker',
       version='0.7.0',
       description='Mailgun Parsing Tools',
@@ -11,9 +10,9 @@ setup(name='flanker',
       keywords='',
       author='Mailgun Inc.',
       author_email='admin@mailgunhq.com',
-      url='http://mailgun.net',
+      url='https://www.mailgun.com/',
       license='Apache 2',
-      packages=find_packages(exclude=['ez_setup', 'examples', 'tests']),
+      packages=find_packages(exclude=['tests']),
       include_package_data=True,
       zip_safe=True,
       tests_require=[
@@ -24,11 +23,13 @@ setup(name='flanker',
           'chardet>=1.0.1',
           'cchardet>=0.3.5',
           'cryptography>=0.5',
-          'cython>=0.21.1',
-          'dnsq>=1.1.6',
           'idna>=2.5',
           'ply>=3.10',
-          'redis>=2.7.1',
           'regex>=0.1.20110315',
           'WebOb>=0.9.8'],
-)
+      extras_require={
+          'validator': [
+              'dnsq>=1.1.6',
+              'redis>=2.7.1',
+          ],
+      })

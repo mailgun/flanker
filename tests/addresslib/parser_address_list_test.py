@@ -2,7 +2,7 @@
 
 from itertools import chain, combinations, permutations
 
-from nose.tools import assert_equal, assert_not_equal, assert_raises
+from nose.tools import assert_equal, assert_not_equal, assert_raises, eq_
 from nose.tools import nottest
 
 from flanker.addresslib.address import EmailAddress, AddressList, parse_list, \
@@ -33,140 +33,85 @@ STEVE_MBX = EmailAddress('Steve Jobs', 'steve@apple.com')
 LINUS_MBX = EmailAddress('Linus Torvalds', 'torvalds@kernel.org')
 
 
-def test_sanity():
-    addr_string = 'Bill Gates <bill@microsoft.com>, Steve Jobs <steve@apple.com>; torvalds@kernel.org'
-    run_test(addr_string,  [BILL_MBX, STEVE_MBX, LINUS_AS])
+def test_parse_list_from_list():
+    for i, tc in enumerate([{
+        'desc': 'Empty',
+        'in': [],
+        'good': AddressList(),
+        'bad': []
+    }, {
+        'desc': 'All good',
+        'in': [u'Bill Gates <bill@microsoft.com>',
+               u'Федот <стрелец@почта.рф>',
+               u'torvalds@kernel.org'],
+        'good': AddressList([
+            parse('Bill Gates <bill@microsoft.com>'),
+            parse(u'Федот <стрелец@почта.рф>'),
+            parse('torvalds@kernel.org')]),
+        'bad': []
+    }, {
+        'desc': 'All bad',
+        'in': ['httd://foo.com:8080\r\n',
+               '"Ev K." <ev@ host.com>\n "Alex K" alex@',
+               '"Tom, S" "tom+["  a]"@s.com'],
+        'good': AddressList(),
+        'bad': ['httd://foo.com:8080\r\n',
+                '"Ev K." <ev@ host.com>\n "Alex K" alex@',
+                '"Tom, S" "tom+["  a]"@s.com'],
+        'bad_s': ['httd://foo.com:8080\r\n, "Ev K." <ev@ host.com>\n "Alex K" alex@, "Tom, S" "tom+["  a]"@s.com']
+    }, {
+        'desc': 'Some bad',
+        'in': [u'Bill Gates <bill@microsoft.com>',
+               u'crap',
+               'foo.bar.com',
+               u'Федот <стрелец@почта.рф>',
+               'torvalds@@kernel.org'],
+        'good': AddressList([
+            parse('Bill Gates <bill@microsoft.com>'),
+            parse(u'Федот <стрелец@почта.рф>')]),
+        'good_s': AddressList(),
+        'bad': ['crap',
+                'foo.bar.com',
+                'torvalds@@kernel.org'],
+        'bad_s': [u'Bill Gates <bill@microsoft.com>, crap, foo.bar.com, Федот <стрелец@почта.рф>, torvalds@@kernel.org'],
+    }, {
+        'desc': 'Bad IDN among addresses (UTF-8)',
+        'in': [u'Bill Gates <bill@microsoft.com>',
+               u'foo@ドメイン.채ᅳ',
+               u'Федот <стрелец@почта.рф>'],
+        'good': AddressList([
+            parse('Bill Gates <bill@microsoft.com>'),
+            parse(u'Федот <стрелец@почта.рф>')]),
+        'bad': [u'foo@ドメイン.채ᅳ']
+    }, {
+        'desc': 'Bad IDN among addresses (punycode)',
+        'in': [u'Bill Gates <bill@microsoft.com>',
+               u'foo@bar.xn--com-to0a',
+               u'Федот <стрелец@почта.рф>'],
+        'good': AddressList([
+            parse('Bill Gates <bill@microsoft.com>'),
+            parse(u'Федот <стрелец@почта.рф>')]),
+        'bad': ['foo@bar.xn--com-to0a']
+    }]):
+        print('Test case #%d: %s' % (i, tc['desc']))
 
+        # When
+        al = parse_list(tc['in'])
+        al_from_l, bad_from_l = parse_list(tc['in'], as_tuple=True)
+        al_from_s, bad_from_s = parse_list(', '.join(tc['in']), as_tuple=True)
 
-def test_simple_valid():
-    s = '''http://foo.com:8080; "Ev K." <ev@host.com>, "Alex K" <alex@yahoo.net>, "Tom, S" <"tom+[a]"@s.com>'''
-    addrs = parse_list(s, strict=True)
+        # Then
+        eq_(tc['good'], al)
+        eq_(tc['good'], al_from_l)
+        for j in xrange(len(al_from_l)):
+            _strict_eq(tc['good'][j], al[j])
+            _strict_eq(tc['good'][j], al_from_l[j])
+        eq_(tc['bad'], bad_from_l)
 
-    assert_equal(4, len(addrs))
-
-    assert_equal(addrs[0].addr_type, 'url')
-    assert_equal(addrs[0].address, 'http://foo.com:8080')
-    assert_equal(addrs[0].full_spec(), 'http://foo.com:8080')
-
-    assert_equal(addrs[1].addr_type, 'email')
-    assert_equal(addrs[1].display_name, 'Ev K.')
-    assert_equal(addrs[1].address, 'ev@host.com')
-    assert_equal(addrs[1].full_spec(), '"Ev K." <ev@host.com>')
-
-    assert_equal(addrs[2].addr_type, 'email')
-    assert_equal(addrs[2].display_name, 'Alex K')
-    assert_equal(addrs[2].address, 'alex@yahoo.net')
-    assert_equal(addrs[2].full_spec(), 'Alex K <alex@yahoo.net>')
-
-    assert_equal(addrs[3].addr_type, 'email')
-    assert_equal(addrs[3].display_name, 'Tom, S')
-    assert_equal(addrs[3].address, '"tom+[a]"@s.com')
-    assert_equal(addrs[3].full_spec(), '"Tom, S" <"tom+[a]"@s.com>')
-
-
-    s = '''"Allan G\'o"  <allan@example.com>, "Os Wi" <oswi@example.com>'''
-    addrs = parse_list(s, strict=True)
-
-    assert_equal(2, len(addrs))
-
-    assert_equal(addrs[0].addr_type, 'email')
-    assert_equal(addrs[0].display_name, 'Allan G\'o')
-    assert_equal(addrs[0].address, 'allan@example.com')
-    assert_equal(addrs[0].full_spec(), 'Allan G\'o <allan@example.com>')
-
-    assert_equal(addrs[1].addr_type, 'email')
-    assert_equal(addrs[1].display_name, 'Os Wi')
-    assert_equal(addrs[1].address, 'oswi@example.com')
-    assert_equal(addrs[1].full_spec(), 'Os Wi <oswi@example.com>')
-
-
-    s = u'''I am also A <a@HOST.com>, Zeka <EV@host.coM> ;Gonzalo Bañuelos<gonz@host.com>'''
-    addrs = parse_list(s, strict=True)
-
-    assert_equal(3, len(addrs))
-
-    assert_equal(addrs[0].addr_type, 'email')
-    assert_equal(addrs[0].display_name, 'I am also A')
-    assert_equal(addrs[0].address, 'a@host.com')
-    assert_equal(addrs[0].full_spec(), 'I am also A <a@host.com>')
-
-    assert_equal(addrs[1].addr_type, 'email')
-    assert_equal(addrs[1].display_name, 'Zeka')
-    assert_equal(addrs[1].address, 'EV@host.com')
-    assert_equal(addrs[1].full_spec(), 'Zeka <EV@host.com>')
-
-    assert_equal(addrs[2].addr_type, 'email')
-    assert_equal(addrs[2].display_name, u'Gonzalo Bañuelos')
-    assert_equal(addrs[2].address, 'gonz@host.com')
-    assert_equal(addrs[2].full_spec(), '=?utf-8?q?Gonzalo_Ba=C3=B1uelos?= <gonz@host.com>')
-
-
-    s = r'''"Escaped" <"\e\s\c\a\p\e\d"@sld.com>; http://userid:password@example.com:8080, "Dmitry" <my|'`!#_~%$&{}?^+-*@host.com>'''
-    addrs = parse_list(s, strict=True)
-
-    assert_equal(3, len(addrs))
-
-    assert_equal(addrs[0].addr_type, 'email')
-    assert_equal(addrs[0].display_name, 'Escaped')
-    assert_equal(addrs[0].address, '"\e\s\c\\a\p\e\d"@sld.com')
-    assert_equal(addrs[0].full_spec(), 'Escaped <"\e\s\c\\a\p\e\d"@sld.com>')
-
-    assert_equal(addrs[1].addr_type, 'url')
-    assert_equal(addrs[1].address, 'http://userid:password@example.com:8080')
-    assert_equal(addrs[1].full_spec(), 'http://userid:password@example.com:8080')
-
-    assert_equal(addrs[2].addr_type, 'email')
-    assert_equal(addrs[2].display_name, 'Dmitry')
-    assert_equal(addrs[2].address, 'my|\'`!#_~%$&{}?^+-*@host.com')
-    assert_equal(addrs[2].full_spec(), 'Dmitry <my|\'`!#_~%$&{}?^+-*@host.com>')
-
-
-    s = "http://foo.com/blah_blah_(wikipedia)"
-    addrs = parse_list(s, strict=True)
-
-    assert_equal(1, len(addrs))
-
-    assert_equal(addrs[0].addr_type, 'url')
-    assert_equal(addrs[0].address, 'http://foo.com/blah_blah_(wikipedia)')
-    assert_equal(addrs[0].full_spec(), 'http://foo.com/blah_blah_(wikipedia)')
-
-
-    s = "Sasha Klizhentas <klizhentas@gmail.com>"
-    addrs = parse_list(s, strict=True)
-
-    assert_equal(1, len(addrs))
-
-    assert_equal(addrs[0].addr_type, 'email')
-    assert_equal(addrs[0].display_name, 'Sasha Klizhentas')
-    assert_equal(addrs[0].address, 'klizhentas@gmail.com')
-    assert_equal(addrs[0].full_spec(), 'Sasha Klizhentas <klizhentas@gmail.com>')
-
-
-    s = "admin@mailgunhq.com,lift@example.com"
-    addrs = parse_list(s, strict=True)
-
-    assert_equal(2, len(addrs))
-
-    assert_equal(addrs[0].addr_type, 'email')
-    assert_equal(addrs[0].display_name, '')
-    assert_equal(addrs[0].address, 'admin@mailgunhq.com')
-    assert_equal(addrs[0].full_spec(), 'admin@mailgunhq.com')
-
-    assert_equal(addrs[1].addr_type, 'email')
-    assert_equal(addrs[1].display_name, '')
-    assert_equal(addrs[1].address, 'lift@example.com')
-    assert_equal(addrs[1].full_spec(), 'lift@example.com')
-
-
-def test_simple_invalid():
-    s = '''httd://foo.com:8080\r\n; "Ev K." <ev@ host.com>\n "Alex K" alex@ , "Tom, S" "tom+["  a]"@s.com'''
-    assert_equal(AddressList(), parse_list(s, strict=True))
-
-    s = ""
-    assert_equal(AddressList(), parse_list(s, strict=True))
-
-    s = "crap"
-    assert_equal(AddressList(), parse_list(s, strict=True))
+        eq_(tc.get('good_s', tc['good']), al_from_s)
+        for j in xrange(len(al_from_s)):
+            _strict_eq(tc.get('good_s', tc['good'])[j], al_from_s[j])
+        eq_(tc.get('bad_s', tc['bad']), bad_from_s)
 
 
 def test_endpoints():
@@ -207,3 +152,15 @@ def test_append_address_only():
 
     with assert_raises(TypeError):
         al.append('foo@bar.com')
+
+
+def _strict_eq(lhs_addr, rhs_addr):
+    eq_(type(lhs_addr), type(rhs_addr))
+    _typed_eq(lhs_addr.address, rhs_addr.address)
+    if isinstance(lhs_addr, EmailAddress):
+        _typed_eq(lhs_addr.display_name, rhs_addr.display_name)
+
+
+def _typed_eq(lhs, rhs):
+    eq_(lhs, rhs)
+    eq_(type(lhs), type(rhs))

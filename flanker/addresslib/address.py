@@ -109,7 +109,8 @@ def parse(address, addr_spec_only=False, strict=False, metrics=False):
 
     bstart = time()
     try:
-        addr_obj = _lift_parser_result(parser.parse(address.strip(), lexer=lexer.clone()))
+        parse_rs = parser.parse(address.strip(), lexer=lexer.clone())
+        addr_obj = _lift_parse_result(parse_rs)
     except (LexError, YaccError, SyntaxError):
         addr_obj = None
 
@@ -118,7 +119,8 @@ def parse(address, addr_spec_only=False, strict=False, metrics=False):
         addr_spec = addr_parts[-1]
         if len(addr_spec) < len(address):
             try:
-                addr_obj = _lift_parser_result(parser.parse(addr_spec, lexer=lexer.clone()))
+                parse_rs = parser.parse(addr_spec, lexer=lexer.clone())
+                addr_obj = _lift_parse_result(parse_rs)
                 if addr_obj:
                     addr_obj._display_name = ' '.join(addr_parts[:-1])
                     if isinstance(addr_obj._display_name, str):
@@ -136,7 +138,7 @@ def parse(address, addr_spec_only=False, strict=False, metrics=False):
 
 
 @metrics_wrapper()
-def parse_discrete_list(address_list, metrics=False):
+def parse_discrete_list(address_list, as_tuple=False, metrics=False):
     """
     Given an string, returns an AddressList object (an iterable list
     representing parsed email addresses and urls).
@@ -160,27 +162,34 @@ def parse_discrete_list(address_list, metrics=False):
     mtimes = {'parsing': 0}
     parser = mailbox_or_url_list_parser
 
-    # normalize inputs to bytestrings
+    # normalize inputs to bytestring
+    address_list_s = address_list
     if isinstance(address_list, unicode):
-        address_list = address_list.encode('utf-8')
+        address_list_s = address_list.encode('utf-8')
 
     # sanity checks
-    if not address_list:
-        return None, mtimes
-    elif len(address_list) > MAX_ADDRESS_LIST_LENGTH:
-        _log.warning('address list exceeds maximum length of %s', MAX_ADDRESS_LIST_LENGTH)
-        return None, mtimes
+    if not address_list_s:
+        return _parse_list_result(as_tuple, AddressList(), [], mtimes)
 
+    if len(address_list_s) > MAX_ADDRESS_LIST_LENGTH:
+        _log.warning('address list exceeds maximum length of %s', MAX_ADDRESS_LIST_LENGTH)
+        return _parse_list_result(as_tuple, AddressList(), [address_list], mtimes)
+
+    bstart = time()
     try:
-        bstart = time()
-        retval = _lift_parser_result(parser.parse(address_list.strip(), lexer=lexer.clone()))
+        parse_list_rs = parser.parse(address_list_s.strip(), lexer=lexer.clone())
+        addr_list_obj, bad_addr_list = _lift_parse_list_result(parse_list_rs)
+        if len(addr_list_obj) == 0:
+            bad_addr_list.append(address_list_s)
+
         mtimes['parsing'] = time() - bstart
     except (LexError, YaccError, SyntaxError):
         _log.warning('Failed to parse address list: %s',
-                     address_list.decode('utf-8', 'replace'))
-        return None, mtimes
+                     address_list_s.decode('utf-8', 'replace'))
+        return _parse_list_result(as_tuple, AddressList(), [address_list], mtimes)
 
-    return retval, mtimes
+    return _parse_list_result(as_tuple, addr_list_obj, bad_addr_list, mtimes)
+
 
 @metrics_wrapper()
 def parse_list(address_list, strict=False, as_tuple=False, metrics=False):
@@ -216,18 +225,20 @@ def parse_list(address_list, strict=False, as_tuple=False, metrics=False):
     mtimes = {'parsing': 0}
 
     if not address_list:
-        parsed, unparsed = AddressList(), []
-    elif isinstance(address_list, list) and len(address_list) > MAX_ADDRESS_NUMBER:
-        _log.warning('address list exceeds maximum items of %s', MAX_ADDRESS_NUMBER)
-        parsed, unparsed = AddressList(), address_list
-    elif isinstance(address_list, list):
+        return _parse_list_result(as_tuple, AddressList(), [], mtimes)
+
+    if isinstance(address_list, list):
+        if len(address_list) > MAX_ADDRESS_NUMBER:
+            _log.warning('address list exceeds maximum items of %s', MAX_ADDRESS_NUMBER)
+            return _parse_list_result(as_tuple, AddressList(), [], mtimes)
+
         parsed, unparsed = AddressList(), []
         for address in address_list:
             if isinstance(address, basestring):
-                retval, metrics = parse(address, strict=strict, metrics=True)
+                addr_obj, metrics = parse(address, strict=strict, metrics=True)
                 mtimes['parsing'] += metrics['parsing']
-                if retval:
-                    parsed.append(retval)
+                if addr_obj:
+                    parsed.append(addr_obj)
                 else:
                     unparsed.append(address)
             elif isinstance(address, EmailAddress):
@@ -237,25 +248,21 @@ def parse_list(address_list, strict=False, as_tuple=False, metrics=False):
             else:
                 _log.warning('couldnt attempt to parse address list item')
                 unparsed.append(address)
-    elif isinstance(address_list, basestring) and len(address_list) > MAX_ADDRESS_LIST_LENGTH:
-        _log.warning('address list exceeds maximum length of %s', MAX_ADDRESS_LIST_LENGTH)
-        parsed, unparsed = AddressList(), [address_list]
-    elif isinstance(address_list, basestring):
+
+        return _parse_list_result(as_tuple, parsed, unparsed, mtimes)
+
+    if isinstance(address_list, basestring):
+        if len(address_list) > MAX_ADDRESS_LIST_LENGTH:
+            _log.warning('address list exceeds maximum length of %s', MAX_ADDRESS_LIST_LENGTH)
+            return _parse_list_result(as_tuple, AddressList(), [address_list], mtimes)
+
         if not strict:
             _log.info('relaxed parsing is not available for discrete lists, ignoring')
-        retval, metrics = parse_discrete_list(address_list, metrics=True)
-        mtimes['parsing'] += metrics['parsing']
-        if retval:
-            parsed, unparsed = retval, []
-        else:
-            parsed, unparsed = AddressList(), [address_list]
-    else:
-        _log.warning('couldnt attempt to parse address list')
-        parsed, unparsed = AddressList(), None
 
-    if as_tuple:
-        return parsed, unparsed, mtimes
-    return parsed, mtimes
+        return parse_discrete_list(address_list, as_tuple=as_tuple, metrics=True)
+
+    _log.warning('couldnt attempt to parse address list')
+    return _parse_list_result(as_tuple, AddressList(), [], mtimes)
 
 
 @metrics_wrapper()
@@ -866,19 +873,40 @@ class AddressList(object):
         return set([addr.addr_type for addr in self._container])
 
 
-def _lift_parser_result(retval):
-    if isinstance(retval, Mailbox):
+def _lift_parse_result(parse_rs):
+    if isinstance(parse_rs, Mailbox):
         try:
             return EmailAddress(
-                display_name=smart_unquote(retval.display_name.decode('utf-8')),
-                mailbox=retval.local_part.decode('utf-8'),
-                hostname=retval.domain.decode('utf-8'))
+                display_name=smart_unquote(parse_rs.display_name.decode('utf-8')),
+                mailbox=parse_rs.local_part.decode('utf-8'),
+                hostname=parse_rs.domain.decode('utf-8'))
         except (UnicodeError, IDNAError):
             return None
-    if isinstance(retval, Url):
-        return UrlAddress(
-            address=retval.address.decode('utf-8'))
-    if isinstance(retval, list):
-        return AddressList(
-            map(_lift_parser_result, retval))
+
+    if isinstance(parse_rs, Url):
+        return UrlAddress(address=parse_rs.address.decode('utf-8'))
+
     return None
+
+
+def _lift_parse_list_result(parse_list_rs):
+    addr_list_obj = AddressList()
+    bad_list = []
+    for parse_rs in parse_list_rs:
+        addr_obj = _lift_parse_result(parse_rs)
+        if not addr_obj:
+            if isinstance(parse_rs, Mailbox):
+                bad_list.append(u'%s@%s' % (parse_rs.local_part.decode('utf-8'),
+                                            parse_rs.domain.decode('utf-8')))
+            continue
+
+        addr_list_obj.append(addr_obj)
+
+    return addr_list_obj, bad_list
+
+
+def _parse_list_result(as_tuple, parsed, unparsed, mtimes):
+    if as_tuple:
+        return parsed, unparsed, mtimes
+
+    return parsed, mtimes

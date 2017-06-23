@@ -130,10 +130,6 @@ def parse(address, addr_spec_only=False, strict=False, metrics=False):
                 addr_obj = None
 
     mtimes['parsing'] = time() - bstart
-    if addr_obj is None:
-        _log.warning('Failed to parse address: %s',
-                     address.decode('utf-8', 'replace'))
-
     return addr_obj, mtimes
 
 
@@ -184,8 +180,6 @@ def parse_discrete_list(address_list, as_tuple=False, metrics=False):
 
         mtimes['parsing'] = time() - bstart
     except (LexError, YaccError, SyntaxError):
-        _log.warning('Failed to parse address list: %s',
-                     address_list_s.decode('utf-8', 'replace'))
         return _parse_list_result(as_tuple, AddressList(), [address_list], mtimes)
 
     return _parse_list_result(as_tuple, addr_list_obj, bad_addr_list, mtimes)
@@ -246,7 +240,6 @@ def parse_list(address_list, strict=False, as_tuple=False, metrics=False):
             elif isinstance(address, UrlAddress):
                 parsed.append(address)
             else:
-                _log.warning('couldnt attempt to parse address list item')
                 unparsed.append(address)
 
         return _parse_list_result(as_tuple, parsed, unparsed, mtimes)
@@ -261,8 +254,7 @@ def parse_list(address_list, strict=False, as_tuple=False, metrics=False):
 
         return parse_discrete_list(address_list, as_tuple=as_tuple, metrics=True)
 
-    _log.warning('couldnt attempt to parse address list')
-    return _parse_list_result(as_tuple, AddressList(), [], mtimes)
+    return _parse_list_result(as_tuple, AddressList(), [address_list], mtimes)
 
 
 @metrics_wrapper()
@@ -285,8 +277,11 @@ def validate_address(addr_spec, metrics=False):
         >>> address.validate_address('user.1234@gmail.com')
         user.1234@gmail.com
     """
-    mtimes = {'parsing': 0, 'mx_lookup': 0,
-        'dns_lookup': 0, 'mx_conn':0 , 'custom_grammar':0}
+    mtimes = {'parsing': 0,
+              'mx_lookup': 0,
+              'dns_lookup': 0,
+              'mx_conn':0 ,
+              'custom_grammar':0}
 
     # sanity check
     if addr_spec is None:

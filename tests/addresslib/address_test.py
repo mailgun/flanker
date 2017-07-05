@@ -138,7 +138,7 @@ def test_edge_cases():
 def test_display_name__to_full_spec():
     eq_('"foo (\\"bar\\") blah" <foo@bar.com>',
         EmailAddress('foo ("bar") blah', 'foo@bar.com').full_spec())
-    eq_('"foo. bar" <foo@bar.com>',
+    eq_('foo. bar <foo@bar.com>',
         EmailAddress('foo. bar', 'foo@bar.com').full_spec())
     eq_('"\\"\\"" <foo@bar.com>',
         EmailAddress('""', 'foo@bar.com').full_spec()),

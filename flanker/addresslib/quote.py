@@ -3,7 +3,7 @@ import re
 from flanker.addresslib.lexer import t_ATOM, t_FWSP
 
 _RE_ATOM_PHRASE = re.compile(
-    r'({atom}({fwsp}{atom})*)?'.format(atom=t_ATOM, fwsp=t_FWSP),
+    r'(({atom}|\.)+({fwsp}({atom}|\.)+)*)?'.format(atom=t_ATOM, fwsp=t_FWSP),
     re.MULTILINE | re.VERBOSE)
 
 

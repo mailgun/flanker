@@ -33,20 +33,15 @@ def parse_header(header):
 
 
 def parse_header_value(name, val):
-    if not is_pure_ascii(val):
-        if parametrized.is_parametrized(name, val):
-            raise DecodingError("Unsupported value in content- header")
-        return to_unicode(val)
-    else:
-        if parametrized.is_parametrized(name, val):
-            val, params = parametrized.decode(val)
-            if name == 'Content-Type':
-                main, sub = parametrized.fix_content_type(val)
-                return ContentType(main, sub, params)
-            else:
-                return WithParams(val, params)
+    if parametrized.is_parametrized(name, val):
+        val, params = parametrized.decode(val)
+        if name == 'Content-Type':
+            main, sub = parametrized.fix_content_type(val)
+            return ContentType(main, sub, params)
         else:
-            return val
+            return WithParams(val, params)
+    else:
+        return val if is_pure_ascii(val) else to_unicode(val)
 
 
 def is_empty(line):

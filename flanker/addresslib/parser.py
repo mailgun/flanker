@@ -1,3 +1,5 @@
+import os
+
 import ply.yacc as yacc
 from lexer import tokens, lexer
 from collections import namedtuple
@@ -159,23 +161,23 @@ def p_error(p):
 
 log.info('building mailbox parser')
 mailbox_parser = yacc.yacc(
-    start='mailbox', errorlog=log)
+    start='mailbox', errorlog=log, outputdir=os.environ.get('CFFI_TMPDIR'))
 
 log.info('building addr_spec parser')
 addr_spec_parser = yacc.yacc(
-    start='addr_spec', errorlog=log)
+    start='addr_spec', errorlog=log, outputdir=os.environ.get('CFFI_TMPDIR'))
 
 log.info('building url parser')
 url_parser = yacc.yacc(
-    start='url', errorlog=log)
+    start='url', errorlog=log, outputdir=os.environ.get('CFFI_TMPDIR'))
 
 log.info('building mailbox_or_url parser')
 mailbox_or_url_parser = yacc.yacc(
-    start='mailbox_or_url', errorlog=log)
+    start='mailbox_or_url', errorlog=log, outputdir=os.environ.get('CFFI_TMPDIR'))
 
 log.info('building mailbox_or_url_list parser')
 mailbox_or_url_list_parser = yacc.yacc(
-    start='mailbox_or_url_list', errorlog=log)
+    start='mailbox_or_url_list', errorlog=log, outputdir=os.environ.get('CFFI_TMPDIR'))
 
 
 # Interactive prompt for easy debugging

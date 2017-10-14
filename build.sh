@@ -8,4 +8,6 @@ if [[ ${TRAVIS_PYTHON_VERSION} == 2.7* ]]; then
     nosetests --with-coverage --cover-package=flanker
 else
     nosetests --with-coverage --cover-package=flanker tests/mime/bounce_tests.py
+    nosetests --with-coverage --cover-package=flanker tests/mime/message/threading_test.py
+    nosetests --with-coverage --cover-package=flanker tests/mime/message/tokenizer_test.py
 fi

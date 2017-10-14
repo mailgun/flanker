@@ -399,6 +399,9 @@ def tokenize(string):
     """
     Scans the entire message to find all Content-Types and boundaries.
     """
+    if six.PY3 and isinstance(string, six.binary_type):
+        string = string.decode('utf-8')
+
     tokens = deque()
     for m in _RE_TOKENIZER.finditer(string):
         if m.group(_CTYPE):

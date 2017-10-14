@@ -1,9 +1,12 @@
-import regex as re
 from collections import deque
 from contextlib import closing
-from cStringIO import StringIO
-from flanker.mime.message.headers.parsing import parse_stream
+
+import regex as re
+import six
+from six.moves import range
+
 from flanker.mime.message.headers import MimeHeaders
+from flanker.mime.message.headers.parsing import parse_stream
 
 
 def detect(message):
@@ -28,8 +31,8 @@ def collect(message):
 
 def collect_from_status(body):
     out = deque()
-    with closing(StringIO(body)) as stream:
-        for i in xrange(3):
+    with closing(six.StringIO(body)) as stream:
+        for i in range(3):
             out += parse_stream(stream)
     return out
 
@@ -42,9 +45,11 @@ def get_status(headers):
 
 def get_notification(message):
     for part in message.walk():
-        if part.headers.get('Content-Description',
-                            '').lower() == 'notification':
+        content_desc = part.headers.get('Content-Description', '').lower()
+        if content_desc == 'notification':
             return part.body
+
+    return None
 
 
 HEADERS = ('Action',

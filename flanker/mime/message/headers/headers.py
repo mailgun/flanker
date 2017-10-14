@@ -1,3 +1,4 @@
+import six
 from webob.multidict import MultiDict
 
 from flanker.mime.message.headers import encodedword
@@ -158,7 +159,7 @@ class MimeHeaders(object):
 def remove_newlines(value):
     if not value:
         return ''
-    elif isinstance(value, (str, unicode)):
+    elif isinstance(value, six.string_types):
         return value.replace('\r', '').replace('\n', '')
     else:
         return value

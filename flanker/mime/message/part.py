@@ -5,20 +5,19 @@ import logging
 import mimetypes
 import quopri
 from contextlib import closing
-from cStringIO import StringIO
-
-from os import path
 from email.mime import audio
+from os import path
+
+import six
 
 from flanker import metrics
 from flanker.mime import bounce
 from flanker.mime.message import headers, charsets
+from flanker.mime.message.errors import EncodingError, DecodingError
 from flanker.mime.message.headers import (WithParams, ContentType, MessageId,
                                           Subject)
 from flanker.mime.message.headers.parametrized import fix_content_type
-from flanker.mime.message.errors import EncodingError, DecodingError
 from flanker.utils import is_pure_ascii
-
 
 log = logging.getLogger(__name__)
 
@@ -480,11 +479,11 @@ class MimePart(RichPartMixin):
         # we submit the original string,
         # no copying, no alternation, yeah!
         if self.is_root() and not self.was_changed(ignore_prepends=True):
-            with closing(StringIO()) as out:
+            with closing(six.StringIO()) as out:
                 self._container._stream_prepended_headers(out)
                 return out.getvalue() + self._container.string
         else:
-            with closing(StringIO()) as out:
+            with closing(six.StringIO()) as out:
                 self.to_stream(out)
                 return out.getvalue()
 

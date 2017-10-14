@@ -2,10 +2,12 @@
 provide some convenience access methods
 """
 
-import regex as re
-import flanker.addresslib.address
-
 from email.utils import make_msgid
+
+import regex as re
+import six
+
+import flanker.addresslib.address
 
 
 class WithParams(tuple):
@@ -119,7 +121,7 @@ class ContentType(tuple):
                 and self.params == other.params
         elif isinstance(other, tuple):
             return tuple.__eq__(self, other)
-        elif isinstance(other, (unicode, str)):
+        elif isinstance(other, six.string_types):
             return str(self) == other
         else:
             return False
@@ -155,7 +157,7 @@ class MessageId(str):
 
     @classmethod
     def from_string(cls, string):
-        if not isinstance(string, (str, unicode)):
+        if not isinstance(string, six.string_types):
             return None
         for message_id in cls.scan(string):
             return message_id
@@ -181,11 +183,11 @@ class MessageId(str):
                 yield cls(message_id)
 
 
-class Subject(unicode):
+class Subject(six.text_type):
     RE_RE = re.compile("((RE|FW|FWD|HA)([[]\d])*:\s*)*", re.I)
 
     def __new__(cls, *args, **kw):
-        return unicode.__new__(cls, *args, **kw)
+        return six.text_type.__new__(cls, *args, **kw)
 
     def strip_replies(self):
         return self.RE_RE.sub('', self)

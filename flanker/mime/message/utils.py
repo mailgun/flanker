@@ -1,14 +1,16 @@
-from cStringIO import StringIO
 from contextlib import closing
 from email.generator import Generator
-from flanker.mime.message import errors
+
 import cchardet
 import chardet
+import six
+
+from flanker.mime.message import errors
 
 
 def python_message_to_string(msg):
     """Converts python message to string in a proper way"""
-    with closing(StringIO()) as fp:
+    with closing(six.StringIO()) as fp:
         g = Generator(fp, mangle_from_=False)
         g.flatten(msg, unixfrom=False)
         return fp.getvalue()
@@ -46,7 +48,7 @@ def _guess_and_convert(value):
 
 
 def _make_unicode(value, charset=None):
-    if isinstance(value, unicode):
+    if isinstance(value, six.text_type):
         return value
 
     charset = charset or "utf-8"

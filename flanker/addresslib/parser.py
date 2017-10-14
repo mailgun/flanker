@@ -1,8 +1,9 @@
-import ply.yacc as yacc
-from lexer import tokens, lexer
-from collections import namedtuple
 import logging
+from collections import namedtuple
 
+import ply.yacc as yacc
+
+from flanker.addresslib.lexer import lexer, tokens
 
 logging.basicConfig()
 log = logging.getLogger(__name__)
@@ -189,16 +190,16 @@ if __name__ == '__main__':
             break
         if s == '': continue
 
-        print '\nTokens list:\n'
+        print('\nTokens list:\n')
         lexer.input(s)
         while True:
             tok = lexer.token()
             if not tok:
                 break
-            print tok
+            print(tok)
 
-        print '\nParsing behavior:\n'
+        print('\nParsing behavior:\n')
         result = mailbox_or_url_list_parser.parse(s, debug=log)
 
-        print '\nResult:\n'
-        print result
+        print('\nResult:\n')
+        print(result)

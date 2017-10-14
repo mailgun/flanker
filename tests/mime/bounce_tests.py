@@ -21,5 +21,5 @@ def test_bounce_analyzer_on_regular():
 
 
 def test_bounce_no_headers_error_message():
-    msg = create.from_string("Nothing")
+    msg = create.from_string('Nothing')
     assert_false(msg.is_bounce())

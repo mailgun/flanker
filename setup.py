@@ -26,6 +26,7 @@ setup(name='flanker',
           'idna>=2.5',
           'ply>=3.10',
           'regex>=0.1.20110315',
+          'six',
           'WebOb>=0.9.8'],
       extras_require={
           'validator': [

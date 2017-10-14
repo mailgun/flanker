@@ -8,6 +8,9 @@ from flanker.mime.message import charsets
 from collections import deque
 from itertools import groupby
 
+_PARAM_STYLE_OLD = 'old'
+_PARAM_STYLE_NEW = 'new'
+
 
 def decode(header):
     """Accepts parameterized header value (encoded in accordance to
@@ -24,15 +27,15 @@ def decode(header):
 
 
 def is_parametrized(name, value):
-    return name in ("Content-Type", "Content-Disposition",
-                    "Content-Transfer-Encoding")
+    return name in ('Content-Type', 'Content-Disposition',
+                    'Content-Transfer-Encoding')
 
 
 def fix_content_type(value, default=None):
     """Content-Type value may be badly broken"""
     if not value:
         return default or ('text', 'plain')
-    values = value.lower().split("/")
+    values = value.lower().split('/')
     if len(values) >= 2:
         return values[:2]
     elif len(values) == 1:
@@ -94,13 +97,11 @@ def concatenate(parts):
          URL="ftp://cs.utk.edu/pub/moore/bulk-mailer/bulk-mailer.tar"
     """
     part = parts[0]
-
     if is_old_style(part):
         # old-style parameters do not support any continuations
         return encodedword.mime_to_unicode(get_value(part))
-    else:
-        return u"".join(
-            decode_new_style(p) for p in partition(parts))
+
+    return ''.join(decode_new_style(p) for p in partition(parts))
 
 
 def match_parameter(rest):
@@ -108,7 +109,8 @@ def match_parameter(rest):
         p, rest = match(rest)
         if p:
             return p, rest
-    return (None, rest)
+
+    return None, rest
 
 
 def match_old(rest):
@@ -116,9 +118,9 @@ def match_old(rest):
     if match:
         name = match.group('name')
         value = match.group('value')
-        return parameter('old', name, value), rest[match.end():]
-    else:
-        return None, rest
+        return parameter(_PARAM_STYLE_OLD, name, value), rest[match.end():]
+
+    return None, rest
 
 
 def match_new(rest):
@@ -126,9 +128,9 @@ def match_new(rest):
     if match:
         name = parse_parameter_name(match.group('name'))
         value = match.group('value')
-        return parameter('new', name, value), rest[match.end():]
-    else:
-        return (None, rest)
+        return parameter(_PARAM_STYLE_NEW, name, value), rest[match.end():]
+
+    return None, rest
 
 
 def reverse(string):
@@ -154,7 +156,7 @@ def parse_parameter_name(key):
     key = reverse(m.group('key'))
     part = reverse(m.group('part')) if m.group('part') else None
     encoded = m.group('encoded')
-    return (key, part, encoded)
+    return key, part, encoded
 
 
 def decode_new_style(parameter):
@@ -214,11 +216,11 @@ def is_quoted(part):
 
 
 def is_new_style(parameter):
-    return parameter[0] == 'new'
+    return parameter[0] == _PARAM_STYLE_NEW
 
 
 def is_old_style(parameter):
-    return parameter[0] == 'old'
+    return parameter[0] == _PARAM_STYLE_OLD
 
 
 def is_encoded(part):
@@ -241,17 +243,18 @@ def join_parameters(parts):
     for p in parts:
         return parameter(p[0], p[1], joined)
 
+
 # used to split header value and parameters
-headerValue = re.compile(r"""
+headerValue = re.compile(r'''
        # don't care about the spaces
        ^[\ \t]*
        #main type and sub type or any other value
        ([a-z0-9\-/\.\*]+)
        # grab the trailing spaces, colons
-       [\ \t;]*""", re.IGNORECASE | re.VERBOSE)
+       [\ \t;]*''', re.IGNORECASE | re.VERBOSE)
 
 
-oldStyleParameter = re.compile(r"""
+oldStyleParameter = re.compile(r'''
      # according to rfc1342, param value can be encoded-word
      # and it's actually very popular, so detect this parameter first
      ^
@@ -278,10 +281,9 @@ oldStyleParameter = re.compile(r"""
      )
      # ends with optional quoting sign that we ignore
      "?
-""", re.IGNORECASE | re.VERBOSE)
+''', re.IGNORECASE | re.VERBOSE)
 
-
-newStyleParameter = re.compile(r"""
+newStyleParameter = re.compile(r'''
      # Here we grab anything that looks like a parameter
      ^
      # skip spaces
@@ -310,7 +312,7 @@ newStyleParameter = re.compile(r"""
      # skip spaces
      [\ \t]*
      ;?
-""", re.IGNORECASE | re.VERBOSE)
+''', re.IGNORECASE | re.VERBOSE)
 
 reverseContinuation = re.compile(
-    "^(?P<encoded>\*)?(?P<part>\d+\*)?(?P<key>.*)")
+    r'^(?P<encoded>\*)?(?P<part>\d+\*)?(?P<key>.*)')

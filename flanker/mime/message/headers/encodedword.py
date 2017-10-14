@@ -1,11 +1,11 @@
 # coding:utf-8
-import logging
-import regex as re
-
-import email.quoprimime
 import email.base64mime
-
+import email.quoprimime
+import logging
 from base64 import b64encode
+
+import regex as re
+import six
 
 from flanker.mime.message import charsets, errors
 
@@ -22,7 +22,7 @@ def unfold(value):
     treated in its unfolded form for further syntactic and semantic
     evaluation.
     """
-    return re.sub(foldingWhiteSpace, r"\2", value)
+    return re.sub(foldingWhiteSpace, r'\2', value)
 
 
 def decode(header):
@@ -43,7 +43,7 @@ def mime_to_unicode(header):
         u"Hello"
     """
     # Only string header values need to be converted.
-    if not isinstance(header, basestring):
+    if not isinstance(header, six.string_types):
         return header
 
     try:
@@ -75,7 +75,7 @@ def mime_to_unicode(header):
     except Exception:
         try:
             logged_header = header
-            if isinstance(logged_header, unicode):
+            if isinstance(logged_header, six.text_type):
                 logged_header = logged_header.encode('utf-8')
                 # encode header as utf-8 so all characters can be base64 encoded
             logged_header = b64encode(logged_header)

@@ -84,7 +84,7 @@ def unfold(lines):
 
     for line in lines:
         # ignore unix from
-        if line.startswith("From "):
+        if line.startswith('From '):
             continue
         # this is continuation
         elif line[0] in ' \t':
@@ -95,9 +95,9 @@ def unfold(lines):
     new_headers = deque()
     for h in headers:
         if isinstance(h, deque):
-            new_headers.append("".join(h).rstrip("\r\n"))
+            new_headers.append(''.join(h).rstrip('\r\n'))
         else:
-            new_headers.append(h.rstrip("\r\n"))
+            new_headers.append(h.rstrip('\r\n'))
 
     return new_headers
 
@@ -118,7 +118,7 @@ def extend(headers, line):
 
 
 def split2(header):
-    pair = header.split(":", 1)
+    pair = header.split(':', 1)
     if len(pair) == 2:
         return normalize(pair[0].rstrip()), pair[1].lstrip()
     else:

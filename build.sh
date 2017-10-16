@@ -10,4 +10,9 @@ else
     nosetests --with-coverage --cover-package=flanker tests/mime/bounce_tests.py
     nosetests --with-coverage --cover-package=flanker tests/mime/message/threading_test.py
     nosetests --with-coverage --cover-package=flanker tests/mime/message/tokenizer_test.py
+    nosetests --with-coverage --cover-package=flanker tests/mime/message/headers/encodedword_test.py
+    nosetests --with-coverage --cover-package=flanker tests/mime/message/headers/headers_test.py
+    nosetests --with-coverage --cover-package=flanker tests/mime/message/headers/parametrized_test.py
+    nosetests --with-coverage --cover-package=flanker tests/mime/message/headers/parsing_test.py
+    nosetests --with-coverage --cover-package=flanker tests/mime/message/headers/wrappers_test.py
 fi

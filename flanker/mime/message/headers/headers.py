@@ -150,7 +150,7 @@ class MimeHeaders(object):
                 break
             i += 1
             try:
-                h = h.encode('ascii')
+                h.encode('ascii')
             except UnicodeDecodeError:
                 raise EncodingError("Non-ascii header name")
             stream.write("{0}: {1}\r\n".format(h, to_mime(h, v)))

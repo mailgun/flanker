@@ -20,6 +20,7 @@ setup(name='flanker',
           'mock'
       ],
       install_requires=[
+          'attrs',
           'chardet>=1.0.1',
           'cchardet>=0.3.5',
           'cryptography>=0.5',

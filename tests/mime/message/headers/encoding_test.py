@@ -6,7 +6,7 @@ from nose.tools import eq_, ok_
 from mock import patch, Mock
 
 from flanker.mime.message import headers
-from flanker.mime.message.headers.encoding import (encode_unstructured,
+from flanker.mime.message.headers.encoding import (_encode_unstructured,
                                                    encode_string)
 from flanker.mime.message import part
 from flanker.mime import create
@@ -63,24 +63,25 @@ def max_header_length_test():
     ascii_subject = "This is simple ascii subject"
 
     with patch.object(
-        headers.encoding, 'MAX_HEADER_LENGTH', len(ascii_subject) + 1):
+        headers.encoding, '_MAX_HEADER_LENGTH', len(ascii_subject) + 1):
 
         eq_(Header(ascii_subject.encode("ascii"), "ascii", header_name="Subject"),
-            encode_unstructured("Subject", ascii_subject))
+            _encode_unstructured("Subject", ascii_subject))
 
     with patch.object(
-        headers.encoding, 'MAX_HEADER_LENGTH', len(unicode_subject) + 1):
+        headers.encoding, '_MAX_HEADER_LENGTH', len(unicode_subject) + 1):
 
         eq_(Header(unicode_subject.encode("utf-8"), "utf-8", header_name="Subject"),
-            encode_unstructured("Subject", unicode_subject))
+            _encode_unstructured("Subject", unicode_subject))
 
-    with patch.object(headers.encoding, 'MAX_HEADER_LENGTH', 1):
+    with patch.object(headers.encoding, '_MAX_HEADER_LENGTH', 1):
 
         eq_(ascii_subject.encode("utf-8"),
-            encode_unstructured("Subject", ascii_subject))
+            _encode_unstructured("Subject", ascii_subject))
 
         eq_(unicode_subject.encode("utf-8"),
-            encode_unstructured("Subject", unicode_subject))
+            _encode_unstructured("Subject", unicode_subject))
+
 
 def add_header_preserve_original_encoding_test():
     message = create.from_string(ENCODED_HEADER)

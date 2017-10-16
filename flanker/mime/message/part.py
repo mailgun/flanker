@@ -137,8 +137,8 @@ def _guess_type(filename):
 
 
 class Body(object):
-    def __init__(
-        self, content_type, body, charset=None, disposition=None, filename=None, trust_ctype=False):
+    def __init__(self, content_type, body, charset=None, disposition=None,
+                 filename=None, trust_ctype=False):
         self.headers = headers.MimeHeaders()
         self.body = body
         self.disposition = disposition or ('attachment' if filename else None)
@@ -157,7 +157,8 @@ class Body(object):
                 charset = "utf-8"
 
             # it should be stored as unicode. period
-            self.body = charsets.convert_to_unicode(charset, body)
+            if isinstance(body, six.binary_type):
+                self.body = charsets.convert_to_unicode(charset, body)
 
             # let's be simple when possible
             if charset != 'ascii' and is_pure_ascii(body):

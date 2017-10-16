@@ -367,16 +367,7 @@ class RichPartMixin(object):
     @property
     def bounce(self):
         """
-        If the message is NOT bounce, then `None` is returned. Otherwise
-        it returns a bounce object that provides the values:
-          * score - a value between 0 and 1, where 0 means that the message is
-                    definitely not a bounce, and 1 means that is definitely a
-                    bounce;
-          * status -  delivery status;
-          * notification - human readable description;
-          * diagnostic_code - smtp diagnostic codes;
-
-        Can raise MimeError in case if MIME is screwed.
+        Deprecated: use bounce.detect(message).
         """
         if not self._bounce:
             self._bounce = bounce.detect(self)
@@ -384,10 +375,9 @@ class RichPartMixin(object):
 
     def is_bounce(self, probability=0.3):
         """
-        Determines whether the message is a bounce message based on
-        given probability. 0.3 is a good conservative base.
+        Deprecated: use bounce.detect(message).
         """
-        return self.bounce.score > probability
+        return self.bounce.is_bounce(probability)
 
     def __str__(self):
         return "({0})".format(self.content_type)

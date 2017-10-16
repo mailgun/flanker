@@ -30,7 +30,7 @@ def parse_header(header):
     """
     name, val = _split_header(header)
     if not is_pure_ascii(name):
-        raise DecodingError("Non-ascii header name")
+        raise DecodingError('Non-ascii header name')
 
     return name, parse_header_value(name, encodedword.unfold(val))
 
@@ -38,7 +38,7 @@ def parse_header(header):
 def parse_header_value(name, val):
     if not is_pure_ascii(val):
         if parametrized.is_parametrized(name, val):
-            raise DecodingError("Unsupported value in content- header")
+            raise DecodingError('Unsupported value in content- header')
 
         return to_unicode(val)
 
@@ -62,7 +62,7 @@ def _read_header_lines(fp):
     lines = deque()
     for line in fp:
         if len(line) > _MAX_LINE_LENGTH:
-            raise DecodingError("Line is too long: %d" % len(line))
+            raise DecodingError('Line is too long: %d' % len(line))
 
         if is_empty(line):
             break

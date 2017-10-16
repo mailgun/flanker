@@ -28,6 +28,7 @@ def read_fixture_bytes(path):
 
 # mime fixture files
 BOUNCE = read_fixture_bytes('messages/bounce/zed.eml')
+BOUNCE_OFFICE365 = read_fixture_bytes('messages/bounce/office365.eml')
 MAILBOX_FULL = read_fixture_bytes('messages/bounce/mailbox-full.eml')
 NDN = read_fixture_bytes('messages/bounce/delayed.eml')
 NDN_BROKEN = read_fixture_bytes('messages/bounce/delayed-broken.eml')

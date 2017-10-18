@@ -8,7 +8,7 @@ from flanker.mime.message import errors, charsets
 
 def encoded_word_test():
     def t(value):
-        m  = encodedword.encodedWord.match(value)
+        m  = encodedword._RE_ENCODED_WORD.match(value)
         return (m.group('charset'), m.group('encoding'), m.group('encoded'))
 
     r = t('=?utf-8?B?U2ltcGxlIHRleHQuIEhvdyBhcmUgeW91PyDQmtCw0Log0YLRiyDQv9C+0LY=?=')
@@ -128,17 +128,21 @@ def various_encodings_test():
     v = '=?UTF-8?B?0J/RgNC+0LLQtdGA0Y/QtdC8INGA0YPRgdGB0LrQuNC1INGB0LDQsdC2?=\r\n =?UTF-8?B?0LXQutGC0Ysg0Lgg0Y7QvdC40LrQvtC0IOKYoA==?='
     eq_(u'Проверяем русские сабжекты и юникод ☠', encodedword.mime_to_unicode(v))
 
-    v = u'=?utf-8?Q?Evaneos-Concepci=C3=B3n.pdf?='
+    v = '=?utf-8?Q?Evaneos-Concepci=C3=B3n.pdf?='
     eq_(u'Evaneos-Concepción.pdf', encodedword.mime_to_unicode(v))
 
 
 @patch.object(utils, '_guess_and_convert', Mock(side_effect=errors.EncodingError()))
 def test_convert_to_utf8_unknown_encoding():
-    v = "abc\x80def"
-    eq_(u"abc\u20acdef", charsets.convert_to_unicode("windows-874", v))
-    eq_(u"qwe", charsets.convert_to_unicode('X-UNKNOWN', u"qwe"))
-    eq_(u"qwe", charsets.convert_to_unicode('ru_RU.KOI8-R', 'qwe'))
-    eq_(u"qwe", charsets.convert_to_unicode('"utf-8"; format="flowed"', 'qwe'))
+    eq_(u"abc\u20acdef",
+        charsets.convert_to_unicode("windows-874", b"abc\x80def"))
+    eq_(u"qwe",
+        charsets.convert_to_unicode('X-UNKNOWN', u'qwe'))
+    eq_(u"qwe",
+        charsets.convert_to_unicode('ru_RU.KOI8-R', 'qwe'))
+    eq_(u"qwe",
+        charsets.convert_to_unicode('"utf-8"; format="flowed"', 'qwe'))
+
 
 @patch.object(encodedword, 'unfold', Mock(side_effect=Exception))
 def test_error_reporting():

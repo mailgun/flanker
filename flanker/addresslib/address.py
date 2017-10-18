@@ -35,12 +35,12 @@ See the parser.py module for implementation details of the parser.
 """
 from logging import getLogger
 from time import time
-from urlparse import urlparse
 
 import idna
 from idna import IDNAError
 from ply.lex import LexError
 from ply.yacc import YaccError
+from six.moves.urllib_parse import urlparse
 
 from flanker.addresslib.lexer import lexer
 from flanker.addresslib.parser import (Mailbox, Url, mailbox_parser,

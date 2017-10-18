@@ -1,16 +1,14 @@
 # coding:utf-8
-
-from cStringIO import StringIO
 import zlib
 
-from mock import *
-from nose.tools import *
+import six
+from nose.tools import eq_, ok_, assert_false, assert_raises
 
 from flanker.mime.message.errors import DecodingError
-from flanker.mime.message.headers import encoding
 from flanker.mime.message.headers import MimeHeaders
+from flanker.mime.message.headers import encoding
+from tests import BILINGUAL
 
-from .... import *
 
 def headers_case_insensitivity_test():
     h = MimeHeaders()
@@ -37,7 +35,7 @@ def headers_order_preserved_test():
     # iterate over keys
     keys = ['Mime-Version', 'Received', 'Mime-Version', 'Received']
     eq_(keys, [p for p in h])
-    eq_(keys, h.keys())
+    eq_(keys, list(h.keys()))
 
 
 def headers_boolean_test():
@@ -131,31 +129,31 @@ def headers_transform_encodedword_test():
     eq_(u'Hello ☃', h.get('Subject'))
 
 def headers_parsing_empty_test():
-    h = MimeHeaders.from_stream(StringIO(""))
+    h = MimeHeaders.from_stream(six.StringIO(""))
     eq_(0, len(h))
 
 def headers_parsing_ridiculously_long_line_test():
     val = "abcdefg"*100000
     header = "Hello: {0}\r\n".format(val)
     assert_raises(
-        DecodingError, MimeHeaders.from_stream, StringIO(header))
+        DecodingError, MimeHeaders.from_stream, six.StringIO(header))
 
 
 def headers_parsing_binary_stuff_survives_test():
-    value = zlib.compress("abcdefg")
+    value = zlib.compress(b"abcdefg")
     header = "Hello: {0}\r\n".format(value)
-    ok_(MimeHeaders.from_stream(StringIO(header)))
+    ok_(MimeHeaders.from_stream(six.StringIO(header)))
 
 
 def broken_sequences_test():
-    headers = StringIO("  hello this is a bad header\nGood: this one is ok")
+    headers = six.StringIO("  hello this is a bad header\nGood: this one is ok")
     headers = MimeHeaders.from_stream(headers)
     eq_(1, len(headers))
     eq_("this one is ok", headers["Good"])
 
 
 def bilingual_message_test():
-    headers = MimeHeaders.from_stream(StringIO(BILINGUAL))
+    headers = MimeHeaders.from_stream(six.StringIO(BILINGUAL.decode('utf-8')))
     eq_(21, len(headers))
     eq_(u"Simple text. How are you? Как ты поживаешь?", headers['Subject'])
     received_headers = headers.getall('Received')
@@ -164,11 +162,11 @@ def bilingual_message_test():
 
 
 def headers_roundtrip_test():
-    headers = MimeHeaders.from_stream(StringIO(BILINGUAL))
-    out = StringIO()
+    headers = MimeHeaders.from_stream(six.StringIO(BILINGUAL.decode('utf-8')))
+    out = six.StringIO()
     headers.to_stream(out)
 
-    headers2 = MimeHeaders.from_stream(StringIO(out.getvalue()))
+    headers2 = MimeHeaders.from_stream(six.StringIO(out.getvalue()))
     eq_(21, len(headers2))
     eq_(u"Simple text. How are you? Как ты поживаешь?", headers['Subject'])
     received_headers = headers.getall('Received')
@@ -182,7 +180,7 @@ def headers_roundtrip_test():
 
 def test_folding_combinations():
     message = """From mrc@example.com Mon Feb  8 02:53:47 PST 1993\nTo: sasha\r\n  continued\n      line\nFrom: single line  \r\nSubject: hello, how are you\r\n today?"""
-    headers = MimeHeaders.from_stream(StringIO(message))
+    headers = MimeHeaders.from_stream(six.StringIO(message))
     eq_('sasha  continued      line', headers['To'])
     eq_('single line  ', headers['From'])
     eq_("hello, how are you today?", headers['Subject'])

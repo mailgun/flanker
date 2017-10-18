@@ -5,20 +5,19 @@ import logging
 import mimetypes
 import quopri
 from contextlib import closing
-from cStringIO import StringIO
-
-from os import path
 from email.mime import audio
+from os import path
+
+import six
 
 from flanker import metrics
 from flanker.mime import bounce
 from flanker.mime.message import headers, charsets
+from flanker.mime.message.errors import EncodingError, DecodingError
 from flanker.mime.message.headers import (WithParams, ContentType, MessageId,
                                           Subject)
 from flanker.mime.message.headers.parametrized import fix_content_type
-from flanker.mime.message.errors import EncodingError, DecodingError
 from flanker.utils import is_pure_ascii
-
 
 log = logging.getLogger(__name__)
 
@@ -138,8 +137,8 @@ def _guess_type(filename):
 
 
 class Body(object):
-    def __init__(
-        self, content_type, body, charset=None, disposition=None, filename=None, trust_ctype=False):
+    def __init__(self, content_type, body, charset=None, disposition=None,
+                 filename=None, trust_ctype=False):
         self.headers = headers.MimeHeaders()
         self.body = body
         self.disposition = disposition or ('attachment' if filename else None)
@@ -158,7 +157,8 @@ class Body(object):
                 charset = "utf-8"
 
             # it should be stored as unicode. period
-            self.body = charsets.convert_to_unicode(charset, body)
+            if isinstance(body, six.binary_type):
+                self.body = charsets.convert_to_unicode(charset, body)
 
             # let's be simple when possible
             if charset != 'ascii' and is_pure_ascii(body):
@@ -367,16 +367,7 @@ class RichPartMixin(object):
     @property
     def bounce(self):
         """
-        If the message is NOT bounce, then `None` is returned. Otherwise
-        it returns a bounce object that provides the values:
-          * score - a value between 0 and 1, where 0 means that the message is
-                    definitely not a bounce, and 1 means that is definitely a
-                    bounce;
-          * status -  delivery status;
-          * notification - human readable description;
-          * diagnostic_code - smtp diagnostic codes;
-
-        Can raise MimeError in case if MIME is screwed.
+        Deprecated: use bounce.detect(message).
         """
         if not self._bounce:
             self._bounce = bounce.detect(self)
@@ -384,10 +375,9 @@ class RichPartMixin(object):
 
     def is_bounce(self, probability=0.3):
         """
-        Determines whether the message is a bounce message based on
-        given probability. 0.3 is a good conservative base.
+        Deprecated: use bounce.detect(message).
         """
-        return self.bounce.score > probability
+        return self.bounce.is_bounce(probability)
 
     def __str__(self):
         return "({0})".format(self.content_type)
@@ -480,11 +470,11 @@ class MimePart(RichPartMixin):
         # we submit the original string,
         # no copying, no alternation, yeah!
         if self.is_root() and not self.was_changed(ignore_prepends=True):
-            with closing(StringIO()) as out:
+            with closing(six.StringIO()) as out:
                 self._container._stream_prepended_headers(out)
                 return out.getvalue() + self._container.string
         else:
-            with closing(StringIO()) as out:
+            with closing(six.StringIO()) as out:
                 self.to_stream(out)
                 return out.getvalue()
 

@@ -1,12 +1,18 @@
 """Module that is responsible for parsing parameterized header values
 encoded in accordance to rfc2231 (new style) or rfc1342 (old style)
 """
-import urllib
-import regex as re
-from flanker.mime.message.headers import encodedword
-from flanker.mime.message import charsets
 from collections import deque
 from itertools import groupby
+
+import regex as re
+import six
+from six.moves import urllib_parse
+
+from flanker.mime.message import charsets
+from flanker.mime.message.headers import encodedword
+
+_PARAM_STYLE_OLD = 'old'
+_PARAM_STYLE_NEW = 'new'
 
 
 def decode(header):
@@ -16,23 +22,27 @@ def decode(header):
          value, {'key': u'val'}
      returns None in case of any failure
     """
+    if six.PY3 and isinstance(header, six.binary_type):
+        header = header.decode('utf-8')
+
     value, rest = split(encodedword.unfold(header))
     if value is None:
         return None, {}
-    elif value:
-        return value, decode_parameters(rest)
+
+    return value, decode_parameters(rest)
 
 
 def is_parametrized(name, value):
-    return name in ("Content-Type", "Content-Disposition",
-                    "Content-Transfer-Encoding")
+    return name in ('Content-Type',
+                    'Content-Disposition',
+                    'Content-Transfer-Encoding')
 
 
 def fix_content_type(value, default=None):
     """Content-Type value may be badly broken"""
     if not value:
         return default or ('text', 'plain')
-    values = value.lower().split("/")
+    values = value.lower().split('/')
     if len(values) >= 2:
         return values[:2]
     elif len(values) == 1:
@@ -50,7 +60,7 @@ def split(header):
     becomes:
          ["multipart/mixed", "boundary=hal_9000"]
     """
-    match = headerValue.match(header)
+    match = _RE_HEADER_VALUE.match(header)
     if not match:
         return (None, None)
     return match.group(1).lower(), header[match.end():]
@@ -94,13 +104,11 @@ def concatenate(parts):
          URL="ftp://cs.utk.edu/pub/moore/bulk-mailer/bulk-mailer.tar"
     """
     part = parts[0]
-
     if is_old_style(part):
         # old-style parameters do not support any continuations
         return encodedword.mime_to_unicode(get_value(part))
-    else:
-        return u"".join(
-            decode_new_style(p) for p in partition(parts))
+
+    return ''.join(decode_new_style(p) for p in partition(parts))
 
 
 def match_parameter(rest):
@@ -108,27 +116,28 @@ def match_parameter(rest):
         p, rest = match(rest)
         if p:
             return p, rest
-    return (None, rest)
+
+    return None, rest
 
 
 def match_old(rest):
-    match = oldStyleParameter.match(rest)
+    match = _RE_OLD_STYLE_PARAM.match(rest)
     if match:
         name = match.group('name')
         value = match.group('value')
-        return parameter('old', name, value), rest[match.end():]
-    else:
-        return None, rest
+        return parameter(_PARAM_STYLE_OLD, name, value), rest[match.end():]
+
+    return None, rest
 
 
 def match_new(rest):
-    match = newStyleParameter.match(rest)
+    match = _RE_NEW_STYLE_PARAM.match(rest)
     if match:
         name = parse_parameter_name(match.group('name'))
         value = match.group('value')
-        return parameter('new', name, value), rest[match.end():]
-    else:
-        return (None, rest)
+        return parameter(_PARAM_STYLE_NEW, name, value), rest[match.end():]
+
+    return None, rest
 
 
 def reverse(string):
@@ -150,11 +159,11 @@ def parse_parameter_name(key):
     I found it easier to match against a reversed string,
     as regexp is simpler
     """
-    m = reverseContinuation.match(reverse(key))
+    m = _RE_REVERSE_CONTINUATION.match(reverse(key))
     key = reverse(m.group('key'))
     part = reverse(m.group('part')) if m.group('part') else None
     encoded = m.group('encoded')
-    return (key, part, encoded)
+    return key, part, encoded
 
 
 def decode_new_style(parameter):
@@ -193,7 +202,7 @@ def decode_charset(parameter):
     if len(parts) != 3:
         return v
     charset, language, val = parts
-    val = urllib.unquote(val)
+    val = urllib_parse.unquote(val)
     return charsets.convert_to_unicode(charset, val)
 
 
@@ -214,11 +223,11 @@ def is_quoted(part):
 
 
 def is_new_style(parameter):
-    return parameter[0] == 'new'
+    return parameter[0] == _PARAM_STYLE_NEW
 
 
 def is_old_style(parameter):
-    return parameter[0] == 'old'
+    return parameter[0] == _PARAM_STYLE_OLD
 
 
 def is_encoded(part):
@@ -241,17 +250,18 @@ def join_parameters(parts):
     for p in parts:
         return parameter(p[0], p[1], joined)
 
+
 # used to split header value and parameters
-headerValue = re.compile(r"""
+_RE_HEADER_VALUE = re.compile(r'''
        # don't care about the spaces
        ^[\ \t]*
        #main type and sub type or any other value
        ([a-z0-9\-/\.\*]+)
        # grab the trailing spaces, colons
-       [\ \t;]*""", re.IGNORECASE | re.VERBOSE)
+       [\ \t;]*''', re.IGNORECASE | re.VERBOSE)
 
 
-oldStyleParameter = re.compile(r"""
+_RE_OLD_STYLE_PARAM = re.compile(r'''
      # according to rfc1342, param value can be encoded-word
      # and it's actually very popular, so detect this parameter first
      ^
@@ -278,10 +288,9 @@ oldStyleParameter = re.compile(r"""
      )
      # ends with optional quoting sign that we ignore
      "?
-""", re.IGNORECASE | re.VERBOSE)
+''', re.IGNORECASE | re.VERBOSE)
 
-
-newStyleParameter = re.compile(r"""
+_RE_NEW_STYLE_PARAM = re.compile(r'''
      # Here we grab anything that looks like a parameter
      ^
      # skip spaces
@@ -310,7 +319,7 @@ newStyleParameter = re.compile(r"""
      # skip spaces
      [\ \t]*
      ;?
-""", re.IGNORECASE | re.VERBOSE)
+''', re.IGNORECASE | re.VERBOSE)
 
-reverseContinuation = re.compile(
-    "^(?P<encoded>\*)?(?P<part>\d+\*)?(?P<key>.*)")
+_RE_REVERSE_CONTINUATION = re.compile(
+    r'^(?P<encoded>\*)?(?P<part>\d+\*)?(?P<key>.*)')

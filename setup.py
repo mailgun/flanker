@@ -3,7 +3,7 @@
 from setuptools import setup, find_packages
 
 setup(name='flanker',
-      version='0.7.4',
+      version='0.8.0',
       description='Mailgun Parsing Tools',
       long_description=open('README.rst').read(),
       classifiers=[],
@@ -20,12 +20,14 @@ setup(name='flanker',
           'mock'
       ],
       install_requires=[
+          'attrs',
           'chardet>=1.0.1',
           'cchardet>=0.3.5',
           'cryptography>=0.5',
           'idna>=2.5',
           'ply>=3.10',
           'regex>=0.1.20110315',
+          'six',
           'WebOb>=0.9.8'],
       extras_require={
           'validator': [

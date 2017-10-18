@@ -3,6 +3,8 @@ Implements message threading
 """
 from email.utils import make_msgid
 
+import six
+
 
 def build_thread(messages):
     """
@@ -24,7 +26,7 @@ def build_table(messages):
 
 def build_root_set(table):
     root = Container()
-    for container in table.itervalues():
+    for container in six.itervalues(table):
         if not container.parent:
             root.add_child(container)
     return root
@@ -200,5 +202,3 @@ class Wrapper(object):
         self.message = message
         self.message_id = message.message_id or make_msgid()
         self.references = message.references
-        #self.subject = message.subject
-        #self.clean_subject = message.clean_subject

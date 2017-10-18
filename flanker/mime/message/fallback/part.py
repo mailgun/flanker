@@ -1,5 +1,7 @@
 import logging
 import email
+
+import six
 from webob.multidict import MultiDict
 from flanker.mime.message.charsets import convert_to_unicode
 from flanker.mime.message.headers.headers import remove_newlines, MimeHeaders
@@ -159,12 +161,13 @@ class FallbackHeaders(MimeHeaders):
 def _try_decode(key, value):
     if isinstance(value, (tuple, list)):
         return value
-    elif isinstance(value, str):
+    elif isinstance(value, six.binary_type):
         try:
             return headers.parse_header_value(key, value)
         except Exception:
-            return unicode(value, 'utf-8', 'ignore')
-    elif isinstance(value, unicode):
+            return value.decode('utf-8', 'ignore')
+
+    elif isinstance(value, six.text_type):
         return value
     else:
         return ""

@@ -1,5 +1,7 @@
-from StringIO import StringIO
-import re
+import regex as re
+import six
+from six.moves import StringIO
+
 from flanker.addresslib.lexer import t_ATOM, t_FWSP
 
 _RE_ATOM_PHRASE = re.compile(
@@ -50,7 +52,7 @@ def smart_unquote(s):
 
 
 def _contains_atoms_only(s):
-    if isinstance(s, unicode):
+    if isinstance(s, six.text_type):
         s = s.encode('utf-8')
     match_result = _RE_ATOM_PHRASE.match(s)
     return match_result and match_result.end(0) == len(s)

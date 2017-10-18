@@ -6,106 +6,101 @@ import codecs
 
 
 def fixtures_path():
-    return join(abspath(dirname(__file__)), "fixtures")
+    return join(abspath(dirname(__file__)), 'fixtures')
+
 
 def fixture_file(name):
     return join(fixtures_path(), name)
 
+
 def skip_if_asked():
     from nose import SkipTest
     import sys
-    if "--no-skip" not in sys.argv:
+    if '--no-skip' not in sys.argv:
         raise SkipTest()
 
 
+def read_fixture_bytes(path):
+    absolute_path = join(abspath(dirname(__file__)), 'fixtures', path)
+    with open(absolute_path, 'rb') as f:
+        return f.read()
+
+
 # mime fixture files
-BOUNCE = open(fixture_file("messages/bounce/zed.eml")).read()
-MAILBOX_FULL = open(fixture_file("messages/bounce/mailbox-full.eml")).read()
-NDN = open(fixture_file("messages/bounce/delayed.eml")).read()
-NDN_BROKEN = open(fixture_file("messages/bounce/delayed-broken.eml")).read()
+BOUNCE = read_fixture_bytes('messages/bounce/zed.eml')
+BOUNCE_OFFICE365 = read_fixture_bytes('messages/bounce/office365.eml')
+MAILBOX_FULL = read_fixture_bytes('messages/bounce/mailbox-full.eml')
+NDN = read_fixture_bytes('messages/bounce/delayed.eml')
+NDN_BROKEN = read_fixture_bytes('messages/bounce/delayed-broken.eml')
 
-SIGNED_FILE = open(fixture_file("messages/signed.eml"))
-SIGNED = open(fixture_file("messages/signed.eml")).read()
-LONG_LINKS = open(fixture_file("messages/long-links.eml")).read()
-MULTI_RECEIVED_HEADERS = open(
-    fixture_file("messages/multi-received-headers.eml")).read()
-MAILGUN_PNG = open(fixture_file("messages/attachments/mailgun.png")).read()
-MAILGUN_WAV = open(
-    fixture_file("messages/attachments/mailgun-rocks.wav")).read()
+SIGNED = read_fixture_bytes('messages/signed.eml')
+LONG_LINKS = read_fixture_bytes('messages/long-links.eml')
+MULTI_RECEIVED_HEADERS = read_fixture_bytes(
+    'messages/multi-received-headers.eml')
+MAILGUN_PNG = read_fixture_bytes('messages/attachments/mailgun.png')
+MAILGUN_WAV = read_fixture_bytes('messages/attachments/mailgun-rocks.wav')
 
-TORTURE = open(fixture_file("messages/torture.eml")).read()
-TORTURE_PART = open(fixture_file("messages/torture-part.eml")).read()
-BILINGUAL = open(fixture_file("messages/bilingual-simple.eml")).read()
-RELATIVE = open(fixture_file("messages/relative.eml")).read()
-IPHONE = open(fixture_file("messages/iphone.eml")).read()
+TORTURE = read_fixture_bytes('messages/torture.eml')
+TORTURE_PART = read_fixture_bytes('messages/torture-part.eml')
+BILINGUAL = read_fixture_bytes('messages/bilingual-simple.eml')
+RELATIVE = read_fixture_bytes('messages/relative.eml')
+IPHONE = read_fixture_bytes('messages/iphone.eml')
 
-MULTIPART = open(fixture_file("messages/multipart.eml")).read()
-FROM_ENCODING = open(fixture_file("messages/from-encoding.eml")).read()
-NO_CTYPE = open(fixture_file("messages/no-ctype.eml")).read()
-APACHE_MIME_MESSAGE_NEWS = open(fixture_file("messages/apache-message-news-mime.eml")).read()
-ENCLOSED = open(fixture_file("messages/enclosed.eml")).read()
-ENCLOSED_BROKEN_BOUNDARY = open(
-    fixture_file("messages/enclosed-broken.eml")).read()
-ENCLOSED_ENDLESS = open(
-    fixture_file("messages/enclosed-endless.eml")).read()
-ENCLOSED_BROKEN_BODY = open(
-    fixture_file("messages/enclosed-broken-body.eml")).read()
-ENCLOSED_BROKEN_ENCODING = open(
-    fixture_file("messages/enclosed-bad-encoding.eml")).read()
-FALSE_MULTIPART = open(
-    fixture_file("messages/false-multipart.eml")).read()
-ENCODED_HEADER = open(
-    fixture_file("messages/encoded-header.eml")).read()
-MESSAGE_EXTERNAL_BODY= open(
-    fixture_file("messages/message-external-body.eml")).read()
-EIGHT_BIT = open(fixture_file("messages/8bitmime.eml")).read()
-BIG = open(fixture_file("messages/big.eml")).read()
-RUSSIAN_ATTACH_YAHOO = open(
-    fixture_file("messages/russian-attachment-yahoo.eml")).read()
-QUOTED_PRINTABLE = open(
-    fixture_file("messages/quoted-printable.eml")).read()
-TEXT_ONLY = open(fixture_file("messages/text-only.eml")).read()
-MAILGUN_PIC = open(fixture_file("messages/mailgun-pic.eml")).read()
-BZ2_ATTACHMENT  = open(fixture_file("messages/bz2-attachment.eml")).read()
-OUTLOOK_EXPRESS = open(fixture_file("messages/outlook-express.eml")).read()
+MULTIPART = read_fixture_bytes('messages/multipart.eml')
+FROM_ENCODING = read_fixture_bytes('messages/from-encoding.eml')
+NO_CTYPE = read_fixture_bytes('messages/no-ctype.eml')
+APACHE_MIME_MESSAGE_NEWS = read_fixture_bytes(
+    'messages/apache-message-news-mime.eml')
+ENCLOSED = read_fixture_bytes('messages/enclosed.eml')
+ENCLOSED_BROKEN_BOUNDARY = read_fixture_bytes('messages/enclosed-broken.eml')
+ENCLOSED_ENDLESS = read_fixture_bytes('messages/enclosed-endless.eml')
+ENCLOSED_BROKEN_BODY = read_fixture_bytes('messages/enclosed-broken-body.eml')
+ENCLOSED_BROKEN_ENCODING = read_fixture_bytes(
+    'messages/enclosed-bad-encoding.eml')
+FALSE_MULTIPART = read_fixture_bytes('messages/false-multipart.eml')
+ENCODED_HEADER = read_fixture_bytes('messages/encoded-header.eml')
+MESSAGE_EXTERNAL_BODY= read_fixture_bytes(
+    'messages/message-external-body.eml')
+EIGHT_BIT = read_fixture_bytes('messages/8bitmime.eml')
+BIG = read_fixture_bytes('messages/big.eml')
+RUSSIAN_ATTACH_YAHOO = read_fixture_bytes(
+    'messages/russian-attachment-yahoo.eml')
+QUOTED_PRINTABLE = read_fixture_bytes('messages/quoted-printable.eml')
+TEXT_ONLY = read_fixture_bytes('messages/text-only.eml')
+MAILGUN_PIC = read_fixture_bytes('messages/mailgun-pic.eml')
+BZ2_ATTACHMENT  = read_fixture_bytes('messages/bz2-attachment.eml')
+OUTLOOK_EXPRESS = read_fixture_bytes('messages/outlook-express.eml')
 
-AOL_FBL = open(fixture_file("messages/complaints/aol.eml")).read()
-YAHOO_FBL = open(fixture_file("messages/complaints/yahoo.eml")).read()
-NOTIFICATION = open(fixture_file("messages/bounce/no-mx.eml")).read()
-DASHED_BOUNDARIES = open(
-    fixture_file("messages/dashed-boundaries.eml")).read()
-WEIRD_BOUNCE = open(fixture_file("messages/bounce/gmail-no-dns.eml")).read()
-WEIRD_BOUNCE_2 = open(
-    fixture_file("messages/bounce/gmail-invalid-address.eml")).read()
+AOL_FBL = read_fixture_bytes('messages/complaints/aol.eml')
+YAHOO_FBL = read_fixture_bytes('messages/complaints/yahoo.eml')
+NOTIFICATION = read_fixture_bytes('messages/bounce/no-mx.eml')
+DASHED_BOUNDARIES = read_fixture_bytes('messages/dashed-boundaries.eml')
+WEIRD_BOUNCE = read_fixture_bytes('messages/bounce/gmail-no-dns.eml')
+WEIRD_BOUNCE_2 = read_fixture_bytes(
+    'messages/bounce/gmail-invalid-address.eml')
 
-WEIRD_BOUNCE_3 = open(
-    fixture_file("messages/bounce/broken-mime.eml")).read()
-MISSING_BOUNDARIES = open(
-    fixture_file("messages/missing-boundaries.eml")).read()
-MISSING_FINAL_BOUNDARY = open(
-    fixture_file("messages/missing-final-boundary.eml")).read()
-DISPOSITION_NOTIFICATION = open(
-    fixture_file("messages/disposition-notification.eml")).read()
-MAILFORMED_HEADERS = open(
-    fixture_file("messages/mailformed-headers.eml")).read()
+WEIRD_BOUNCE_3 = read_fixture_bytes('messages/bounce/broken-mime.eml')
+MISSING_BOUNDARIES = read_fixture_bytes('messages/missing-boundaries.eml')
+MISSING_FINAL_BOUNDARY = read_fixture_bytes(
+    'messages/missing-final-boundary.eml')
+DISPOSITION_NOTIFICATION = read_fixture_bytes(
+    'messages/disposition-notification.eml')
+MAILFORMED_HEADERS = read_fixture_bytes('messages/mailformed-headers.eml')
 
-SPAM_BROKEN_HEADERS = open(
-    fixture_file("messages/spam/broken-headers.eml")).read()
-SPAM_BROKEN_CTYPE = open(
-    fixture_file("messages/spam/broken-ctype.eml")).read()
-LONG_HEADER = open(
-    fixture_file("messages/long-header.eml")).read()
-ATTACHED_PDF = open(fixture_file("messages/attached-pdf.eml")).read()
-
-
+SPAM_BROKEN_HEADERS = read_fixture_bytes('messages/spam/broken-headers.eml')
+SPAM_BROKEN_CTYPE = read_fixture_bytes('messages/spam/broken-ctype.eml')
+LONG_HEADER = read_fixture_bytes('messages/long-header.eml')
+ATTACHED_PDF = read_fixture_bytes('messages/attached-pdf.eml')
 
 # addresslib fixture files
-MAILBOX_VALID_TESTS = open(fixture_file("mailbox_valid.txt")).read()
-MAILBOX_INVALID_TESTS = open(fixture_file("mailbox_invalid.txt")).read()
-ABRIDGED_LOCALPART_VALID_TESTS = open(fixture_file("abridged_localpart_valid.txt")).read()
-ABRIDGED_LOCALPART_INVALID_TESTS = open(fixture_file("abridged_localpart_invalid.txt")).read()
-URL_VALID_TESTS = codecs.open(fixture_file("url_valid.txt"), encoding='utf-8', mode='r').read()
-URL_INVALID_TESTS = codecs.open(fixture_file("url_invalid.txt"), encoding='utf-8', mode='r').read()
+MAILBOX_VALID_TESTS = read_fixture_bytes('mailbox_valid.txt')
+MAILBOX_INVALID_TESTS = read_fixture_bytes('mailbox_invalid.txt')
+ABRIDGED_LOCALPART_VALID_TESTS = read_fixture_bytes(
+    'abridged_localpart_valid.txt')
+ABRIDGED_LOCALPART_INVALID_TESTS = read_fixture_bytes(
+    'abridged_localpart_invalid.txt')
+URL_VALID_TESTS = read_fixture_bytes('url_valid.txt').decode('utf-8')
+URL_INVALID_TESTS = read_fixture_bytes('url_invalid.txt').decode('utf-8')
 
-DOMAIN_TYPO_VALID_TESTS = open(fixture_file("domain_typos_valid.txt")).read()
-DOMAIN_TYPO_INVALID_TESTS = open(fixture_file("domain_typos_invalid.txt")).read()
+DOMAIN_TYPO_VALID_TESTS = read_fixture_bytes('domain_typos_valid.txt')
+DOMAIN_TYPO_INVALID_TESTS = read_fixture_bytes('domain_typos_invalid.txt')

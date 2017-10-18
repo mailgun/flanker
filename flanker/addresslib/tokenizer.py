@@ -26,7 +26,7 @@ WHITESPACE = re.compile(r'''
                         (\ |\t)+                                # whitespace
                         ''', re.MULTILINE | re.VERBOSE)
 
-UNI_WHITE  = re.compile(ur'''
+UNI_WHITE  = re.compile(u'''
                         [
                             \u0020\u00a0\u1680\u180e
                             \u2000-\u200a
@@ -47,11 +47,11 @@ DOT_ATOM   = re.compile(r'''
                         (\.[A-Za-z0-9!#$%&'*+\-/=?^_`{|}~]+)*   # (dot atext)*
                         ''', re.MULTILINE | re.VERBOSE)
 
-UNI_ATOM = re.compile(ur'''
+UNI_ATOM = re.compile(r'''
                         ([^\s<>;,"]+)
                         ''', re.MULTILINE | re.VERBOSE | re.UNICODE)
 
-UNI_QSTR   = re.compile(ur'''
+UNI_QSTR   = re.compile(r'''
                         "
                         (?P<qstr>([^"]+))
                         "

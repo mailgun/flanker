@@ -80,7 +80,7 @@ def test_gmail_fail():
         mock_method.side_effect = mock_exchanger_lookup
 
         # invalid length range
-        for i in range(0, 6) + range(31, 40):
+        for i in list(range(0, 6)) + list(range(31, 40)):
             localpart = ''.join(random.choice(string.ascii_letters) for x in range(i))
             addr = address.validate_address(localpart + DOMAIN)
             assert_equal(addr, None)

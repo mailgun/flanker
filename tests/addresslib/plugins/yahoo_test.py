@@ -100,14 +100,14 @@ def test_yahoo_disposable_fail():
         mock_method.side_effect = mock_exchanger_lookup
 
         # invalid base length range
-        for i in range(0) + range(33, 40):
+        for i in list(range(0)) + list(range(33, 40)):
             base = ''.join(random.choice(string.ascii_letters) for x in range(i))
             localpart = base + '-aa'
             addr = address.validate_address(localpart + DOMAIN)
             assert_equal(addr, None)
 
         # invalid keyword length range
-        for i in range(0) + range(33, 40):
+        for i in list(range(0)) + list(range(33, 40)):
             keyword = ''.join(random.choice(string.ascii_letters) for x in range(i))
             localpart = 'aa-' + keyword
             addr = address.validate_address(localpart + DOMAIN)
@@ -133,7 +133,7 @@ def test_yahoo_fail():
         mock_method.side_effect = mock_exchanger_lookup
 
         # invalid length range
-        for i in range(0, 4) + range(33, 40):
+        for i in list(range(0, 4)) + list(range(33, 40)):
             localpart = ''.join(random.choice(string.ascii_letters) for x in range(i))
             addr = address.validate_address(localpart + DOMAIN)
             assert_equal(addr, None)

@@ -93,14 +93,19 @@ LONG_HEADER = read_fixture_bytes('messages/long-header.eml')
 ATTACHED_PDF = read_fixture_bytes('messages/attached-pdf.eml')
 
 # addresslib fixture files
-MAILBOX_VALID_TESTS = read_fixture_bytes('mailbox_valid.txt')
-MAILBOX_INVALID_TESTS = read_fixture_bytes('mailbox_invalid.txt')
+MAILBOX_VALID_TESTS = read_fixture_bytes(
+    'mailbox_valid.txt').decode('utf-8')
+MAILBOX_INVALID_TESTS = read_fixture_bytes(
+    'mailbox_invalid.txt').decode('utf-8')
 ABRIDGED_LOCALPART_VALID_TESTS = read_fixture_bytes(
-    'abridged_localpart_valid.txt')
+    'abridged_localpart_valid.txt').decode('utf-8')
 ABRIDGED_LOCALPART_INVALID_TESTS = read_fixture_bytes(
-    'abridged_localpart_invalid.txt')
-URL_VALID_TESTS = read_fixture_bytes('url_valid.txt').decode('utf-8')
-URL_INVALID_TESTS = read_fixture_bytes('url_invalid.txt').decode('utf-8')
-
-DOMAIN_TYPO_VALID_TESTS = read_fixture_bytes('domain_typos_valid.txt')
-DOMAIN_TYPO_INVALID_TESTS = read_fixture_bytes('domain_typos_invalid.txt')
+    'abridged_localpart_invalid.txt').decode('utf-8')
+URL_VALID_TESTS = read_fixture_bytes(
+    'url_valid.txt').decode('utf-8')
+URL_INVALID_TESTS = read_fixture_bytes(
+    'url_invalid.txt').decode('utf-8')
+DOMAIN_TYPO_VALID_TESTS = read_fixture_bytes(
+    'domain_typos_valid.txt').decode('utf-8')
+DOMAIN_TYPO_INVALID_TESTS = read_fixture_bytes(
+    'domain_typos_invalid.txt').decode('utf-8')

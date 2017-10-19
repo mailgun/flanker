@@ -4,6 +4,8 @@ import re
 import string
 import random
 
+import six
+
 from .. import *
 
 from nose.tools import assert_equal, assert_not_equal, ok_
@@ -19,7 +21,10 @@ COMMENT = re.compile(r'''\s*#''')
 @nottest
 def generate_mutated_string(source_str, num):
     letters = list(source_str)
-    rchars = string.ascii_lowercase.translate(None, source_str + '.')
+    if six.PY2:
+        rchars = string.ascii_lowercase.translate(None, source_str + '.')
+    else:
+        rchars = string.ascii_lowercase.translate(source_str + '.')
 
     random_orig = random.sample(list(enumerate(source_str)), num)
     random_new = random.sample(list(enumerate(rchars)), num)
@@ -32,7 +37,10 @@ def generate_mutated_string(source_str, num):
 @nottest
 def generate_longer_string(source_str, num):
     letters = list(source_str)
-    rchars = string.ascii_lowercase.translate(None, source_str)
+    if six.PY2:
+        rchars = string.ascii_lowercase.translate(None, source_str + '.')
+    else:
+        rchars = string.ascii_lowercase.translate(source_str + '.')
 
     for i in range(num):
         letters = [random.choice(rchars)] + letters
@@ -52,7 +60,7 @@ def domain_generator(size=6, chars=string.ascii_letters + string.digits):
 def test_domain_typo_valid_set():
     sugg_correct = 0
     sugg_total = 0
-    print ''
+    print('')
 
     for line in DOMAIN_TYPO_VALID_TESTS.split('\n'):
         # strip line, skip over empty lines
@@ -74,21 +82,21 @@ def test_domain_typo_valid_set():
         if sugg_str == corr_str:
             sugg_correct += 1
         else:
-            print 'did not match: {0}, {1}'.format(test_str, sugg_str)
+            print('did not match: {0}, {1}'.format(test_str, sugg_str))
 
         sugg_total += 1
 
     # ensure that we have greater than 90% accuracy
     accuracy = float(sugg_correct) / sugg_total
-    print 'external valid: accuracy: {0}, correct: {1}, total: {2}'.\
-        format(accuracy, sugg_correct, sugg_total)
+    print('external valid: accuracy: {0}, correct: {1}, total: {2}'
+          .format(accuracy, sugg_correct, sugg_total))
     ok_(accuracy > 0.90)
 
 
 def test_domain_typo_invalid_set():
     sugg_correct = 0
     sugg_total = 0
-    print ''
+    print('')
 
     for line in DOMAIN_TYPO_INVALID_TESTS.split('\n'):
         # strip line, skip over empty lines
@@ -107,14 +115,14 @@ def test_domain_typo_invalid_set():
         if sugg_str == None:
             sugg_correct += 1
         else:
-            print 'incorrect correction: {0}, {1}'.format(test_str, sugg_str)
+            print('incorrect correction: {0}, {1}'.format(test_str, sugg_str))
 
         sugg_total += 1
 
     # ensure that we have greater than 90% accuracy
     accuracy = float(sugg_correct) / sugg_total
-    print 'external invalid: accuracy: {0}, correct: {1}, total: {2}'.\
-        format(accuracy, sugg_correct, sugg_total)
+    print('external invalid: accuracy: {0}, correct: {1}, total: {2}'
+          .format(accuracy, sugg_correct, sugg_total))
     ok_(accuracy > 0.90)
 
 
@@ -129,7 +137,7 @@ def test_domain_typo_invalid_set():
 def test_suggest_alternate_mutations_valid():
     sugg_correct = 0
     sugg_total = 0
-    print ''
+    print('')
 
     for i in range(1, 3):
         for j in range(100):
@@ -145,15 +153,15 @@ def test_suggest_alternate_mutations_valid():
 
     # ensure that we have greater than 60% accuracy
     accuracy = float(sugg_correct) / sugg_total
-    print 'mutations valid: accuracy: {0}, correct: {1}, total: {2}'.\
-        format(accuracy, sugg_correct, sugg_total)
+    print('mutations valid: accuracy: {0}, correct: {1}, total: {2}'
+          .format(accuracy, sugg_correct, sugg_total))
     ok_(accuracy > 0.60)
 
 
 def test_suggest_alternate_longer_valid():
     sugg_correct = 0
     sugg_total = 0
-    print ''
+    print('')
 
     for i in range(1, 3):
         for j in range(100):
@@ -169,15 +177,15 @@ def test_suggest_alternate_longer_valid():
 
     # ensure that we have greater than 60% accuracy
     accuracy = float(sugg_correct) / sugg_total
-    print 'longer valid: accuracy: {0}, correct: {1}, total: {2}'.\
-        format(accuracy, sugg_correct, sugg_total)
+    print('longer valid: accuracy: {0}, correct: {1}, total: {2}'
+          .format(accuracy, sugg_correct, sugg_total))
     ok_(accuracy > 0.60)
 
 
 def test_suggest_alternate_shorter_valid():
     sugg_correct = 0
     sugg_total = 0
-    print ''
+    print('')
 
     for i in range(1, 3):
         for j in range(100):
@@ -193,15 +201,15 @@ def test_suggest_alternate_shorter_valid():
 
     # ensure that we have greater than 60% accuracy
     accuracy = float(sugg_correct) / sugg_total
-    print 'shorter valid: accuracy: {0}, correct: {1}, total: {2}'.\
-        format(accuracy, sugg_correct, sugg_total)
+    print('shorter valid: accuracy: {0}, correct: {1}, total: {2}'
+          .format(accuracy, sugg_correct, sugg_total))
     ok_(accuracy > 0.60)
 
 
 def test_suggest_alternate_invalid():
     sugg_correct = 0
     sugg_total = 0
-    print ''
+    print('')
 
     for i in range(3, 10):
         for j in range(100):
@@ -212,12 +220,12 @@ def test_suggest_alternate_invalid():
             if sugg_str == None:
                 sugg_correct += 1
             else:
-                print 'did not match: {0}, {1}'.format(orig_str, sugg_str)
+                print('did not match: {0}, {1}'.format(orig_str, sugg_str))
 
             sugg_total += 1
 
     # ensure that we have greater than 60% accuracy
     accuracy = float(sugg_correct) / sugg_total
-    print 'alternative invalid: accuracy: {0}, correct: {1}, total: {2}'.\
-        format(accuracy, sugg_correct, sugg_total)
+    print('alternative invalid: accuracy: {0}, correct: {1}, total: {2}'
+          .format(accuracy, sugg_correct, sugg_total))
     ok_(accuracy > 0.60)

@@ -37,6 +37,7 @@ from logging import getLogger
 from time import time
 
 import idna
+import six
 from idna import IDNAError
 from ply.lex import LexError
 from ply.yacc import YaccError
@@ -96,9 +97,7 @@ def parse(address, addr_spec_only=False, strict=False, metrics=False):
     else:
         parser = mailbox_or_url_parser
 
-    # normalize inputs to bytestrings
-    if isinstance(address, unicode):
-        address = address.encode('utf-8')
+    address = _to_parser_input(address)
 
     # sanity checks
     if not address:
@@ -122,9 +121,10 @@ def parse(address, addr_spec_only=False, strict=False, metrics=False):
                 parse_rs = parser.parse(addr_spec, lexer=lexer.clone())
                 addr_obj = _lift_parse_result(parse_rs)
                 if addr_obj:
-                    addr_obj._display_name = ' '.join(addr_parts[:-1])
-                    if isinstance(addr_obj._display_name, str):
-                        addr_obj._display_name = addr_obj._display_name.decode('utf-8')
+                    display_name = ' '.join(addr_parts[:-1])
+                    if isinstance(display_name, six.binary_type):
+                        display_name = display_name.decode('utf-8')
+                    addr_obj._display_name = display_name
 
             except (LexError, YaccError, SyntaxError):
                 addr_obj = None
@@ -156,12 +156,9 @@ def parse_discrete_list(address_list, as_tuple=False, metrics=False):
         [A <a@b>, D <d@e>, http://localhost]
     """
     mtimes = {'parsing': 0}
-    parser = mailbox_or_url_list_parser
 
-    # normalize inputs to bytestring
-    address_list_s = address_list
-    if isinstance(address_list, unicode):
-        address_list_s = address_list.encode('utf-8')
+    # Normalize the input to binary for Python 2, and text for Python 3.
+    address_list_s = _to_parser_input(address_list)
 
     # sanity checks
     if not address_list_s:
@@ -173,7 +170,8 @@ def parse_discrete_list(address_list, as_tuple=False, metrics=False):
 
     bstart = time()
     try:
-        parse_list_rs = parser.parse(address_list_s.strip(), lexer=lexer.clone())
+        parse_list_rs = mailbox_or_url_list_parser.parse(address_list_s.strip(),
+                                                         lexer.clone())
         addr_list_obj, bad_addr_list = _lift_parse_list_result(parse_list_rs)
         if len(addr_list_obj) == 0:
             bad_addr_list.append(address_list_s)
@@ -228,7 +226,7 @@ def parse_list(address_list, strict=False, as_tuple=False, metrics=False):
 
         parsed, unparsed = AddressList(), []
         for address in address_list:
-            if isinstance(address, basestring):
+            if isinstance(address, six.string_types):
                 addr_obj, metrics = parse(address, strict=strict, metrics=True)
                 mtimes['parsing'] += metrics['parsing']
                 if addr_obj:
@@ -244,7 +242,7 @@ def parse_list(address_list, strict=False, as_tuple=False, metrics=False):
 
         return _parse_list_result(as_tuple, parsed, unparsed, mtimes)
 
-    if isinstance(address_list, basestring):
+    if isinstance(address_list, six.string_types):
         if len(address_list) > MAX_ADDRESS_LIST_LENGTH:
             _log.warning('address list exceeds maximum length of %s', MAX_ADDRESS_LIST_LENGTH)
             return _parse_list_result(as_tuple, AddressList(), [address_list], mtimes)
@@ -388,7 +386,7 @@ def validate_list(addr_list, as_tuple=False, metrics=False):
             ulist.append(unpar)
 
         # update all the metrics
-        for k, v in metrics.iteritems():
+        for k, v in six.iteritems(metrics):
             metrics[k] += v
 
     if as_tuple:
@@ -456,40 +454,33 @@ class EmailAddress(Address):
 
     _addr_type = Address.Type.Email
 
-    def __init__(self, raw_display_name=None, raw_addr_spec=None, display_name=None, mailbox=None, hostname=None):
-        if isinstance(raw_display_name, unicode):
-            raw_display_name = raw_display_name.encode('utf-8')
-        if isinstance(raw_addr_spec, unicode):
-            raw_addr_spec = raw_addr_spec.encode('utf-8')
+    def __init__(self, raw_display_name=None, raw_addr_spec=None,
+                 _display_name=None, _mailbox=None, _hostname=None):
+        raw_display_name = _to_parser_input(raw_display_name)
+        raw_addr_spec = _to_parser_input(raw_addr_spec)
 
         if raw_display_name and raw_addr_spec:
-            parser = addr_spec_parser
-            mailbox = parser.parse(raw_addr_spec.strip(), lexer=lexer.clone())
-
-            self._display_name = raw_display_name
-            self._mailbox = mailbox.local_part
-            self._hostname = mailbox.domain
+            mailbox = addr_spec_parser.parse(raw_addr_spec, lexer.clone())
+            self._display_name = _to_text(raw_display_name)
+            self._mailbox = _to_text(mailbox.local_part)
+            self._hostname = _to_text(mailbox.domain)
 
         elif raw_display_name:
-            parser = mailbox_parser
-            mailbox = parser.parse(raw_display_name.strip(), lexer=lexer.clone())
-
-            self._display_name = mailbox.display_name
-            self._mailbox = mailbox.local_part
-            self._hostname = mailbox.domain
+            mailbox = mailbox_parser.parse(raw_display_name, lexer.clone())
+            self._display_name = _to_text(mailbox.display_name)
+            self._mailbox = _to_text(mailbox.local_part)
+            self._hostname = _to_text(mailbox.domain)
 
         elif raw_addr_spec:
-            parser = addr_spec_parser
-            mailbox = parser.parse(raw_addr_spec.strip(), lexer=lexer.clone())
+            mailbox = addr_spec_parser.parse(raw_addr_spec, lexer.clone())
+            self._display_name = u''
+            self._mailbox = _to_text(mailbox.local_part)
+            self._hostname = _to_text(mailbox.domain)
 
-            self._display_name = ''
-            self._mailbox = mailbox.local_part
-            self._hostname = mailbox.domain
-
-        elif mailbox and hostname:
-            self._display_name = display_name or ''
-            self._mailbox = mailbox
-            self._hostname = hostname
+        elif _mailbox and _hostname:
+            self._display_name = _display_name or u''
+            self._mailbox = _mailbox
+            self._hostname = _hostname
 
         else:
             raise SyntaxError('failed to create EmailAddress: bad parameters')
@@ -502,21 +493,17 @@ class EmailAddress(Address):
                 self._display_name.endswith('"') and
                 len(self._display_name) > 2):
             self._display_name = smart_unquote(self._display_name)
-        if isinstance(self._display_name, str):
-            self._display_name = self._display_name.decode('utf-8')
-
-        # Convert localpart to unicode string.
-        if isinstance(self._mailbox, str):
-            self._mailbox = self._mailbox.decode('utf-8')
 
         # Convert hostname to lowercase unicode string.
         self._hostname = self._hostname.lower()
         if self._hostname.startswith('xn--') or '.xn--' in self._hostname:
             self._hostname = idna.decode(self._hostname)
-        if isinstance(self._hostname, str):
-            self._hostname = self._hostname.decode('utf-8')
         if not is_pure_ascii(self._hostname):
             idna.encode(self._hostname)
+
+        assert isinstance(self._display_name, six.text_type)
+        assert isinstance(self._mailbox, six.text_type)
+        assert isinstance(self._hostname, six.text_type)
 
     @property
     def addr_type(self):
@@ -528,8 +515,8 @@ class EmailAddress(Address):
 
     @property
     def ace_display_name(self):
-        return encode_string(None, smart_quote(self.display_name),
-                             maxlinelen=MAX_ADDRESS_LENGTH)
+        return _to_str(encode_string(None, smart_quote(self._display_name),
+                                     maxlinelen=MAX_ADDRESS_LENGTH))
 
     @property
     def mailbox(self):
@@ -541,25 +528,18 @@ class EmailAddress(Address):
 
     @property
     def ace_hostname(self):
-        return idna.encode(self._hostname)
+        return _to_str(idna.encode(self._hostname))
 
     @property
     def address(self):
-        return u'{}@{}'.format(self.mailbox, self.hostname)
+        return u'{}@{}'.format(self._mailbox, self._hostname)
 
     @property
     def ace_address(self):
-        if not is_pure_ascii(self.mailbox):
-            raise ValueError('address {} has no ASCII-compatable encoding'
-                             .format(self.address.encode('utf-8')))
-        ace_hostname = self.hostname
-        if not is_pure_ascii(self.hostname):
-            try:
-                ace_hostname = idna.encode(self.hostname)
-            except idna.IDNAError:
-                raise ValueError('address {} has no ASCII-compatable encoding'
-                                 .format(self.address.encode('utf-8')))
-        return '{}@{}'.format(self.mailbox, ace_hostname)
+        if not is_pure_ascii(self._mailbox):
+            raise ValueError('Address {} has no ASCII-compatable encoding'
+                             .format(self.address))
+        return _to_str('{}@{}'.format(self._mailbox, self.ace_hostname))
 
     @property
     def supports_routing(self):
@@ -569,18 +549,19 @@ class EmailAddress(Address):
         return True
 
     def __repr__(self):
-        return unicode(self).encode('utf-8')
+        return _to_str(self.to_unicode())
 
     def __str__(self):
-        return self.address.encode('utf-8')
+        return _to_str(self.address)
 
     def __unicode__(self):
-        if self.display_name:
-            return u'{} <{}@{}>'.format(smart_quote(self.display_name), self.mailbox, self.hostname)
-        return u'{}@{}'.format(self.mailbox, self.hostname)
+        return self.to_unicode()
 
     def to_unicode(self):
-        return unicode(self)
+        if self._display_name:
+            return u'{} <{}@{}>'.format(smart_quote(self._display_name),
+                                        self._mailbox, self._hostname)
+        return u'{}@{}'.format(self._mailbox, self._hostname)
 
     def full_spec(self):
         """
@@ -632,7 +613,7 @@ class EmailAddress(Address):
         """
         Allows comparison of two addresses.
         """
-        if isinstance(other, basestring):
+        if isinstance(other, six.string_types):
             other = parse(other)
         if other:
             return self.address.lower() == other.address.lower()
@@ -682,16 +663,14 @@ class UrlAddress(Address):
     _address = None
     _addr_type = Address.Type.Url
 
-    def __init__(self, raw=None, address=None):
+    def __init__(self, raw=None, _address=None):
 
         if raw:
-            if isinstance(raw, unicode):
-                raw = raw.encode('utf-8')
-            parser = url_parser
-            url = parser.parse(raw.strip(), lexer=lexer.clone())
+            raw = _to_parser_input(raw)
+            url = url_parser.parse(raw, lexer.clone())
             self._address = urlparse(url.address)
-        elif address:
-            self._address = urlparse(address)
+        elif _address:
+            self._address = urlparse(_address)
         else:
             raise SyntaxError('failed to create UrlAddress: bad parameters')
 
@@ -724,23 +703,22 @@ class UrlAddress(Address):
         return self._address.path
 
     def __repr__(self):
-        return self.address.encode('utf-8')
+        return _to_str(self.address)
 
     def __str__(self):
-        return self.address.encode('utf-8')
+        return _to_str(self.address)
 
     def __unicode__(self):
         return self.address
 
     def to_unicode(self):
-        return unicode(self)
+        return self.address
 
     def full_spec(self):
         return self.address
 
     def __eq__(self, other):
-        "Allows comparison of two URLs"
-        if isinstance(other, basestring):
+        if isinstance(other, six.string_types):
             other = parse(other)
         if other:
             return self.address == other.address
@@ -797,20 +775,20 @@ class AddressList(object):
         """
         When comparing ourselves to other lists we must ignore order.
         """
-        if isinstance(other, (list, str, unicode)):
+        if isinstance(other, (list, six.binary_type, six.text_type)):
             other = parse_list(other)
         if not isinstance(other, AddressList):
             raise TypeError('Cannot compare with %s' % type(other))
         return set(self._container) == set(other._container)
 
     def __repr__(self):
-        return ''.join(['[', self.to_unicode().encode('utf-8'), ']'])
+        return _to_str(''.join(['[', self.to_unicode(), ']']))
 
     def __str__(self):
-        return ', '.join(str(addr) for addr in self._container)
+        return _to_str(', '.join(addr.address for addr in self._container))
 
     def __unicode__(self):
-        return u', '.join(unicode(addr) for addr in self._container)
+        return self.to_unicode()
 
     def __add__(self, other):
         """
@@ -827,7 +805,7 @@ class AddressList(object):
         addr_lst._container = container
         return addr_lst
 
-    def full_spec(self, delimiter=", "):
+    def full_spec(self, delimiter=', '):
         """
         Returns a full string which looks pretty much what the original was
         like
@@ -837,7 +815,7 @@ class AddressList(object):
         """
         return delimiter.join(addr.full_spec() for addr in self._container)
 
-    def to_unicode(self, delimiter=u", "):
+    def to_unicode(self, delimiter=u', '):
         return delimiter.join(addr.to_unicode() for addr in self._container)
 
     def to_ascii_list(self):
@@ -872,14 +850,14 @@ def _lift_parse_result(parse_rs):
     if isinstance(parse_rs, Mailbox):
         try:
             return EmailAddress(
-                display_name=smart_unquote(parse_rs.display_name.decode('utf-8')),
-                mailbox=parse_rs.local_part.decode('utf-8'),
-                hostname=parse_rs.domain.decode('utf-8'))
+                _display_name=smart_unquote(_to_text(parse_rs.display_name)),
+                _mailbox=_to_text(parse_rs.local_part),
+                _hostname=_to_text(parse_rs.domain))
         except (UnicodeError, IDNAError):
             return None
 
     if isinstance(parse_rs, Url):
-        return UrlAddress(address=parse_rs.address.decode('utf-8'))
+        return UrlAddress(_address=_to_text(parse_rs.address))
 
     return None
 
@@ -891,8 +869,8 @@ def _lift_parse_list_result(parse_list_rs):
         addr_obj = _lift_parse_result(parse_rs)
         if not addr_obj:
             if isinstance(parse_rs, Mailbox):
-                bad_list.append(u'%s@%s' % (parse_rs.local_part.decode('utf-8'),
-                                            parse_rs.domain.decode('utf-8')))
+                bad_list.append(u'%s@%s' % (_to_text(parse_rs.local_part),
+                                            _to_text(parse_rs.domain)))
             continue
 
         addr_list_obj.append(addr_obj)
@@ -905,3 +883,57 @@ def _parse_list_result(as_tuple, parsed, unparsed, mtimes):
         return parsed, unparsed, mtimes
 
     return parsed, mtimes
+
+
+def _to_parser_input(parser_in):
+    """
+    Normalize the input to binary in Python 2, and text in Python 3.
+    """
+    if parser_in is None:
+        return None
+
+    if six.PY2:
+        if isinstance(parser_in, six.text_type):
+            parser_in = parser_in.encode('utf-8')
+        assert isinstance(parser_in, six.binary_type), (
+            'Expected %s, got %s' % (six.binary_type, type(parser_in)))
+        return parser_in
+
+    if isinstance(parser_in, six.binary_type):
+        parser_in = parser_in.decode('utf-8')
+    assert isinstance(parser_in, six.text_type), (
+        'Expected %s, got %s' % (six.text_type, type(parser_in)))
+    return parser_in
+
+
+def _to_text(val):
+    """
+    Converts val to unicode in Python 2, and str in Python 3.
+    """
+    if val is None:
+        return None
+
+    if isinstance(val, six.binary_type):
+        return val.decode('utf-8')
+
+    if isinstance(val, six.text_type):
+        return val
+
+    raise TypeError('String type expected, got %s' % type(val))
+
+
+def _to_str(val):
+    """
+    Converts val to str. Note that in different Python version the returned
+    value has different semantic, and that is intentional.
+    """
+    if val is None:
+        return None
+
+    if isinstance(val, str):
+        return val
+
+    if six.PY2:
+        return val.encode('utf-8')
+
+    return val.decode('utf-8')

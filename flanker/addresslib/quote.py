@@ -52,7 +52,7 @@ def smart_unquote(s):
 
 
 def _contains_atoms_only(s):
-    if isinstance(s, six.text_type):
+    if six.PY2 and isinstance(s, six.text_type):
         s = s.encode('utf-8')
     match_result = _RE_ATOM_PHRASE.match(s)
     return match_result and match_result.end(0) == len(s)

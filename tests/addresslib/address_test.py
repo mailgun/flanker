@@ -1,4 +1,5 @@
 # coding:utf-8
+import six
 from nose.tools import assert_raises, eq_, ok_
 
 from flanker.addresslib.address import (Address, AddressList, EmailAddress,
@@ -91,8 +92,8 @@ def test_addresslist_basics():
     eq_(lst, clone)
 
     # hostnames:
-    eq_(set(['host.com', 'foo.com', 'yahoo.net', 's.com']), lst.hostnames)
-    eq_(set(['url', 'email']), lst.addr_types)
+    eq_({'host.com', 'foo.com', 'yahoo.net', 's.com'}, lst.hostnames)
+    eq_({'url', 'email'}, lst.addr_types)
 
     # add:
     result = lst + parse_list("ev@local.net") + ["foo@bar.com"]
@@ -442,7 +443,8 @@ def test_address_convertible_2_ascii():
         _typed_eq(tc['ace_address'], addr.ace_address)
         _typed_eq(tc['repr'], repr(addr))
         _typed_eq(tc['str'], str(addr))
-        _typed_eq(tc['unicode'], unicode(addr))
+        if six.PY2:
+            _typed_eq(tc['unicode'], unicode(addr))
         _typed_eq(tc['unicode'], addr.to_unicode())
         _typed_eq(tc['full_spec'], addr.full_spec())
 
@@ -644,7 +646,8 @@ def test_address_requires_utf8():
             _ = addr.ace_address
         _typed_eq(tc['repr'], repr(addr))
         _typed_eq(tc['str'], str(addr))
-        _typed_eq(tc['unicode'], unicode(addr))
+        if six.PY2:
+            _typed_eq(tc['unicode'], unicode(addr))
         _typed_eq(tc['unicode'], addr.to_unicode())
         with assert_raises(ValueError):
             addr.full_spec()
@@ -687,7 +690,8 @@ def test_address_properties_req_utf8():
         addr_list = parse_list(tc['addr_list'])
         eq_(tc['repr'], repr(addr_list))
         eq_(tc['str'], str(addr_list))
-        eq_(tc['unicode'], unicode(addr_list))
+        if six.PY2:
+            eq_(tc['unicode'], unicode(addr_list))
         eq_(tc['unicode'], addr_list.to_unicode())
         if isinstance(tc['full_spec'], Exception):
             assert_raises(type(tc['full_spec']), addr_list.full_spec)

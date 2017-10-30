@@ -90,7 +90,7 @@ def test_google_fail():
             assert_equal(addr, None)
 
         # invalid length range
-        for i in range(0) + range(65, 80):
+        for i in list(range(0)) + list(range(65, 80)):
             localpart = ''.join(random.choice(string.ascii_letters) for x in range(i))
             addr = address.validate_address(localpart + DOMAIN)
             assert_equal(addr, None)

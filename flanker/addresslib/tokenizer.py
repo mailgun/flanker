@@ -9,6 +9,8 @@ compiled regular expressions or strings.
 
 import re
 
+import six
+
 LBRACKET   = '<'
 AT_SYMBOL  = '@'
 RBRACKET   = '>'
@@ -91,7 +93,7 @@ class TokenStream(object):
         be either a compiled regex or a string.
         """
         # match single character
-        if isinstance(token, basestring) and len(token) == 1:
+        if isinstance(token, six.string_types) and len(token) == 1:
             if self.peek() == token:
                 self.position += 1
                 return token

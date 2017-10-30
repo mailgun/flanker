@@ -103,13 +103,13 @@ def test_parse_list_from_list():
         # Then
         eq_(tc['good'], al)
         eq_(tc['good'], al_from_l)
-        for j in xrange(len(al_from_l)):
+        for j in range(len(al_from_l)):
             _strict_eq(tc['good'][j], al[j])
             _strict_eq(tc['good'][j], al_from_l[j])
         eq_(tc['bad'], bad_from_l)
 
         eq_(tc.get('good_s', tc['good']), al_from_s)
-        for j in xrange(len(al_from_s)):
+        for j in range(len(al_from_s)):
             _strict_eq(tc.get('good_s', tc['good'])[j], al_from_s[j])
         eq_(tc.get('bad_s', tc['bad']), bad_from_s)
 

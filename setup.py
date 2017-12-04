@@ -24,7 +24,7 @@ setup(name='flanker',
           'cchardet>=0.3.5',
           'cryptography>=0.5',
           'idna>=2.5',
-          'ply>=3.10',
+          'ply==3.10',
           'regex>=0.1.20110315',
           'WebOb>=0.9.8'],
       extras_require={

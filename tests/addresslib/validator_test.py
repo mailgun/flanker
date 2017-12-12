@@ -253,3 +253,43 @@ def test_validate_address_metrics():
 #     assert_equal(addr.full_spec(), 'foo@[1.2.3.4]')
 #     mock_lookup_domain.assert_not_called()
 #     mock_connect_to_mail_exchanger.assert_called_once_with(['1.2.3.4'])
+
+@patch('flanker.addresslib.validate.connect_to_mail_exchanger')
+@patch('flanker.addresslib.validate.lookup_domain')
+def test_mx_yahoo_dual_lookup(ld, cmx):
+    ld.return_value = ['mta7.am0.yahoodns.net', 'mta6.am0.yahoodns.net']
+    cmx.return_value = 'mta5.am0.yahoodns.net'
+
+    # Invalidate managed email response out of pattern
+    mailbox = '1testuser@yahoo.com'
+    addr = address.validate_address(mailbox)
+    assert_equal(type(addr), type(None))
+
+    # Same test but with validate_list
+    addr = address.validate_list([mailbox])
+    expected = 'flanker.addresslib.address:'
+    assert_equal(addr, [])
+
+    # Allow Yahoo MX unmanaged mailboxes to pass remaining patterns
+    mailbox = '8testuser@frontier.com'
+    addr = address.validate_address(mailbox)
+    assert_equal(addr, mailbox)
+
+    # Same test but with validate_list
+    expected = 'flanker.addresslib.address:'
+    addr = address.validate_list([mailbox])
+    assert_equal(addr, mailbox)
+
+
+def test_mx_yahoo_manage_flag_toggle():
+    # Just checking if the domain provided from the sub is managed
+    mailbox = '1testuser@yahoo.com'
+    addr_obj = address.parse(mailbox)
+    managed = validate.yahoo.managed_email(addr_obj.hostname)
+    assert_equal(managed, True)
+
+    # Same but inversed, unmanaged yahoo mailbox
+    mailbox = '1testuser@frontier.com'
+    addr_obj = address.parse(mailbox)
+    managed = validate.yahoo.managed_email(addr_obj.hostname)
+    assert_equal(managed, False)

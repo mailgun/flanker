@@ -312,7 +312,7 @@ def validate_address(addr_spec, metrics=False):
     bstart = time()
     plugin = plugin_for_esp(exchanger)
     mtimes['custom_grammar'] = time() - bstart
-    if plugin and plugin.validate(addr_parts[0]) is False:
+    if plugin and plugin.validate(paddr) is False:
         _log.warning('failed custom grammer check for %s/%s', addr_spec, plugin.__name__)
         return None, mtimes
 
@@ -369,7 +369,7 @@ def validate_list(addr_list, as_tuple=False, metrics=False):
         # lookup custom local-part grammar if it exists
         plugin = plugin_for_esp(exchanger)
         bstart = time()
-        if plugin and plugin.validate(paddr.mailbox) is False:
+        if plugin and plugin.validate(paddr) is False:
             ulist.append(paddr.full_spec())
             continue
         mtimes['custom_grammar'] = time() - bstart

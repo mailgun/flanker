@@ -53,7 +53,10 @@ PERIODS         = re.compile(r'''
                             ''', re.MULTILINE | re.VERBOSE)
 
 
-def validate(localpart):
+def validate(email_addr):
+    # Setup for handling EmailAddress type instead of literal string
+    localpart = email_addr.mailbox
+
     # check string exists and not empty
     if not localpart:
         return False

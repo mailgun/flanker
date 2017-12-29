@@ -293,3 +293,44 @@ def test_mx_yahoo_manage_flag_toggle():
     addr_obj = address.parse(mailbox)
     managed = validate.yahoo.managed_email(addr_obj.hostname)
     assert_equal(managed, False)
+
+
+@patch('flanker.addresslib.validate.connect_to_mail_exchanger')
+@patch('flanker.addresslib.validate.lookup_domain')
+def test_mx_aol_dual_lookup(ld, cmx):
+    ld.return_value = ['mailin-01.mx.aol.com', 'mailin-02.mx.aol.com']
+    cmx.return_value = 'mailin-03.mx.aol.com'
+
+    # Invalidate managed email response out of pattern
+    mailbox = '1testuser@aol.com'
+    addr = address.validate_address(mailbox)
+    assert_equal(type(addr), type(None))
+
+    # Same test but with validate_list
+    addr = address.validate_list([mailbox])
+    expected = 'flanker.addresslib.address:'
+    assert_equal(addr, [])
+
+    # Allow AOL MX unmanaged mailboxes to pass remaining patterns
+    mailbox = '8testuser@verizon.net'
+    addr = address.validate_address(mailbox)
+    assert_equal(addr, mailbox)
+
+    # Same test but with validate_list
+    expected = 'flanker.addresslib.address:'
+    addr = address.validate_list([mailbox])
+    assert_equal(addr, mailbox)
+
+
+def test_mx_aol_manage_flag_toggle():
+    # Just checking if the domain provided from the sub is managed
+    mailbox = '1testuser@aol.com'
+    addr_obj = address.parse(mailbox)
+    unmanaged = validate.aol.unmanaged_email(addr_obj.hostname)
+    assert_equal(unmanaged, False)
+
+    # Same but inversed, unmanaged aol mailbox
+    mailbox = '1testuser@verizon.net'
+    addr_obj = address.parse(mailbox)
+    unmanaged = validate.aol.unmanaged_email(addr_obj.hostname)
+    assert_equal(unmanaged, True)

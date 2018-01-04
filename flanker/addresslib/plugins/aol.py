@@ -41,14 +41,22 @@ UNDERSCORE = re.compile(r'''
                         \_
                         ''', re.MULTILINE | re.VERBOSE)
 
+AOL_UNMANAGED = ['verizon.net']
+
 
 def validate(email_addr):
     # Setup for handling EmailAddress type instead of literal string
     localpart = email_addr.mailbox
+    unmanaged = unmanaged_email(email_addr.hostname)
 
     # check string exists and not empty
     if not localpart:
         return False
+
+    # Unmanaged is now a list of providers whom patterns/rules are unknown
+    # thus any hostname part matching will return without rule adherence.
+    if unmanaged:
+        return True
 
     # length check
     l = len(localpart)
@@ -90,3 +98,7 @@ def _validate(localpart):
         return False
 
     return True
+
+
+def unmanaged_email(hostname):
+    return hostname in AOL_UNMANAGED

@@ -351,11 +351,15 @@ def to_string_test():
     ok_(str(scan(TORTURE)))
 
 
-# Yahoo fails with russian attachments.
 def broken_ctype_test():
     message = scan(RUSSIAN_ATTACH_YAHOO)
-    assert_raises(
-        DecodingError, lambda x: [p.headers for p in message.walk()], 1)
+    attachment = message.parts[1]
+    eq_('image/png', attachment.detected_content_type)
+    eq_('png', attachment.detected_subtype)
+    eq_('image', attachment.detected_format)
+    eq_(u'Картинка с очень, очень длинным предлинным именем преименем таким чт�', attachment.detected_file_name)
+    ok_(not attachment.is_body())
+
 
 def read_attach_test():
     message = scan(MAILGUN_PIC)

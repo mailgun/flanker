@@ -93,7 +93,9 @@ def message_content_dispositions_test():
 
     message = create.from_string("Content-Disposition: Нельзя распарсить")
     parts = list(message.walk(with_self=True))
-    eq_((None, {}), parts[0].content_disposition)
+    # content disposition value is anything (including unicode chars) up to the first space, tab or semicolon
+    # but non-ascii value will raise DecodeError
+    eq_(('Нельзя', {}), parts[0].content_disposition)
 
 
 def message_from_python_test():

@@ -256,7 +256,7 @@ _RE_HEADER_VALUE = re.compile(r'''
        # don't care about the spaces
        ^[\ \t]*
        #main type and sub type or any other value
-       ([a-z0-9\-/\.\*]+)
+       ([^\ \t;]+)
        # grab the trailing spaces, colons
        [\ \t;]*''', re.IGNORECASE | re.VERBOSE)
 
@@ -307,7 +307,8 @@ _RE_NEW_STYLE_PARAM = re.compile(r'''
      (?P<value>
        (?:
          "(?:
-             [\x21\x23-\x5b\x5d-\x7e\ \t]
+             # so this works for unicode too
+             [^\x00-\x10\x12-\x19\x22\x5c\x7f]
              |
              (?:\\[\x21-\x7e\t\ ])
           )+"

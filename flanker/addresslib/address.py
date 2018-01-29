@@ -249,7 +249,7 @@ def parse_list(address_list, strict=False, as_tuple=False, metrics=False):
             return _parse_list_result(as_tuple, AddressList(), [address_list], mtimes)
 
         if not strict:
-            _log.info('relaxed parsing is not available for discrete lists, ignoring')
+            _log.debug('relaxed parsing is not available for discrete lists, ignoring')
 
         return parse_discrete_list(address_list, as_tuple=as_tuple, metrics=True)
 
@@ -294,7 +294,7 @@ def validate_address(addr_spec, metrics=False, skip_remote_checks=False):
     paddr = parse(addr_spec, addr_spec_only=True, strict=True)
     mtimes['parsing'] = time() - bstart
     if paddr is None:
-        _log.warning('failed parse check for %s', addr_spec)
+        _log.debug('failed parse check for %s', addr_spec)
         return None, mtimes
 
     # lookup the TLD
@@ -302,7 +302,7 @@ def validate_address(addr_spec, metrics=False, skip_remote_checks=False):
     tld = get_tld(paddr.hostname, fail_silently=True, fix_protocol=True)
     mtimes['tld_lookup'] = time() - bstart
     if tld is None:
-        _log.warning('failed tld check for %s', addr_spec)
+        _log.debug('failed tld check for %s', addr_spec)
         return None, mtimes
 
     if skip_remote_checks:
@@ -314,7 +314,7 @@ def validate_address(addr_spec, metrics=False, skip_remote_checks=False):
     mtimes['dns_lookup'] = mx_metrics['dns_lookup']
     mtimes['mx_conn'] = mx_metrics['mx_conn']
     if exchanger is None:
-        _log.warning('failed mx check for %s', addr_spec)
+        _log.debug('failed mx check for %s', addr_spec)
         return None, mtimes
 
     # lookup custom local-part grammar if it exists
@@ -322,7 +322,7 @@ def validate_address(addr_spec, metrics=False, skip_remote_checks=False):
     plugin = plugin_for_esp(exchanger)
     mtimes['custom_grammar'] = time() - bstart
     if plugin and plugin.validate(paddr) is False:
-        _log.warning('failed custom grammer check for %s/%s', addr_spec, plugin.__name__)
+        _log.debug('failed custom grammer check for %s/%s', addr_spec, plugin.__name__)
         return None, mtimes
 
     return paddr, mtimes
@@ -370,7 +370,7 @@ def validate_list(addr_list, as_tuple=False, metrics=False, skip_remote_checks=F
     # validate each address
     for paddr in parsed_addresses:
         vaddr, metrics = validate_address(paddr.address, metrics=True, skip_remote_checks=skip_remote_checks)
-        for k in set().union(mtimes.keys(), metrics.keys()):
+        for k in mtimes.keys():
             mtimes[k] += metrics[k]
         if vaddr is None:
             ulist.append(paddr.full_spec())

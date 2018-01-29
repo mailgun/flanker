@@ -142,8 +142,7 @@ def test_parse_syntax_only_false():
     invalid_subdomain_list = [i + '@sub.example.com' for i in invalid_localparts(True)]
 
     all_valid_list = valid_tld_list + valid_domain_list + valid_subdomain_list
-    all_invalid_list = invalid_mx_list + invalid_tld_list + invalid_domain_list + \
-        invalid_subdomain_list
+    all_invalid_list = invalid_domain_list + invalid_subdomain_list + invalid_tld_list + invalid_mx_list
     all_list = all_valid_list + all_invalid_list
 
     # all valid

@@ -42,6 +42,7 @@ from idna import IDNAError
 from ply.lex import LexError
 from ply.yacc import YaccError
 from six.moves.urllib_parse import urlparse
+from tld import get_tld
 
 from flanker.addresslib.lexer import lexer
 from flanker.addresslib.parser import (Mailbox, Url, mailbox_parser,
@@ -50,7 +51,7 @@ from flanker.addresslib.parser import (Mailbox, Url, mailbox_parser,
                                        addr_spec_parser, url_parser)
 from flanker.addresslib.quote import smart_unquote, smart_quote
 from flanker.addresslib.validate import (mail_exchanger_lookup,
-                                         preparse_address, plugin_for_esp)
+                                         plugin_for_esp)
 from flanker.mime.message.headers.encodedword import mime_to_unicode
 from flanker.mime.message.headers.encoding import encode_string
 from flanker.utils import is_pure_ascii, metrics_wrapper
@@ -248,7 +249,7 @@ def parse_list(address_list, strict=False, as_tuple=False, metrics=False):
             return _parse_list_result(as_tuple, AddressList(), [address_list], mtimes)
 
         if not strict:
-            _log.info('relaxed parsing is not available for discrete lists, ignoring')
+            _log.debug('relaxed parsing is not available for discrete lists, ignoring')
 
         return parse_discrete_list(address_list, as_tuple=as_tuple, metrics=True)
 
@@ -256,7 +257,7 @@ def parse_list(address_list, strict=False, as_tuple=False, metrics=False):
 
 
 @metrics_wrapper()
-def validate_address(addr_spec, metrics=False):
+def validate_address(addr_spec, metrics=False, skip_remote_checks=False):
     """
     Given an addr-spec, runs the pre-parser, the parser, DNS MX checks,
     MX existence checks, and if available, ESP specific grammar for the
@@ -276,6 +277,7 @@ def validate_address(addr_spec, metrics=False):
         user.1234@gmail.com
     """
     mtimes = {'parsing': 0,
+              'tld_lookup': 0,
               'mx_lookup': 0,
               'dns_lookup': 0,
               'mx_conn':0 ,
@@ -284,28 +286,35 @@ def validate_address(addr_spec, metrics=False):
     # sanity check
     if addr_spec is None:
         return None, mtimes
-
-    # preparse address into its parts and perform any ESP specific pre-parsing
-    addr_parts = preparse_address(addr_spec)
-    if addr_parts is None:
-        _log.warning('failed preparse check for %s', addr_spec)
+    if '@' not in addr_spec:
         return None, mtimes
 
     # run parser against address
     bstart = time()
-    paddr = parse('@'.join(addr_parts), addr_spec_only=True, strict=True)
+    paddr = parse(addr_spec, addr_spec_only=True, strict=True)
     mtimes['parsing'] = time() - bstart
     if paddr is None:
-        _log.warning('failed parse check for %s', addr_spec)
+        _log.debug('failed parse check for %s', addr_spec)
         return None, mtimes
 
+    # lookup the TLD
+    bstart = time()
+    tld = get_tld(paddr.hostname, fail_silently=True, fix_protocol=True)
+    mtimes['tld_lookup'] = time() - bstart
+    if tld is None:
+        _log.debug('failed tld check for %s', addr_spec)
+        return None, mtimes
+
+    if skip_remote_checks:
+        return paddr, mtimes
+
     # lookup if this domain has a mail exchanger
-    exchanger, mx_metrics = mail_exchanger_lookup(addr_parts[-1], metrics=True)
+    exchanger, mx_metrics = mail_exchanger_lookup(paddr.hostname, metrics=True)
     mtimes['mx_lookup'] = mx_metrics['mx_lookup']
     mtimes['dns_lookup'] = mx_metrics['dns_lookup']
     mtimes['mx_conn'] = mx_metrics['mx_conn']
     if exchanger is None:
-        _log.warning('failed mx check for %s', addr_spec)
+        _log.debug('failed mx check for %s', addr_spec)
         return None, mtimes
 
     # lookup custom local-part grammar if it exists
@@ -313,14 +322,14 @@ def validate_address(addr_spec, metrics=False):
     plugin = plugin_for_esp(exchanger)
     mtimes['custom_grammar'] = time() - bstart
     if plugin and plugin.validate(paddr) is False:
-        _log.warning('failed custom grammer check for %s/%s', addr_spec, plugin.__name__)
+        _log.debug('failed custom grammer check for %s/%s', addr_spec, plugin.__name__)
         return None, mtimes
 
     return paddr, mtimes
 
 
 @metrics_wrapper()
-def validate_list(addr_list, as_tuple=False, metrics=False):
+def validate_list(addr_list, as_tuple=False, metrics=False, skip_remote_checks=False):
     """
     Validates an address list, and returns a tuple of parsed and unparsed
     portions.
@@ -339,55 +348,34 @@ def validate_list(addr_list, as_tuple=False, metrics=False):
         >>> address.validate_address_list('a@b, c@d, e@example.com', as_tuple=True)
         ([a@mailgun.com, c@mailgun.com], ['e@example.com'])
     """
-    mtimes = {'parsing': 0, 'mx_lookup': 0,
-        'dns_lookup': 0, 'mx_conn':0 , 'custom_grammar':0}
+    mtimes = {'parsing': 0,
+              'tld_lookup': 0,
+              'mx_lookup': 0,
+              'dns_lookup': 0,
+              'mx_conn':0 ,
+              'custom_grammar':0}
 
+    # sanity check
     if not addr_list:
         return AddressList(), mtimes
 
-    # parse addresses
+    # run parser against address list
     bstart = time()
     parsed_addresses, unparseable = parse_list(addr_list, strict=True, as_tuple=True)
     mtimes['parsing'] = time() - bstart
 
     plist = AddressList()
-    ulist = []
+    ulist = unparseable
 
-    # make sure parsed list pass dns and esp grammar
+    # validate each address
     for paddr in parsed_addresses:
-
-        # lookup if this domain has a mail exchanger
-        exchanger, mx_metrics = mail_exchanger_lookup(paddr.hostname, metrics=True)
-        mtimes['mx_lookup'] += mx_metrics['mx_lookup']
-        mtimes['dns_lookup'] += mx_metrics['dns_lookup']
-        mtimes['mx_conn'] += mx_metrics['mx_conn']
-
-        if exchanger is None:
+        vaddr, metrics = validate_address(paddr.address, metrics=True, skip_remote_checks=skip_remote_checks)
+        for k in mtimes.keys():
+            mtimes[k] += metrics[k]
+        if vaddr is None:
             ulist.append(paddr.full_spec())
-            continue
-
-        # lookup custom local-part grammar if it exists
-        plugin = plugin_for_esp(exchanger)
-        bstart = time()
-        if plugin and plugin.validate(paddr) is False:
-            ulist.append(paddr.full_spec())
-            continue
-        mtimes['custom_grammar'] = time() - bstart
-
-        plist.append(paddr)
-
-    # loop over unparsable list and check if any can be fixed with
-    # preparsing cleanup and if so, run full validator
-    for unpar in unparseable:
-        paddr, metrics = validate_address(unpar, metrics=True)
-        if paddr:
-            plist.append(paddr)
         else:
-            ulist.append(unpar)
-
-        # update all the metrics
-        for k, v in six.iteritems(metrics):
-            metrics[k] += v
+            plist.append(paddr)
 
     if as_tuple:
         return plist, ulist, mtimes

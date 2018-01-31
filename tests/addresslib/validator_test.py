@@ -142,8 +142,7 @@ def test_parse_syntax_only_false():
     invalid_subdomain_list = [i + '@sub.example.com' for i in invalid_localparts(True)]
 
     all_valid_list = valid_tld_list + valid_domain_list + valid_subdomain_list
-    all_invalid_list = invalid_mx_list + invalid_tld_list + invalid_domain_list + \
-        invalid_subdomain_list
+    all_invalid_list = invalid_domain_list + invalid_subdomain_list + invalid_tld_list + invalid_mx_list
     all_list = all_valid_list + all_invalid_list
 
     # all valid
@@ -334,3 +333,16 @@ def test_mx_aol_manage_flag_toggle():
     addr_obj = address.parse(mailbox)
     unmanaged = validate.aol.unmanaged_email(addr_obj.hostname)
     assert_equal(unmanaged, True)
+
+def test_bad_tld():
+    # con is not a valid TLD
+    addr_spec = 'test@example.con'
+    addr_obj, metrics = address.validate_address(addr_spec, skip_remote_checks=True, metrics=True)
+    assert_equal(addr_obj, None)
+    assert_not_equal(metrics['tld_lookup'], 0)
+
+    # example is not a valid TLD
+    addr_spec = 'test@example'
+    addr_obj, metrics = address.validate_address(addr_spec, skip_remote_checks=True, metrics=True)
+    assert_equal(addr_obj, None)
+    assert_not_equal(metrics['tld_lookup'], 0)

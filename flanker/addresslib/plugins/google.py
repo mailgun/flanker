@@ -28,8 +28,8 @@
 
 '''
 import re
-from flanker.addresslib.tokenizer import TokenStream
-from flanker.addresslib.tokenizer import ATOM
+from flanker.addresslib.plugins.tokenizer import TokenStream
+from flanker.addresslib.plugins.tokenizer import ATOM
 
 
 GOOGLE_BASE  = re.compile(r'''

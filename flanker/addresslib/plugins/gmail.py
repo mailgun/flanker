@@ -28,8 +28,8 @@
         dot              ->      .
 '''
 import re
-from flanker.addresslib.plugins.tokenizer import TokenStream
-from flanker.addresslib.plugins.tokenizer import ATOM
+from flanker.addresslib.plugins._tokenizer import TokenStream
+from flanker.addresslib.plugins._tokenizer import ATOM
 
 
 GMAIL_BASE = re.compile(r'''

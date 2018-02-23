@@ -33,7 +33,7 @@
 
 '''
 import re
-from flanker.addresslib.plugins.tokenizer import TokenStream
+from flanker.addresslib.plugins._tokenizer import TokenStream
 
 ALPHA          = re.compile(r'''
                             [A-Za-z]+

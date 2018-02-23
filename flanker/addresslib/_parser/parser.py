@@ -3,7 +3,7 @@ from collections import namedtuple
 
 import ply.yacc as yacc
 
-from flanker.addresslib.lexer import lexer, tokens
+from flanker.addresslib._parser.lexer import lexer, tokens
 
 logging.basicConfig()
 log = logging.getLogger(__name__)

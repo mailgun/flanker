@@ -44,11 +44,11 @@ from ply.yacc import YaccError
 from six.moves.urllib_parse import urlparse
 from tld import get_tld
 
-from flanker.addresslib.lexer import lexer
-from flanker.addresslib.parser import (Mailbox, Url, mailbox_parser,
-                                       mailbox_or_url_parser,
-                                       mailbox_or_url_list_parser,
-                                       addr_spec_parser, url_parser)
+from flanker.addresslib._parser.lexer import lexer
+from flanker.addresslib._parser.parser import (Mailbox, Url, mailbox_parser,
+                                               mailbox_or_url_parser,
+                                               mailbox_or_url_list_parser,
+                                               addr_spec_parser, url_parser)
 from flanker.addresslib.quote import smart_unquote, smart_quote
 from flanker.addresslib.validate import (mail_exchanger_lookup,
                                          plugin_for_esp)

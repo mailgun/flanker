@@ -2,7 +2,7 @@ import regex as re
 import six
 from six.moves import StringIO
 
-from flanker.addresslib.lexer import t_ATOM, t_FWSP
+from flanker.addresslib._parser.lexer import t_ATOM, t_FWSP
 
 _RE_ATOM_PHRASE = re.compile(
     r'(({atom}|\.)+({fwsp}({atom}|\.)+)*)?'.format(atom=t_ATOM, fwsp=t_FWSP),

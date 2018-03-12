@@ -101,6 +101,11 @@ def test_addresslist_basics():
     eq_(len(result), len(lst)+2)
     ok_("foo@bar.com" in result)
 
+    # copy:
+    lst2 = lst.copy()
+    eq_(4, len(lst2))
+    eq_(lst, lst2)
+
 
 def test_addresslist_with_apostrophe():
     s = '''"Allan G\'o"  <allan@example.com>, "Os Wi" <oswi@example.com>'''

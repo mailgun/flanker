@@ -750,6 +750,9 @@ class AddressList(object):
     def remove(self, addr):
         self._container.remove(addr)
 
+    def copy(self):
+        return AddressList(container=self._container)
+
     def __iter__(self):
         return iter(self._container)
 

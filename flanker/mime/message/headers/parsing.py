@@ -8,7 +8,6 @@ from flanker.mime.message.utils import to_unicode
 from flanker.utils import is_pure_ascii
 
 _RE_HEADER = regex.compile(r'^(From |[\041-\071\073-\176]+:|[\t ])')
-_MAX_LINE_LENGTH = 10000
 
 
 def normalize(header_name):
@@ -59,9 +58,6 @@ def _read_header_lines(fp):
     """Read lines with headers until the start of body"""
     lines = deque()
     for line in fp:
-        if len(line) > _MAX_LINE_LENGTH:
-            raise DecodingError('Line is too long: %d' % len(line))
-
         if is_empty(line):
             break
 

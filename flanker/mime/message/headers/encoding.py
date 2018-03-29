@@ -11,12 +11,6 @@ from flanker.mime.message.utils import to_utf8
 
 _log = logging.getLogger(__name__)
 
-# max length for a header line is 80 chars
-# max recursion depth is 1000
-# 80 * 1000 for header is too much for the system
-# so we allow just 100 lines for header
-_MAX_HEADER_LENGTH = 8000
-
 _ADDRESS_HEADERS = ('From', 'To', 'Delivered-To', 'Cc', 'Bcc', 'Reply-To')
 
 
@@ -43,8 +37,6 @@ def encode(name, value):
 
 
 def _encode_unstructured(name, value):
-    if len(value) > _MAX_HEADER_LENGTH:
-        return to_utf8(value)
     try:
         return Header(
             value.encode("ascii"), "ascii",

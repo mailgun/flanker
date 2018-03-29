@@ -363,3 +363,16 @@ def create_newlines_in_headers_test():
     text = create.from_string(text.to_string())
     eq_('Hello,newline', text.headers['Subject'])
     eq_(u'Превед, медвед!', text.headers['To'])
+
+
+def test_bug_line_is_too_long():
+    # It was possible to create a message with a very long header value, but
+    # it was impossible to parse such message.
+
+    msg = create.text('plain', 'foo', 'utf-8')
+    msg.headers.add('bar', 'y' * 10000)
+    encoded_msg = msg.to_string()
+    decoded_msg = create.from_string(encoded_msg)
+
+    # When/Then
+    decoded_msg.headers

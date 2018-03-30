@@ -56,31 +56,16 @@ def max_header_length_test():
     message = create.from_string(LONG_HEADER)
 
     # this used to fail because exceeded max depth recursion
-    ok_(message.headers.getraw('subject').encode("utf-8") in message.to_string())
+    message.to_string()
+
+    ascii_subject = "This is simple ascii subject"
+    eq_(Header(ascii_subject.encode("ascii"), "ascii", header_name="Subject"),
+        _encode_unstructured("Subject", ascii_subject))
 
     unicode_subject = (u"Это сообщение с длинным сабжектом "
                        u"специально чтобы проверить кодировки")
-    ascii_subject = "This is simple ascii subject"
-
-    with patch.object(
-        headers.encoding, '_MAX_HEADER_LENGTH', len(ascii_subject) + 1):
-
-        eq_(Header(ascii_subject.encode("ascii"), "ascii", header_name="Subject"),
-            _encode_unstructured("Subject", ascii_subject))
-
-    with patch.object(
-        headers.encoding, '_MAX_HEADER_LENGTH', len(unicode_subject) + 1):
-
-        eq_(Header(unicode_subject.encode("utf-8"), "utf-8", header_name="Subject"),
-            _encode_unstructured("Subject", unicode_subject))
-
-    with patch.object(headers.encoding, '_MAX_HEADER_LENGTH', 1):
-
-        eq_(ascii_subject.encode("utf-8"),
-            _encode_unstructured("Subject", ascii_subject))
-
-        eq_(unicode_subject.encode("utf-8"),
-            _encode_unstructured("Subject", unicode_subject))
+    eq_(Header(unicode_subject.encode("utf-8"), "utf-8", header_name="Subject"),
+        _encode_unstructured("Subject", unicode_subject))
 
 
 def add_header_preserve_original_encoding_test():

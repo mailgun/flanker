@@ -135,8 +135,7 @@ def headers_parsing_empty_test():
 def headers_parsing_ridiculously_long_line_test():
     val = "abcdefg"*100000
     header = "Hello: {0}\r\n".format(val)
-    assert_raises(
-        DecodingError, MimeHeaders.from_stream, six.StringIO(header))
+    MimeHeaders.from_stream(six.StringIO(header))
 
 
 def headers_parsing_binary_stuff_survives_test():

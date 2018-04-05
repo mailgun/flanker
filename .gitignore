@@ -40,4 +40,3 @@ nosetests.xml
 
 # PLY
 parser.out
-parsetab.py

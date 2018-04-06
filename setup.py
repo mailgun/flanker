@@ -22,7 +22,6 @@ setup(name='flanker',
       install_requires=[
           'attrs',
           'chardet>=1.0.1',
-          'cchardet>=0.3.5',
           'cryptography>=0.5',
           'idna>=2.5',
           'ply>=3.10',
@@ -35,4 +34,7 @@ setup(name='flanker',
               'dnsq>=1.1.6',
               'redis>=2.7.1',
           ],
+          'cchardet': [
+              'cchardet>=0.3.5',
+          ]
       })

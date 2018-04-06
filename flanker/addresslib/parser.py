@@ -155,27 +155,27 @@ def p_error(p):
 
 # Build the parsers
 
-log.info('building mailbox parser')
+log.debug('building mailbox parser')
 mailbox_parser = yacc.yacc(start='mailbox',
                            errorlog=log,
                            tabmodule='mailbox_parsetab')
 
-log.info('building addr_spec parser')
+log.debug('building addr_spec parser')
 addr_spec_parser = yacc.yacc(start='addr_spec',
                              errorlog=log,
                              tabmodule='addr_spec_parsetab')
 
-log.info('building url parser')
+log.debug('building url parser')
 url_parser = yacc.yacc(start='url',
                        errorlog=log,
                        tabmodule='url_parsetab')
 
-log.info('building mailbox_or_url parser')
+log.debug('building mailbox_or_url parser')
 mailbox_or_url_parser = yacc.yacc(start='mailbox_or_url',
                                   errorlog=log,
                                   tabmodule='mailbox_or_url_parsetab')
 
-log.info('building mailbox_or_url_list parser')
+log.debug('building mailbox_or_url_list parser')
 mailbox_or_url_list_parser = yacc.yacc(start='mailbox_or_url_list',
                                        errorlog=log,
                                        tabmodule='mailbox_or_url_list_parsetab')

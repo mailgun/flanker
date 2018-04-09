@@ -10,6 +10,7 @@ else
     nosetests --with-coverage --cover-package=flanker \
         tests/addresslib \
         tests/mime/bounce_tests.py \
+        tests/mime/message/headers \
         tests/mime/message/threading_test.py \
         tests/mime/message/tokenizer_test.py \
         tests/mime/message/headers/encodedword_test.py \

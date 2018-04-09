@@ -71,16 +71,15 @@ class MimeHeaders(object):
         a new pair of key, val and applies the function to all
         header, value pairs in the message.
         """
-
         changed = [False]
 
-        def tracking_fn(key, val):
+        def wrapper(key, val):
             new_key, new_val = fn(key, val)
             if new_val != val or new_key != key:
                 changed[0] = True
             return new_key, new_val
 
-        v = MultiDict(tracking_fn(key, val) for key, val in self.iteritems(raw=not decode))
+        v = MultiDict(wrapper(k, v) for k, v in self.iteritems(raw=not decode))
         if changed[0]:
             self._v = v
             self.changed = True

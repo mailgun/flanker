@@ -141,16 +141,16 @@ class FallbackHeaders(MimeHeaders):
         MimeHeaders.add(self, key, value)
         self._m[key] = headers.to_mime(normalize(key), remove_newlines(value))
 
-    def transform(self, func):
+    def transform(self, fn, decode=False):
         changed = [False]
 
-        def wrapped_func(key, value):
-            new_key, new_value = func(key, value)
-            if new_value != value or new_key != key:
+        def wrapper(key, val):
+            new_key, new_value = fn(key, val)
+            if new_value != val or new_key != key:
                 changed[0] = True
             return new_key, new_value
 
-        transformed_headers = [wrapped_func(k, v) for k, v in self._m.items()]
+        transformed_headers = [wrapper(k, v) for k, v in self._m.items()]
         if changed[0]:
             self._m._headers = transformed_headers
             self._v = MultiDict([(normalize(k), remove_newlines(v))
@@ -161,15 +161,22 @@ class FallbackHeaders(MimeHeaders):
 def _try_decode(key, value):
     if isinstance(value, (tuple, list)):
         return value
-    elif isinstance(value, six.binary_type):
+
+    if six.PY3:
+        assert (isinstance(key, six.text_type) and
+                isinstance(value, six.text_type))
+        try:
+            return headers.parse_header_value(key, value)
+        except Exception:
+            return value
+
+    if isinstance(value, six.binary_type):
         try:
             return headers.parse_header_value(key, value)
         except Exception:
             return value.decode('utf-8', 'ignore')
 
-    elif isinstance(value, six.text_type):
+    if isinstance(value, six.text_type):
         return value
-    else:
-        return ""
 
-
+    raise TypeError('%s is not allowed type of header %s' % (type(value), key))

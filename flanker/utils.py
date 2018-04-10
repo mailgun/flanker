@@ -63,7 +63,7 @@ def metrics_wrapper():
         def wrapper(*args, **kwargs):
             return_value = f(*args, **kwargs)
             if 'metrics' in kwargs and kwargs['metrics'] is True:
-                #return all values
+                # return all values
                 return return_value
 
             # if we have a single item

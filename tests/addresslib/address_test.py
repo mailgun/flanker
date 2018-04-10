@@ -29,7 +29,7 @@ def test_address_compare():
     also_a = EmailAddress("A@host.com")
 
     ok_(a == also_a)
-    #eq_(False, a != "I am also A <a@HOST.com>")
+    # eq_(False, a != "I am also A <a@HOST.com>")
     ok_(a != 'crap')
     ok_(a != None)
     ok_(a != b)

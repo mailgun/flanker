@@ -18,7 +18,7 @@ CONTROL_CHARS = ''.join(map(six.unichr, list(range(0, 9)) + list(range(14, 32)) 
 @nottest
 def chunks(l, n):
     for i in range(0, len(l), n):
-        yield l[i:i+n]
+        yield l[i: i + n]
 
 @nottest
 def run_full_mailbox_test(string, expected, full_spec=None):
@@ -55,7 +55,7 @@ def test_name_addr():
     "Grammar: name-addr -> [ display-name ] angle-addr"
 
     # sanity
-    run_full_mailbox_test('Linus Torvalds <linus@kernel.org>', EmailAddress('Linus Torvalds','linus@kernel.org'))
+    run_full_mailbox_test('Linus Torvalds <linus@kernel.org>', EmailAddress('Linus Torvalds', 'linus@kernel.org'))
     run_mailbox_test('Linus Torvalds', None)
     run_mailbox_test('Linus Torvalds <>', None)
     run_mailbox_test('linus@kernel.org', 'linus@kernel.org')
@@ -417,8 +417,8 @@ def test_local_part():
     "Grammar: local-part -> dot-atom | quoted-string"
 
     # test length limits
-    run_mailbox_test(''.join(['a'*128, '@b']), ''.join(['a'*128, '@b']))
-    run_mailbox_test(''.join(['a'*1025, '@b']), None)
+    run_mailbox_test(''.join(['a' * 128, '@b']), ''.join(['a' * 128, '@b']))
+    run_mailbox_test(''.join(['a' * 1025, '@b']), None)
 
     # because qtext and quoted-pair are longer than 64 bytes (limit on local-part)
     # we use a sample in testing, every other for qtext and every fifth for quoted-pair

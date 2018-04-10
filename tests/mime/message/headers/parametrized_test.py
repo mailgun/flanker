@@ -6,10 +6,10 @@ from flanker.mime.message.headers import parametrized
 
 def old_style_test_google():
     h = """image/png;
-	name="=?KOI8-R?B?68HS1MnOy8Eg0yDP3sXO2Cwgz97FztggxMzJzs7ZzSA=?=
-	=?KOI8-R?B?0NLFxMzJzs7ZzSDJzcXOxc0g0NLFyc3FzsXNINTByw==?=
-	=?KOI8-R?B?yc0g3tTPINTP3s7PINrBys3F1CDU1d7VINDSxdTV3tUg?=
-	=?KOI8-R?B?zcXT1MEg0NLT1M8gz8bJx8XU2C5wbmc=?="""
+    name="=?KOI8-R?B?68HS1MnOy8Eg0yDP3sXO2Cwgz97FztggxMzJzs7ZzSA=?=
+    =?KOI8-R?B?0NLFxMzJzs7ZzSDJzcXOxc0g0NLFyc3FzsXNINTByw==?=
+    =?KOI8-R?B?yc0g3tTPINTP3s7PINrBys3F1CDU1d7VINDSxdTV3tUg?=
+    =?KOI8-R?B?zcXT1MEg0NLT1M8gz8bJx8XU2C5wbmc=?="""
     eq_(('image/png', {'name': u'Картинка с очень, очень длинным предлинным именем преименем таким что точно займет тучу претучу места прсто офигеть.png'}), parametrized.decode(h))
 
 
@@ -65,4 +65,4 @@ def content_types_test():
     eq_(('multipart/mixed', {'boundary': '16819560-2078917053-688350843:#11603'}), parametrized.decode('''MULTIPART/MIXED;BOUNDARY="16819560-2078917053-688350843:#11603"'''))
 
 def content_type_param_with_spaces_test():
-    eq_(('multipart/alternative',{'boundary':'nextPart'}), parametrized.decode("multipart/alternative; boundary = nextPart"))
+    eq_(('multipart/alternative', {'boundary': 'nextPart'}), parametrized.decode("multipart/alternative; boundary = nextPart"))

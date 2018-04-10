@@ -65,7 +65,7 @@ def test_yahoo_pass():
 
         # only zero or one dot (.) allowed
         for i in range(0, 2):
-            localpart = 'aa' + '.'*i + '00'
+            localpart = 'aa' + '.' * i + '00'
             addr = address.validate_address(localpart + DOMAIN)
             assert_not_equal(addr, None)
 
@@ -163,21 +163,21 @@ def test_yahoo_fail():
 
         # no more than 1 dot (.) allowed
         for i in range(2, 4):
-            localpart = 'aa' + '.'*i + 'a' + '.'*i + '00'
+            localpart = 'aa' + '.' * i + 'a' + '.' * i + '00'
             addr = address.validate_address(localpart + DOMAIN)
             assert_equal(addr, None)
 
         # no consecutive: underscore (_) or dot-underscore (._)
         # or underscore-dot (_.)
         for i in range(1, 4):
-            localpart = 'aa' + '__'*i + '00'
+            localpart = 'aa' + '__' * i + '00'
             addr = address.validate_address(localpart + DOMAIN)
             assert_equal(addr, None)
 
-            localpart = 'aa' + '._'*i + '00'
+            localpart = 'aa' + '._' * i + '00'
             addr = address.validate_address(localpart + DOMAIN)
             assert_equal(addr, None)
 
-            localpart = 'aa' + '._'*i + '00'
+            localpart = 'aa' + '._' * i + '00'
             addr = address.validate_address(localpart + DOMAIN)
             assert_equal(addr, None)

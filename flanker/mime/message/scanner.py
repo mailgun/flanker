@@ -233,7 +233,7 @@ def make_part(content_type, start, end, iterator, parts=[], enclosed=None,
             string=iterator.string),
         parts=parts,
         enclosed=enclosed,
-        is_root=(parent==None))
+        is_root=(parent == None))
 
 
 def locate_first_newline(stream, start):
@@ -425,7 +425,7 @@ def _grab_newline(position, string, direction):
     while 0 < position < len(string):
         if string[position] == '\n':
             if direction < 0:
-                if position - 1 > 0 and string[position-1] == '\r':
+                if position - 1 > 0 and string[position - 1] == '\r':
                     return position - 1
             return position
         position += direction
@@ -452,7 +452,7 @@ def _filter_false_tokens(tokens):
             # Only the first content-type header in a headers section is valid.
             if current_content_type or current_section != _SECTION_HEADERS:
                 continue
-    
+
             current_content_type = token
             boundaries.append(token.get_boundary())
 

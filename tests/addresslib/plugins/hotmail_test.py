@@ -65,7 +65,7 @@ def test_hotmail_pass():
 
         # only zero or one plus allowed
         for i in range(0, 2):
-            localpart = 'aa' + '+'*i + '00'
+            localpart = 'aa' + '+' * i + '00'
             addr = address.validate_address(localpart + DOMAIN)
             assert_not_equal(addr, None)
 
@@ -114,10 +114,10 @@ def test_hotmail_fail():
 
         # no more than 1 consecutive dot (.) or plus (+) allowed
         for i in range(2, 4):
-            localpart = 'aa' + '.'*i + '00'
+            localpart = 'aa' + '.' * i + '00'
             addr = address.validate_address(localpart + DOMAIN)
             assert_equal(addr, None)
 
-            localpart = 'aa' + '+'*i + '00'
+            localpart = 'aa' + '+' * i + '00'
             addr = address.validate_address(localpart + DOMAIN)
             assert_equal(addr, None)

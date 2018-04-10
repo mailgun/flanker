@@ -98,7 +98,7 @@ def test_addresslist_basics():
     # add:
     result = lst + parse_list("ev@local.net") + ["foo@bar.com"]
     ok_(isinstance(result, AddressList))
-    eq_(len(result), len(lst)+2)
+    eq_(len(result), len(lst) + 2)
     ok_("foo@bar.com" in result)
 
 

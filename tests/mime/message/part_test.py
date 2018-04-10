@@ -294,7 +294,7 @@ def ascii_to_quoted_printable_test():
 # Make sure we can't create a message without headers.
 def create_message_without_headers_test():
     message = scan(TEXT_ONLY)
-    for h,v in message.headers.items():
+    for h, v in message.headers.items():
         del message.headers[h]
 
     assert_false(message.headers, message.headers)

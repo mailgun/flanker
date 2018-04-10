@@ -255,7 +255,7 @@ def print_tree(part, parts, delimiters=""):
 
 
 
-NO_CTYPE_HEADERS=[
+NO_CTYPE_HEADERS = [
     ('Mime-Version', '1.0'),
     ('Received', 'by 10.68.60.193 with HTTP; Thu, 29 Dec 2011 02:06:53 -0800 (PST)'),
     ('X-Originating-Ip', '[95.37.185.143]'),

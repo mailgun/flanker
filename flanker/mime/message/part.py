@@ -23,6 +23,7 @@ log = logging.getLogger(__name__)
 
 CTE = WithParams('7bit', {})
 
+
 class Stream(object):
 
     def __init__(self, content_type, start, end, string, stream):
@@ -574,6 +575,7 @@ def decode_transfer_encoding(encoding, body):
         return quopri.decodestring(body)
     else:
         return body
+
 
 def decode_charset(ctype, body):
     if ctype.main != 'text':

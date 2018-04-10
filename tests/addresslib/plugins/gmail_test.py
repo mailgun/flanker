@@ -15,6 +15,7 @@ DOMAIN = '@gmail.com'
 SAMPLE_MX = 'sample.gmail-smtp-in.l.google.com'
 ATOM_STR = string.ascii_letters + string.digits + '!#$%&\'*+-/=?^_`{|}~'
 
+
 @nottest
 def mock_exchanger_lookup(arg, metrics=False):
     mtimes = {'mx_lookup': 0, 'dns_lookup': 0, 'mx_conn': 0}

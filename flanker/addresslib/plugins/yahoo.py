@@ -133,6 +133,7 @@ def _validate_primary(email_addr):
 
     return True
 
+
 def _validate_disposable(email_addr):
     # Setup for handling EmailAddress type instead of literal string
     localpart = email_addr.mailbox

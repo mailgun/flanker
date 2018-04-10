@@ -125,7 +125,6 @@ def enclosed_header_inner_alternation_test():
     eq_(enclosed.parts[1].body, enclosed2.parts[1].body)
 
 
-
 # We've changed the body in the inner part of the message only,
 # the rest was not changed.
 def enclosed_body_alternation_test():

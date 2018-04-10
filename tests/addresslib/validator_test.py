@@ -34,6 +34,7 @@ def valid_localparts(strip_delimiters=False):
 
         yield line
 
+
 @nottest
 def invalid_localparts(strip_delimiters=False):
     for line in ABRIDGED_LOCALPART_INVALID_TESTS.split('\n'):
@@ -54,6 +55,7 @@ def invalid_localparts(strip_delimiters=False):
 
         yield line
 
+
 @nottest
 def mock_exchanger_lookup(arg, metrics=False):
     mtimes = {'mx_lookup': 10, 'dns_lookup': 20, 'mx_conn': 30}
@@ -67,6 +69,7 @@ def mock_exchanger_lookup(arg, metrics=False):
             return ''
         else:
             return None
+
 
 def test_abridged_mailbox_valid_set():
     for line in ABRIDGED_LOCALPART_VALID_TESTS.split('\n'):
@@ -228,6 +231,7 @@ def test_mx_lookup_metrics():
         a = validate.mail_exchanger_lookup('example.com', metrics=False)
         a = validate.mail_exchanger_lookup('example.com', metrics=False)
 
+
 def test_validate_address_metrics():
     with patch.object(address, 'mail_exchanger_lookup') as mock_method:
         mock_method.side_effect = mock_exchanger_lookup
@@ -252,6 +256,7 @@ def test_validate_address_metrics():
 #     assert_equal(addr.full_spec(), 'foo@[1.2.3.4]')
 #     mock_lookup_domain.assert_not_called()
 #     mock_connect_to_mail_exchanger.assert_called_once_with(['1.2.3.4'])
+
 
 @patch('flanker.addresslib.validate.connect_to_mail_exchanger')
 @patch('flanker.addresslib.validate.lookup_domain')
@@ -333,6 +338,7 @@ def test_mx_aol_manage_flag_toggle():
     addr_obj = address.parse(mailbox)
     unmanaged = validate.aol.unmanaged_email(addr_obj.hostname)
     assert_equal(unmanaged, True)
+
 
 def test_bad_tld():
     # con is not a valid TLD

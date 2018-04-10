@@ -42,6 +42,7 @@ def headers_boolean_test():
     eq_(False, bool(MimeHeaders()))
     eq_(True, bool(MimeHeaders([('A', 1)])))
 
+
 def headers_to_string_test():
     ok_(str(MimeHeaders([('A', 1)])))
 
@@ -119,6 +120,7 @@ def headers_transform_test():
 
     eq_([('X-Mime-Version', 't(1)'), ('X-Received', 't(2)'), ('X-Mime-Version', 't(3)'), ('X-Received', 't(4)')], h.items())
 
+
 def headers_transform_encodedword_test():
     # Create a header with non-ascii characters that will be stored in encoded-word format.
     headers = [('Subject', encoding.to_mime('Subject', u'Hello ✓'))]
@@ -128,9 +130,11 @@ def headers_transform_encodedword_test():
     h.transform(lambda key, val: (key, val.replace(u'✓', u'☃')), decode=True)
     eq_(u'Hello ☃', h.get('Subject'))
 
+
 def headers_parsing_empty_test():
     h = MimeHeaders.from_stream(six.StringIO(""))
     eq_(0, len(h))
+
 
 def headers_parsing_ridiculously_long_line_test():
     val = "abcdefg" * 100000

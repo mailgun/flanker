@@ -161,6 +161,7 @@ def bad_messages_test():
     assert_raises(DecodingError, scan, ENCLOSED_ENDLESS)
     assert_raises(DecodingError, scan, NDN_BROKEN)
 
+
 def apache_mime_message_news_test():
     message = scan(APACHE_MIME_MESSAGE_NEWS)
     eq_('[Fwd: Netscape Enterprise vs. Apache Secure]',
@@ -197,6 +198,7 @@ def bounce_headers_only_test():
     eq_(3, len(message.parts))
     eq_('multipart/alternative',
         str(message.parts[2].enclosed.content_type))
+
 
 def message_external_body_test():
     message = scan(MESSAGE_EXTERNAL_BODY)

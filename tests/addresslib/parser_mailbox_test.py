@@ -15,10 +15,12 @@ FULL_QUOTED_PAIR = '\\' + '\\'.join(VALID_QUOTED_PAIR)
 
 CONTROL_CHARS = ''.join(map(six.unichr, list(range(0, 9)) + list(range(14, 32)) + [127]))
 
+
 @nottest
 def chunks(l, n):
     for i in range(0, len(l), n):
         yield l[i: i + n]
+
 
 @nottest
 def run_full_mailbox_test(string, expected, full_spec=None):
@@ -31,6 +33,7 @@ def run_full_mailbox_test(string, expected, full_spec=None):
         assert_equal(mbox, address.parse(mbox.to_unicode(), strict=True)) # check symmetry
         return
     assert_equal(expected, mbox)
+
 
 @nottest
 def run_mailbox_test(string, expected_string):

@@ -6,6 +6,7 @@ from flanker.mime.message.headers import encodedword
 from flanker.mime.message import utils
 from flanker.mime.message import errors, charsets
 
+
 def encoded_word_test():
     def t(value):
         m  = encodedword._RE_ENCODED_WORD.match(value)
@@ -77,6 +78,7 @@ def outlook_encodings_test():
     v = '''=?koi8-r?B?/NTPINPPz8Ldxc7JxSDTIMTMyc7O2c0g08HC1sXL1M/NINPQxcPJwQ==?=
             =?koi8-r?B?zNjOzyDe1M/C2SDQ0s/XxdLJ1Nggy8/EydLP18vJ?='''
     eq_(u"Это сообщение с длинным сабжектом специально чтобы проверить кодировки", encodedword.mime_to_unicode(v))
+
 
 def gmail_encodings_test():
     v = ''' =?KOI8-R?B?/NTPINPPz8Ldxc7JxSDTIMTMyc7O2c0g08HC1g==?=

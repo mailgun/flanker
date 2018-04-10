@@ -74,6 +74,7 @@ URL        = re.compile(r'''
                         [^\s<>{}|\^~\[\]`;,]+
                         ''', re.MULTILINE | re.VERBOSE | re.UNICODE)
 
+
 class TokenStream(object):
     """
     Represents the stream of tokens that the parser will consume. The token

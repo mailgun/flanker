@@ -14,6 +14,7 @@ from ... import skip_if_asked
 DOMAIN = '@icloud.com'
 SAMPLE_MX = 'sample.mail.icloud.com'
 
+
 @nottest
 def mock_exchanger_lookup(arg, metrics=False):
     mtimes = {'mx_lookup': 0, 'dns_lookup': 0, 'mx_conn': 0}

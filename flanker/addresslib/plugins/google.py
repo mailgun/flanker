@@ -100,6 +100,7 @@ def validate(email_addr):
     # grammar check
     return _validate(real_localpart)
 
+
 def _validate(localpart):
     stream = TokenStream(localpart)
 

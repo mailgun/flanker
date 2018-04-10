@@ -4,6 +4,7 @@ from nose.tools import *
 from mock import *
 from flanker.mime.message.headers import parametrized
 
+
 def old_style_test_google():
     h = """image/png;
     name="=?KOI8-R?B?68HS1MnOy8Eg0yDP3sXO2Cwgz97FztggxMzJzs7ZzSA=?=
@@ -63,6 +64,7 @@ def content_types_test():
     eq_(('multipart/mixed', {'boundary': 'Where_No_Man_Has_Gone_Before'}), parametrized.decode('''MULTIPART/MIXED;boundary=Where_No_Man_Has_Gone_Before'''))
     eq_(('multipart/mixed', {'boundary': 'Alternative_Boundary_8dJn:mu0M2Yt5KaFZ8AdJn:mu0M2=Yt1KaFdA'}), parametrized.decode(''' multipart/mixed; \n\tboundary="Alternative_Boundary_8dJn:mu0M2Yt5KaFZ8AdJn:mu0M2=Yt1KaFdA"'''))
     eq_(('multipart/mixed', {'boundary': '16819560-2078917053-688350843:#11603'}), parametrized.decode('''MULTIPART/MIXED;BOUNDARY="16819560-2078917053-688350843:#11603"'''))
+
 
 def content_type_param_with_spaces_test():
     eq_(('multipart/alternative', {'boundary': 'nextPart'}), parametrized.decode("multipart/alternative; boundary = nextPart"))

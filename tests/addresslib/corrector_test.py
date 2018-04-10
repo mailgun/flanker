@@ -34,6 +34,7 @@ def generate_mutated_string(source_str, num):
 
     return ''.join(letters)
 
+
 @nottest
 def generate_longer_string(source_str, num):
     letters = list(source_str)
@@ -47,9 +48,11 @@ def generate_longer_string(source_str, num):
 
     return ''.join(letters)
 
+
 @nottest
 def generate_shorter_string(source_str, num):
     return source_str[0: len(source_str) - num]
+
 
 @nottest
 def domain_generator(size=6, chars=string.ascii_letters + string.digits):

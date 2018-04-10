@@ -36,6 +36,7 @@ tokens = (
 
 # Urls - Not a part of the message format RFC but we permit these currently
 
+
 def t_URL(t):
     r'http(s)?://[^\s<>{}|^~\[\]`;,]+'
     return t
@@ -52,14 +53,14 @@ t_SEMICOLON = r'\;'                    # ';'
 
 if six.PY2:
     _UTF8_2 = r'[\xC2-\xDF][\x80-\xBF]'
-    _UTF8_3 = (r'(\xE0[\xA0-\xBF][\x80-\xBF]'    
+    _UTF8_3 = (r'(\xE0[\xA0-\xBF][\x80-\xBF]'
                r'|[\xE1-\xEC][\x80-\xBF]{2}'
                r'|\xED[\x80-\x9F][\x80-\xBF]'
                r'|[\xEE-\xEF][\x80-\xBF]{2}'
                r')')
 
     _UTF8_4 = (r'(\xF0[\x90-\xBF][\x80-\xBF]{2}'
-    
+
                r'|[\xF1-\xF3][\x80-\xBF]{3}'
                r'|\xF4[\x80-\x8F][\x80-\xBF]{2}'
                r')')
@@ -181,6 +182,7 @@ t_comment_CTEXT = r'''
 
 # Folding whitespace.
 t_comment_FWSP = r'([\s\t]*\r\n)?[\s\t]+'
+
 
 def t_comment_error(t):
     log.warning("syntax error in comment lexer, token=%s", t)

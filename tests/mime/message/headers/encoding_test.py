@@ -59,12 +59,12 @@ def max_header_length_test():
     message.to_string()
 
     ascii_subject = "This is simple ascii subject"
-    eq_(Header(ascii_subject.encode("ascii"), "ascii", header_name="Subject"),
+    eq_(Header(ascii_subject.encode("ascii"), "ascii", header_name="Subject").encode(),
         _encode_unstructured("Subject", ascii_subject))
 
     unicode_subject = (u"Это сообщение с длинным сабжектом "
                        u"специально чтобы проверить кодировки")
-    eq_(Header(unicode_subject.encode("utf-8"), "utf-8", header_name="Subject"),
+    eq_(Header(unicode_subject.encode("utf-8"), "utf-8", header_name="Subject").encode(),
         _encode_unstructured("Subject", unicode_subject))
 
 

@@ -12,7 +12,7 @@ _lr_action_items = {'FWSP': ([0, 2, 4, 6, 7, 10, 14, 15, 16, 17, 20, 21, 22, 24,
 _lr_action = {}
 for _k, _v in _lr_action_items.items():
    for _x, _y in zip(_v[0], _v[1]):
-      if not _x in _lr_action:  _lr_action[_x] = {}
+      if not _x in _lr_action: _lr_action[_x] = {}
       _lr_action[_x][_k] = _y
 del _lr_action_items
 

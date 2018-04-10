@@ -75,7 +75,7 @@ def _encode_param(key, name, value):
 
         return email.message._formatparam(name, value)
     except Exception:
-        value = Header(value.encode("utf-8"), "utf-8",  header_name=key).encode(splitchars=' ;,')
+        value = Header(value.encode("utf-8"), "utf-8", header_name=key).encode(splitchars=' ;,')
         return email.message._formatparam(name, value)
 
 

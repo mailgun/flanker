@@ -13,7 +13,7 @@ def test_addr_properties():
     non_ascii = parse(u'Gonzalo Bañuelos<gonz@host.com>')
 
     eq_(False, url.supports_routing)
-    eq_(True,  email.supports_routing)
+    eq_(True, email.supports_routing)
 
     eq_(Address.Type.Email, email.addr_type)
     eq_(Address.Type.Url, url.addr_type)

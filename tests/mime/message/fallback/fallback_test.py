@@ -1,13 +1,12 @@
 # coding:utf-8
 
-import email
 from contextlib import closing
-from email import message_from_string
 
 import six
-from nose.tools import ok_, eq_, assert_false, assert_equals
+from nose.tools import ok_, eq_, assert_false
 from six.moves import StringIO
 
+from flanker import _email
 from flanker.mime.message import ContentType
 from flanker.mime.message.fallback import create
 from flanker.mime.message.scanner import scan
@@ -17,7 +16,7 @@ from tests import (IPHONE, ENCLOSED, TORTURE, TEXT_ONLY, MAILFORMED_HEADERS,
 
 
 def bad_string_test():
-    mime = "Content-Type: multipart/broken\n\n"
+    mime = "Content-Type: multipart/broken\r\n\r\n"
     message = create.from_string("Content-Type:multipart/broken")
     eq_(mime, message.to_string())
     with closing(StringIO()) as out:
@@ -43,7 +42,7 @@ def bad_string_test_2():
 
 def bad_python_test():
     message = create.from_python(
-        message_from_string("Content-Type:multipart/broken"))
+        _email.message_from_string("Content-Type:multipart/broken"))
     ok_(message.to_string())
     with closing(StringIO()) as out:
         message.to_stream(out)
@@ -64,12 +63,12 @@ def message_alter_body_and_serialize_test():
 
     parts = list(message.walk())
     eq_(3, len(parts))
-    eq_(u'\n\n\n~Danielle', parts[2].body)
+    eq_(u'\r\n\r\n\r\n~Danielle', parts[2].body)
     eq_((None, {}), parts[2].content_disposition)
     eq_(('inline', {'filename': 'photo.JPG'}), parts[1].content_disposition)
 
     part = list(message.walk())[2]
-    part.body = u'Привет, Danielle!\n\n'
+    part.body = u'Привет, Danielle!\r\n\r\n'
 
     with closing(StringIO()) as out:
         message.to_stream(out)
@@ -78,11 +77,11 @@ def message_alter_body_and_serialize_test():
 
     parts = list(message1.walk())
     eq_(3, len(parts))
-    eq_(u'Привет, Danielle!\n\n', parts[2].body)
+    eq_(u'Привет, Danielle!\r\n\r\n', parts[2].body)
 
     parts = list(message2.walk())
     eq_(3, len(parts))
-    eq_(u'Привет, Danielle!\n\n', parts[2].body)
+    eq_(u'Привет, Danielle!\r\n\r\n', parts[2].body)
 
 
 def message_content_dispositions_test():
@@ -145,7 +144,7 @@ def clean_subject_test():
 def references_test():
     # Given
     message = create.from_python(
-        email.message_from_string(MULTI_RECEIVED_HEADERS))
+        _email.message_from_string(MULTI_RECEIVED_HEADERS))
 
     # When/Then
     eq_({'AANLkTi=1ANR2FzeeQ-vK3-_ty0gUrOsAxMRYkob6CL-c@mail.gmail.com',
@@ -196,7 +195,7 @@ def torture_test():
 
 def text_only_test():
     message = create.from_string(TEXT_ONLY)
-    eq_(u"Hello,\nI'm just testing message parsing\n\nBR,\nBob",
+    eq_(u"Hello,\r\nI'm just testing message parsing\r\n\r\nBR,\r\nBob",
         message.body)
     ok_(not message.is_bounce())
     eq_(None, message.get_attached_message())

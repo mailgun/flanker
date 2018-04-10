@@ -1,13 +1,11 @@
 """ Useful wrappers for headers with parameters,
 provide some convenience access methods
 """
-
-from email.utils import make_msgid
-
 import regex as re
 import six
 
 import flanker.addresslib.address
+from flanker import _email
 
 
 class WithParams(tuple):
@@ -164,7 +162,7 @@ class MessageId(str):
 
     @classmethod
     def generate(cls, domain=None):
-        message_id = make_msgid().strip("<>")
+        message_id = _email.make_message_id().strip("<>")
         if domain:
             local = message_id.split('@')[0]
             message_id = "{0}@{1}".format(local, domain)

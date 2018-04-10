@@ -1,12 +1,11 @@
 # coding:utf-8
-import email.base64mime
-import email.quoprimime
 import logging
 from base64 import b64encode
 
 import regex as re
 import six
 
+from flanker import _email
 from flanker.mime.message import charsets, errors
 
 _log = logging.getLogger(__name__)
@@ -113,7 +112,7 @@ def _decode_part(charset, encoding, value):
         if paderr:
             value += '==='[:4 - paderr]
 
-        return charset, email.base64mime.decode(value)
+        return charset, _email.decode_base64(value)
 
     if not encoding:
         return charset, value
@@ -123,7 +122,7 @@ def _decode_part(charset, encoding, value):
 
 def _decode_quoted_printable(qp):
     if six.PY2:
-        return email.quoprimime.header_decode(str(qp))
+        return _email.decode_quoted_printable(str(qp))
 
     buf = bytearray()
     size = len(qp)

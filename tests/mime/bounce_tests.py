@@ -12,20 +12,20 @@ def test_bounce_detect():
             score=1.875,
             status=u'5.1.1',
             notification=(
-                    u"This is the mail system at host mail.example.com.\n\n"
-                    u"I'm sorry to have to inform you that your message could not\n"
-                    u"be delivered to one or more recipients. It's attached below.\n\n"
-                    u"For further assistance, please send mail to postmaster.\n\n"
-                    u"If you do so, please include this problem report. You can\n"
-                    u"delete your own text from the attached returned message.\n\n"
-                    u"                   The mail system\n\n"
-                    u"<asdfasdfasdfasdfasdfasdfewrqertrtyrthsfgdfgadfqeadvxzvz@gmail.com>: host\n"
-                    u"    gmail-smtp-in.l.google.com[209.85.210.17] said: 550-5.1.1 The email account\n"
-                    u"    that you tried to reach does not exist. Please try 550-5.1.1\n"
-                    u"    double-checking the recipient's email address for typos or 550-5.1.1\n"
-                    u"    unnecessary spaces. Learn more at                              550 5.1.1\n"
-                    u"    http://mail.google.com/support/bin/answer.py?answer=6596 17si20661415yxe.22\n"
-                    u"    (in reply to RCPT TO command)\n"),
+                    u"This is the mail system at host mail.example.com.\r\n\r\n"
+                    u"I'm sorry to have to inform you that your message could not\r\n"
+                    u"be delivered to one or more recipients. It's attached below.\r\n\r\n"
+                    u"For further assistance, please send mail to postmaster.\r\n\r\n"
+                    u"If you do so, please include this problem report. You can\r\n"
+                    u"delete your own text from the attached returned message.\r\n\r\n"
+                    u"                   The mail system\r\n\r\n"
+                    u"<asdfasdfasdfasdfasdfasdfewrqertrtyrthsfgdfgadfqeadvxzvz@gmail.com>: host\r\n"
+                    u"    gmail-smtp-in.l.google.com[209.85.210.17] said: 550-5.1.1 The email account\r\n"
+                    u"    that you tried to reach does not exist. Please try 550-5.1.1\r\n"
+                    u"    double-checking the recipient's email address for typos or 550-5.1.1\r\n"
+                    u"    unnecessary spaces. Learn more at                              550 5.1.1\r\n"
+                    u"    http://mail.google.com/support/bin/answer.py?answer=6596 17si20661415yxe.22\r\n"
+                    u"    (in reply to RCPT TO command)\r\n"),
             diagnostic_code=(
                     u"smtp; 550-5.1.1 The email account that you tried to reach does"
                     u"    not exist. Please try 550-5.1.1 double-checking the recipient's email"

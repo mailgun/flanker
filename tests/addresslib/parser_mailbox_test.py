@@ -532,7 +532,7 @@ def test_full_spec_symmetry_bug():
     the display name words.
     """
     # Given
-    original = 'very loooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooong <foo@example.com>'
+    original = 'very l' + ('o' * 70) + 'ng <foo@example.com>'
     addr = address.parse(original)
 
     # When

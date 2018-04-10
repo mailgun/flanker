@@ -22,7 +22,16 @@ def read_fixture(path, binary=False):
     absolute_path = join(abspath(dirname(__file__)), 'fixtures', path)
     mode = 'rb' if binary else 'r'
     with open(absolute_path, mode) as f:
-        return f.read()
+        content = f.read()
+
+    if binary:
+        return content
+
+    # Normalize newline to be CRLF.
+    content = content.replace('\r\n', '\n')
+    content = content.replace('\r', '\n')
+    content = content.replace('\n', '\r\n')
+    return content
 
 
 # mime fixture files

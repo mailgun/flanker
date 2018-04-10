@@ -7,6 +7,7 @@ from nose.tools import nottest
 
 from flanker.addresslib import address
 
+
 @nottest
 def mock_exchanger_lookup(arg, metrics=False):
     mtimes = {'mx_lookup': 10, 'dns_lookup': 20, 'mx_conn': 30}
@@ -30,6 +31,7 @@ def test_metrics_parse():
     assert_equal(isinstance(address.parse('foo@example.com', metrics=False), address.EmailAddress), True)
     assert_equal(isinstance(address.parse('foo@example.com'), address.EmailAddress), True)
 
+
 def test_metrics_parse_list():
     # parse_list
     assert_equal(len(address.parse_list('foo@example.com, bar@example.com', metrics=True)), 2)
@@ -37,6 +39,7 @@ def test_metrics_parse_list():
     assert_equal('parsing' in m, True)
     assert_equal(isinstance(address.parse_list('foo@example.com, bar@example.com', metrics=False), address.AddressList), True)
     assert_equal(isinstance(address.parse_list('foo@example.com, bar@example.com'), address.AddressList), True)
+
 
 def test_metrics_validate_address():
     # validate
@@ -52,6 +55,7 @@ def test_metrics_validate_address():
         assert_equal('custom_grammar' in m, True)
         assert_equal(isinstance(address.validate_address('foo@mailgun.org', metrics=False), address.EmailAddress), True)
         assert_equal(isinstance(address.validate_address('foo@mailgun.org'), address.EmailAddress), True)
+
 
 def test_metrics_validate_list():
     # validate_list

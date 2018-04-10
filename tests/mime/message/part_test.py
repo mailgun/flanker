@@ -125,7 +125,6 @@ def enclosed_header_inner_alternation_test():
     eq_(enclosed.parts[1].body, enclosed2.parts[1].body)
 
 
-
 # We've changed the body in the inner part of the message only,
 # the rest was not changed.
 def enclosed_body_alternation_test():
@@ -294,7 +293,7 @@ def ascii_to_quoted_printable_test():
 # Make sure we can't create a message without headers.
 def create_message_without_headers_test():
     message = scan(TEXT_ONLY)
-    for h,v in message.headers.items():
+    for h, v in message.headers.items():
         del message.headers[h]
 
     assert_false(message.headers, message.headers)

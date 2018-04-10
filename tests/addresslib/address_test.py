@@ -13,7 +13,7 @@ def test_addr_properties():
     non_ascii = parse(u'Gonzalo Bañuelos<gonz@host.com>')
 
     eq_(False, url.supports_routing)
-    eq_(True,  email.supports_routing)
+    eq_(True, email.supports_routing)
 
     eq_(Address.Type.Email, email.addr_type)
     eq_(Address.Type.Url, url.addr_type)
@@ -29,7 +29,7 @@ def test_address_compare():
     also_a = EmailAddress("A@host.com")
 
     ok_(a == also_a)
-    #eq_(False, a != "I am also A <a@HOST.com>")
+    # eq_(False, a != "I am also A <a@HOST.com>")
     ok_(a != 'crap')
     ok_(a != None)
     ok_(a != b)
@@ -98,7 +98,7 @@ def test_addresslist_basics():
     # add:
     result = lst + parse_list("ev@local.net") + ["foo@bar.com"]
     ok_(isinstance(result, AddressList))
-    eq_(len(result), len(lst)+2)
+    eq_(len(result), len(lst) + 2)
     ok_("foo@bar.com" in result)
 
 

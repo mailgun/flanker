@@ -280,8 +280,8 @@ def validate_address(addr_spec, metrics=False, skip_remote_checks=False):
               'tld_lookup': 0,
               'mx_lookup': 0,
               'dns_lookup': 0,
-              'mx_conn':0 ,
-              'custom_grammar':0}
+              'mx_conn': 0,
+              'custom_grammar': 0}
 
     # sanity check
     if addr_spec is None:
@@ -352,8 +352,8 @@ def validate_list(addr_list, as_tuple=False, metrics=False, skip_remote_checks=F
               'tld_lookup': 0,
               'mx_lookup': 0,
               'dns_lookup': 0,
-              'mx_conn':0 ,
-              'custom_grammar':0}
+              'mx_conn': 0,
+              'custom_grammar': 0}
 
     # sanity check
     if not addr_list:

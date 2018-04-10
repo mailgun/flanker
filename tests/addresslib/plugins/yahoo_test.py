@@ -14,6 +14,7 @@ from ... import skip_if_asked
 DOMAIN = '@yahoo.com'
 SAMPLE_MX = 'mta0.am0.yahoodns.net'
 
+
 @nottest
 def mock_exchanger_lookup(arg, metrics=False):
     mtimes = {'mx_lookup': 0, 'dns_lookup': 0, 'mx_conn': 0}
@@ -65,7 +66,7 @@ def test_yahoo_pass():
 
         # only zero or one dot (.) allowed
         for i in range(0, 2):
-            localpart = 'aa' + '.'*i + '00'
+            localpart = 'aa' + '.' * i + '00'
             addr = address.validate_address(localpart + DOMAIN)
             assert_not_equal(addr, None)
 
@@ -128,6 +129,7 @@ def test_yahoo_disposable_fail():
             addr = address.validate_address(localpart + DOMAIN)
             assert_equal(addr, None)
 
+
 def test_yahoo_fail():
     with patch.object(address, 'mail_exchanger_lookup') as mock_method:
         mock_method.side_effect = mock_exchanger_lookup
@@ -163,21 +165,21 @@ def test_yahoo_fail():
 
         # no more than 1 dot (.) allowed
         for i in range(2, 4):
-            localpart = 'aa' + '.'*i + 'a' + '.'*i + '00'
+            localpart = 'aa' + '.' * i + 'a' + '.' * i + '00'
             addr = address.validate_address(localpart + DOMAIN)
             assert_equal(addr, None)
 
         # no consecutive: underscore (_) or dot-underscore (._)
         # or underscore-dot (_.)
         for i in range(1, 4):
-            localpart = 'aa' + '__'*i + '00'
+            localpart = 'aa' + '__' * i + '00'
             addr = address.validate_address(localpart + DOMAIN)
             assert_equal(addr, None)
 
-            localpart = 'aa' + '._'*i + '00'
+            localpart = 'aa' + '._' * i + '00'
             addr = address.validate_address(localpart + DOMAIN)
             assert_equal(addr, None)
 
-            localpart = 'aa' + '._'*i + '00'
+            localpart = 'aa' + '._' * i + '00'
             addr = address.validate_address(localpart + DOMAIN)
             assert_equal(addr, None)

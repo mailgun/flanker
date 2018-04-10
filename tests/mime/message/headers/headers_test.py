@@ -42,6 +42,7 @@ def headers_boolean_test():
     eq_(False, bool(MimeHeaders()))
     eq_(True, bool(MimeHeaders([('A', 1)])))
 
+
 def headers_to_string_test():
     ok_(str(MimeHeaders([('A', 1)])))
 
@@ -110,14 +111,15 @@ def headers_transform_test():
     h = MimeHeaders(headers)
 
     # transform tracks whether anything actually changed
-    h.transform(lambda key,val: (key, val))
+    h.transform(lambda key, val: (key, val))
     assert_false(h.have_changed())
 
     # ok, now something have changed, make sure we've preserved order and did not collapse anything
-    h.transform(lambda key,val: ("X-{0}".format(key), "t({0})".format(val)))
+    h.transform(lambda key, val: ("X-{0}".format(key), "t({0})".format(val)))
     ok_(h.have_changed())
 
     eq_([('X-Mime-Version', 't(1)'), ('X-Received', 't(2)'), ('X-Mime-Version', 't(3)'), ('X-Received', 't(4)')], h.items())
+
 
 def headers_transform_encodedword_test():
     # Create a header with non-ascii characters that will be stored in encoded-word format.
@@ -125,15 +127,17 @@ def headers_transform_encodedword_test():
     h = MimeHeaders(headers)
 
     # transform should decode it for us when we pass decode=True
-    h.transform(lambda key,val: (key, val.replace(u'✓', u'☃')), decode=True)
+    h.transform(lambda key, val: (key, val.replace(u'✓', u'☃')), decode=True)
     eq_(u'Hello ☃', h.get('Subject'))
+
 
 def headers_parsing_empty_test():
     h = MimeHeaders.from_stream(six.StringIO(""))
     eq_(0, len(h))
 
+
 def headers_parsing_ridiculously_long_line_test():
-    val = "abcdefg"*100000
+    val = "abcdefg" * 100000
     header = "Hello: {0}\r\n".format(val)
     MimeHeaders.from_stream(six.StringIO(header))
 

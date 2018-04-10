@@ -14,6 +14,7 @@ from ... import skip_if_asked
 DOMAIN = '@icloud.com'
 SAMPLE_MX = 'sample.mail.icloud.com'
 
+
 @nottest
 def mock_exchanger_lookup(arg, metrics=False):
     mtimes = {'mx_lookup': 0, 'dns_lookup': 0, 'mx_conn': 0}
@@ -65,16 +66,16 @@ def test_icloud_pass():
 
         # only zero or one dot (.) or underscore (_) allowed
         for i in range(0, 2):
-            localpart = 'aa' + '.'*i + '00'
+            localpart = 'aa' + '.' * i + '00'
             addr = address.validate_address(localpart + DOMAIN)
             assert_not_equal(addr, None)
 
-            localpart = 'aa' + '_'*i + '00'
+            localpart = 'aa' + '_' * i + '00'
             addr = address.validate_address(localpart + DOMAIN)
             assert_not_equal(addr, None)
 
         # everything after plus (+) is ignored
-        for localpart in ['aaa+tag', 'aaa+tag+tag','aaa++tag']:
+        for localpart in ['aaa+tag', 'aaa+tag+tag', 'aaa++tag']:
             addr = address.validate_address(localpart + DOMAIN)
             assert_not_equal(addr, None)
 
@@ -112,16 +113,16 @@ def test_icloud_fail():
 
         # no more than one dot (.) or underscore (_) allowed
         for i in range(2, 4):
-            localpart = 'aa' + '.'*i + 'a' + '.'*i + '00'
+            localpart = 'aa' + '.' * i + 'a' + '.' * i + '00'
             addr = address.validate_address(localpart + DOMAIN)
             assert_equal(addr, None)
 
-            localpart = 'aa' + '_'*i + 'a' + '_'*i + '00'
+            localpart = 'aa' + '_' * i + 'a' + '_' * i + '00'
             addr = address.validate_address(localpart + DOMAIN)
             assert_equal(addr, None)
 
         # no ending plus (+)
         for i in range(2, 4):
-            localpart = 'aaa' + '+'*i
+            localpart = 'aaa' + '+' * i
             addr = address.validate_address(localpart + DOMAIN)
             assert_equal(addr, None)

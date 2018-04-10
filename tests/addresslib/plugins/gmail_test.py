@@ -15,6 +15,7 @@ DOMAIN = '@gmail.com'
 SAMPLE_MX = 'sample.gmail-smtp-in.l.google.com'
 ATOM_STR = string.ascii_letters + string.digits + '!#$%&\'*+-/=?^_`{|}~'
 
+
 @nottest
 def mock_exchanger_lookup(arg, metrics=False):
     mtimes = {'mx_lookup': 0, 'dns_lookup': 0, 'mx_conn': 0}
@@ -65,12 +66,12 @@ def test_gmail_pass():
             assert_not_equal(addr, None)
 
         # non-consecutive dots (.) within an address are legal
-        for localpart in ['a.aaaaa', 'aa.aaaa', 'aaa.aaa','aa.aa.aa']:
+        for localpart in ['a.aaaaa', 'aa.aaaa', 'aaa.aaa', 'aa.aa.aa']:
             addr = address.validate_address(localpart + DOMAIN)
             assert_not_equal(addr, None)
 
         # everything after plus (+) is ignored
-        for localpart in ['aaaaaa+', 'aaaaaa+tag', 'aaaaaa+tag+tag','aaaaaa++tag', 'aaaaaa+' + ATOM_STR]:
+        for localpart in ['aaaaaa+', 'aaaaaa+tag', 'aaaaaa+tag+tag', 'aaaaaa++tag', 'aaaaaa+' + ATOM_STR]:
             addr = address.validate_address(localpart + DOMAIN)
             assert_not_equal(addr, None)
 
@@ -106,11 +107,11 @@ def test_gmail_fail():
             assert_equal(addr, None)
 
         # invalid consecutive dots (.)
-        for localpart in ['aaaaaa......', '......aaaaaa', 'aaa......aaa','aa...aa...aa']:
+        for localpart in ['aaaaaa......', '......aaaaaa', 'aaa......aaa', 'aa...aa...aa']:
             addr = address.validate_address(localpart + DOMAIN)
             assert_equal(addr, None)
 
         # everything after plus (+) is ignored
-        for localpart in ['+t1', 'a+t1', 'aa+', 'aaa+t1', 'aaaa+t1+t2','aaaaa++t1']:
+        for localpart in ['+t1', 'a+t1', 'aa+', 'aaa+t1', 'aaaa+t1+t2', 'aaaaa++t1']:
             addr = address.validate_address(localpart + DOMAIN)
             assert_equal(addr, None)

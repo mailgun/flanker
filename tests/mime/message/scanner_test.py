@@ -161,6 +161,7 @@ def bad_messages_test():
     assert_raises(DecodingError, scan, ENCLOSED_ENDLESS)
     assert_raises(DecodingError, scan, NDN_BROKEN)
 
+
 def apache_mime_message_news_test():
     message = scan(APACHE_MIME_MESSAGE_NEWS)
     eq_('[Fwd: Netscape Enterprise vs. Apache Secure]',
@@ -197,6 +198,7 @@ def bounce_headers_only_test():
     eq_(3, len(message.parts))
     eq_('multipart/alternative',
         str(message.parts[2].enclosed.content_type))
+
 
 def message_external_body_test():
     message = scan(MESSAGE_EXTERNAL_BODY)
@@ -255,7 +257,7 @@ def print_tree(part, parts, delimiters=""):
 
 
 
-NO_CTYPE_HEADERS=[
+NO_CTYPE_HEADERS = [
     ('Mime-Version', '1.0'),
     ('Received', 'by 10.68.60.193 with HTTP; Thu, 29 Dec 2011 02:06:53 -0800 (PST)'),
     ('X-Originating-Ip', '[95.37.185.143]'),

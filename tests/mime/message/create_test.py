@@ -192,6 +192,7 @@ def create_multipart_nested_test():
     eq_(u"Саша с уралмаша", message2.parts[1].parts[0].body)
     eq_(u"<html>Саша с уралмаша</html>", message2.parts[1].parts[1].body)
 
+
 def create_bounced_email_test():
     google_delivery_failed = """Delivered-To: user@gmail.com
 Content-Type: multipart/report; boundary=f403045f50f42d03f10546f0cb14; report-type=delivery-status
@@ -215,6 +216,7 @@ There should be a boundary here!
     message = create.from_string(google_delivery_failed)
     eq_(google_delivery_failed, message.to_string())
     eq_(None, message.get_attached_message())
+
 
 def create_bounced_email_attached_message_test():
     attached_message = """MIME-Version: 1.0

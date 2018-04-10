@@ -11,40 +11,46 @@ from flanker.mime import create
 from flanker.mime.message.threading import *
 from flanker.mime.message.headers import MessageId
 
+
 @patch.object(MessageId, 'is_valid', Mock(return_value=True))
 def test_wrapper_creates_message_id():
-    message = create.text('plain','hey')
+    message = create.text('plain', 'hey')
     w = Wrapper(message)
     ok_(w.message_id)
     eq_([], w.references)
 
+
 @patch.object(MessageId, 'is_valid', Mock(return_value=True))
 def test_wrapper_references():
-    message = create.text('plain','hey')
+    message = create.text('plain', 'hey')
     message.headers['References'] = '<1> <2> <3>'
     message.headers['Message-Id'] = '<4>'
     w = Wrapper(message)
     eq_('4', w.message_id)
     eq_(['1', '2', '3'], w.references)
 
+
 @patch.object(MessageId, 'is_valid', Mock(return_value=True))
 def test_wrapper_in_reply_to():
-    message = create.text('plain','hey')
+    message = create.text('plain', 'hey')
     message.headers['In-Reply-To'] = '<3>'
     message.headers['Message-Id'] = '<4>'
     w = Wrapper(message)
     eq_('4', w.message_id)
     eq_(['3'], w.references)
 
+
 @patch.object(MessageId, 'is_valid', Mock(return_value=True))
 def test_container_to_string():
     eq_('dummy', str(Container()))
     eq_('123@gmail.com', str(tc('123@gmail.com')))
 
+
 @patch.object(MessageId, 'is_valid', Mock(return_value=True))
 def test_container_is_dummy():
     ok_(Container().is_dummy)
     assert_false(tc('1').is_dummy)
+
 
 @patch.object(MessageId, 'is_valid', Mock(return_value=True))
 def test_container_in_root_set():
@@ -54,6 +60,7 @@ def test_container_in_root_set():
 
     c.parent.parent = Container()
     assert_false(c.in_root_set)
+
 
 @patch.object(MessageId, 'is_valid', Mock(return_value=True))
 def test_container_children():
@@ -69,6 +76,7 @@ def test_container_children():
     ok_(c.has_children)
     assert_false(c.has_one_child)
 
+
 @patch.object(MessageId, 'is_valid', Mock(return_value=True))
 def test_container_find_and_iter_children():
     c = Container()
@@ -81,7 +89,7 @@ def test_container_find_and_iter_children():
     assert_false(c.has_descendant(None))
     assert_false(c.has_descendant(c))
 
-    c1,c2 = Container(), Container()
+    c1, c2 = Container(), Container()
     c.child = c1
     eq_(c1, c.last_child)
     ok_(c.has_descendant(c1))
@@ -94,7 +102,7 @@ def test_container_find_and_iter_children():
     collected = []
     for child in c.iter_children():
         collected.append(child)
-    eq_([c1,c2], collected)
+    eq_([c1, c2], collected)
 
     c3, c4, c5, c6 = make_empty(4)
     c2.child = c3
@@ -105,6 +113,7 @@ def test_container_find_and_iter_children():
     ok_(c.has_descendant(c4))
     ok_(c.has_descendant(c5))
     ok_(c.has_descendant(c6))
+
 
 @patch.object(MessageId, 'is_valid', Mock(return_value=True))
 def test_container_add_child():
@@ -121,6 +130,7 @@ def test_container_add_child():
     eq_(c2, c1.prev)
     eq_(c, c2.parent)
     eq_(None, c2.prev)
+
 
 @patch.object(MessageId, 'is_valid', Mock(return_value=True))
 def test_container_remove_child():
@@ -164,6 +174,7 @@ def test_container_remove_child():
     eq_(c1, c3.next)
     eq_(c3, c1.prev)
 
+
 @patch.object(MessageId, 'is_valid', Mock(return_value=True))
 def test_container_replace_with_its_children():
     # before:
@@ -180,7 +191,7 @@ def test_container_replace_with_its_children():
     # a
     # +- c - d
     #
-    a,b,c,d= make_empty(4)
+    a, b, c, d = make_empty(4)
 
     a.add_child(b)
     b.add_child(d)
@@ -207,7 +218,7 @@ def test_container_replace_with_its_children():
     # a
     # +- c - d - e
     #
-    a,b,c,d,e = make_empty(5)
+    a, b, c, d, e = make_empty(5)
 
     a.add_child(e)
     a.add_child(b)
@@ -233,7 +244,7 @@ def test_container_replace_with_its_children():
     # +- b - c - d - e
     #
     #
-    a,b,c,d,e,f = make_empty(6)
+    a, b, c, d, e, f = make_empty(6)
 
     a.add_child(e)
     a.add_child(f)
@@ -250,6 +261,7 @@ def test_container_replace_with_its_children():
     eq_(e, d.next)
     eq_(a, c.parent)
     eq_(a, d.parent)
+
 
 @patch.object(MessageId, 'is_valid', Mock(return_value=True))
 def test_prune_empty():
@@ -340,7 +352,7 @@ def test_prune_empty():
     # +- c1 (empty)
     #    +- a - b
     #
-    a,b = make_full('a', 'b')
+    a, b = make_full('a', 'b')
     r, c1 = make_empty(2)
     r.add_child(c1)
     c1.add_child(b)
@@ -516,6 +528,7 @@ def test_prune_empty():
     eq_(f, c.next)
     eq_(e, f.next)
 
+
 @patch.object(MessageId, 'is_valid', Mock(return_value=True))
 def test_introduces_loop():
     a, = make_empty(1)
@@ -532,6 +545,7 @@ def test_introduces_loop():
     b.add_child(c)
     c.add_child(a)
     ok_(introduces_loop(a, b))
+
 
 @patch.object(MessageId, 'is_valid', Mock(return_value=True))
 def test_build_table():
@@ -661,6 +675,7 @@ def test_build_table():
     fake_id = [key for key in table if key not in ('a', 'b', 'c')][0]
     eq_('a', table[fake_id].message.message_id)
 
+
 @patch.object(MessageId, 'is_valid', Mock(return_value=True))
 def test_build_root_set():
     #
@@ -723,20 +738,24 @@ def test_build_root_set():
 def make_empty(count):
     return [Container() for i in range(count)]
 
+
 def make_full(*ids):
     return [tc(id) for id in ids]
+
 
 def tc(*args, **kwargs):
     return Container(wrapper(*args, **kwargs))
 
+
 def make_message(message_id, references=None, subject=""):
-    message = create.text('plain','hey')
+    message = create.text('plain', 'hey')
     if message_id:
         message.headers['Message-Id'] = '<{0}>'.format(message_id)
     if references:
         message.headers['References'] = ' '.join(
             '<{0}>'.format(rid) for rid in references)
     return message
+
 
 def wrapper(message_id, references=None, subject=""):
     return Wrapper(make_message(message_id, references, ""))

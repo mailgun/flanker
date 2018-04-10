@@ -59,7 +59,7 @@ ENCLOSED_BROKEN_ENCODING = read_fixture_bytes(
     'messages/enclosed-bad-encoding.eml')
 FALSE_MULTIPART = read_fixture_bytes('messages/false-multipart.eml')
 ENCODED_HEADER = read_fixture_bytes('messages/encoded-header.eml')
-MESSAGE_EXTERNAL_BODY= read_fixture_bytes(
+MESSAGE_EXTERNAL_BODY = read_fixture_bytes(
     'messages/message-external-body.eml')
 EIGHT_BIT = read_fixture_bytes('messages/8bitmime.eml')
 BIG = read_fixture_bytes('messages/big.eml')

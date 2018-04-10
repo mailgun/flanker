@@ -23,6 +23,7 @@ log = logging.getLogger(__name__)
 
 CTE = WithParams('7bit', {})
 
+
 class Stream(object):
 
     def __init__(self, content_type, start, end, string, stream):
@@ -575,6 +576,7 @@ def decode_transfer_encoding(encoding, body):
     else:
         return body
 
+
 def decode_charset(ctype, body):
     if ctype.main != 'text':
         return body
@@ -585,7 +587,7 @@ def decode_charset(ctype, body):
     # for text/html unicode bodies make sure to replace
     # the whitespace (0xA0) with &nbsp; Outlook is reported to
     # have a bug there
-    if ctype.sub =='html' and charset == 'utf-8':
+    if ctype.sub == 'html' and charset == 'utf-8':
         # Outlook bug
         body = body.replace(u'\xa0', u'&nbsp;')
 

@@ -21,7 +21,7 @@ def encodings_test():
 
     s = "this is sample ascii string"
 
-    eq_(s, headers.to_mime('Subject',s))
+    eq_(s, headers.to_mime('Subject', s))
     eq_(s, headers.mime_to_unicode(s))
 
     s = ("This is a long subject with commas, bob, Jay, suzy, tom, over"
@@ -51,7 +51,7 @@ def string_maxlinelen_test():
         encode_string(None, "very loooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooong", maxlinelen=78))
 
 
-@patch.object(part.MimePart, 'was_changed', Mock(return_value=True))        
+@patch.object(part.MimePart, 'was_changed', Mock(return_value=True))
 def max_header_length_test():
     message = create.from_string(LONG_HEADER)
 

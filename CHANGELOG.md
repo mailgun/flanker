@@ -5,10 +5,15 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Changed
+- Support for Python 3 was added with preserving the Python 2 behavior in mind.
+  As a result Python 3 specific logic may be not that efficient due to extra
+  conversions between text and bytes, but that is left for future improvements; 
+- CRLF is now consistently used when a parsed mime is serialized into a string. 
 - Dependency on cchardet was made optional. Ported from [PR84](https://github.com/mailgun/flanker/pull/84)
 - [PR94](https://github.com/mailgun/flanker/pull/94) Local Redis cache was made
  configurable via environment variables REDIS_HOST, REDIS_PORT, and REDIS_DB
- with the defaults matching the original behavior
+ with the defaults matching the original behavior.
 
 ## [0.8.5] - 2018-03-30
 ### Changed

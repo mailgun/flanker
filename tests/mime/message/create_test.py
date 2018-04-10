@@ -25,7 +25,10 @@ def from_python_message_test():
     payloads = [p.get_payload(decode=True) for p in python_message.walk()][1:]
     payloads2 = [p.body for p in message.walk()]
 
-    eq_(payloads, payloads2)
+    eq_(3, len(payloads2))
+    eq_(payloads[0].decode('utf-8'), payloads2[0])
+    eq_(payloads[1], payloads2[1])
+    eq_(payloads[2].decode('utf-8'), payloads2[2])
 
 
 def from_string_message_test():
@@ -72,7 +75,7 @@ def create_singlepart_ascii_long_lines_test():
     eq_(very_long, message2.body)
 
     message2 = _email.message_from_string(message.to_string())
-    eq_(very_long, message2.get_payload(decode=True))
+    eq_(very_long, message2.get_payload(decode=True).decode('utf-8'))
 
 
 def create_multipart_simple_test():
@@ -280,24 +283,23 @@ def create_enclosed_nested_test():
 
 
 def guessing_attachments_test():
-    binary = create.binary(
-        "application", 'octet-stream', MAILGUN_PNG, '/home/alex/mailgun.png')
+    binary = create.binary('application', 'octet-stream', MAILGUN_PNG,
+                           '/home/alex/mailgun.png')
     eq_('image/png', binary.content_type)
     eq_('mailgun.png', binary.content_type.params['name'])
 
-    binary = create.binary(
-        "application", 'octet-stream',
-        MAILGUN_PIC, '/home/alex/mailgun.png', disposition='attachment')
+    binary = create.binary('application', 'octet-stream', MAILGUN_PIC,
+                           '/home/alex/mailgun.png', disposition='attachment')
 
     eq_('attachment', binary.headers['Content-Disposition'].value)
     eq_('mailgun.png', binary.headers['Content-Disposition'].params['filename'])
 
-    binary = create.binary(
-        "application", 'octet-stream', NOTIFICATION, '/home/alex/mailgun.eml')
+    binary = create.binary('application', 'octet-stream', NOTIFICATION,
+                           '/home/alex/mailgun.eml')
     eq_('message/rfc822', binary.content_type)
 
-    binary = create.binary(
-        "application", 'octet-stream', MAILGUN_WAV, '/home/alex/audiofile.wav')
+    binary = create.binary('application', 'octet-stream', MAILGUN_WAV,
+                           '/home/alex/audiofile.wav')
     eq_('audio/x-wav', binary.content_type)
 
 

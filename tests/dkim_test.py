@@ -2,6 +2,7 @@ import glob
 import io
 import os
 
+import six
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import serialization
 
@@ -55,10 +56,10 @@ def test_simple_domain_key_signature():
         b"7lzEjzaYxBDx2PP25abuTSJF0=\r\n"
     )
 
-
 def test_simple_dkim_signature():
     signer = dkim.DKIMSigner(DUMMY_RSA_KEY, "mx", "testing1")
     sig = signer.sign(DUMMY_EMAIL, current_time=1404859754)
+    print(sig)
     assert_equal(
         sig,
         b"DKIM-Signature: a=rsa-sha256; v=1; c=simple/simple; d=testing1; q=dn"
@@ -74,15 +75,17 @@ def test_canonicalization():
     path = os.path.join(
         os.path.dirname(__file__), "fixtures", "messages", "dkim", "email.*"
     )
-    for path in glob.glob(path):
-        with open(path) as f:
+    for i, path in enumerate(glob.glob(path)):
+        with open(path, 'rb') as f:
             contents = f.read()
-        with open(path.replace("email", "nofws.expected")) as f:
+        with open(path.replace("email", "nofws.expected"), 'rb') as f:
             nofws_contents = f.read()
-        with open(path.replace("email", "simple.expected")) as f:
+        with open(path.replace("email", "simple.expected"), 'rb') as f:
             simple_contents = f.read()
-        with open(path.replace("email", "relaxed.expected")) as f:
+        with open(path.replace("email", "relaxed.expected"), 'rb') as f:
             relaxed_contents = f.read()
+
+        print('Test case #%d: %s' % (i, path))
 
         assert_equal(
             canonicalize_contents(dkim.NoFWSCanonicalization(), contents),
@@ -99,13 +102,21 @@ def test_canonicalization():
 
 
 def canonicalize_contents(canonicalization_rule, contents):
+    if six.PY3 and isinstance(contents, six.text_type):
+        contents = contents.encode('utf-8')
+
     headers, body = dkim._rfc822_parse(contents)
     output = io.BytesIO()
     for header, value in headers:
         header, value = canonicalization_rule.canonicalize_header(
             header, value)
-        output.write(b"{h}:{v}".format(h=header, v=value))
+        output.write(("%s:%s" % (header.decode('utf-8'),
+                                 value.decode('utf-8'))).encode('utf-8'))
     body = canonicalization_rule.canonicalize_body(body)
     output.write(b"\r\n")
     output.write(body)
     return output.getvalue()
+
+
+def _normalize_crlf(s):
+    return s.replace(b'\r\n', b'\n').replace(b'\r', b'\n').replace(b'\n', b'\r\n')

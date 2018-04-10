@@ -1,4 +1,5 @@
 # coding:utf-8
+import six
 from nose.tools import *
 
 from flanker import _email
@@ -15,7 +16,7 @@ def no_ctype_headers_and_and_boundaries_test():
     message = scan(NO_CTYPE)
     eq_(C('text', 'plain', dict(charset='ascii')), message.content_type)
     pmessage = _email.message_from_string(NO_CTYPE)
-    eq_(message.body, pmessage.get_payload(decode=True))
+    eq_(message.body, pmessage.get_payload(decode=True).decode('utf-8'))
     for a, b in zip(NO_CTYPE_HEADERS, message.headers.iteritems()):
         eq_(a, b)
 
@@ -27,10 +28,12 @@ def multipart_message_test():
     eq_(C('multipart', 'alternative', dict(boundary='=-omjqkVTVbwdgCWFRgIkx')),
         message.content_type)
 
-    p = unicode(pmessage.get_payload()[0].get_payload(decode=True), 'utf-8')
+    p = pmessage.get_payload()[0].get_payload()
+    if six.PY2:
+        p = p.decode('utf-8')
     eq_(p, message.parts[0].body)
 
-    p = pmessage.get_payload()[1].get_payload(decode=True)
+    p = pmessage.get_payload()[1].get_payload()
     eq_(p, message.parts[1].body)
 
 
@@ -53,13 +56,13 @@ def enclosed_message_test():
         enclosed.headers['Content-Type'])
 
     pbody = penclosed.get_payload()[0].get_payload()[0].get_payload(decode=True)
-    pbody = unicode(pbody, 'utf-8')
+    pbody = pbody.decode('utf-8')
     body = enclosed.enclosed.parts[0].body
     eq_(pbody, body)
 
     body = enclosed.enclosed.parts[1].body
     pbody = penclosed.get_payload()[0].get_payload()[1].get_payload(decode=True)
-    pbody = unicode(pbody, 'utf-8')
+    pbody = pbody.decode('utf-8')
     eq_(pbody, body)
 
 
@@ -114,7 +117,7 @@ def test_uservoice_case():
     message._container._body_changed = True
     val = message.to_string()
     for line in val.splitlines():
-        print line
+        print(line)
         ok_(len(line) < 200)
     message = scan(val)
     eq_(html, message.body)

@@ -1,14 +1,14 @@
 # coding:utf-8
 from contextlib import closing
 
-from cStringIO import StringIO
 from nose.tools import eq_, ok_, assert_false, assert_raises, assert_less
+from six.moves import StringIO
 
 from flanker import _email
 from flanker.mime import recover
 from flanker.mime.create import multipart, text
 from flanker.mime.message.errors import EncodingError
-from flanker.mime.message.part import encode_transfer_encoding, _base64_decode
+from flanker.mime.message.part import _encode_transfer_encoding, _base64_decode
 from flanker.mime.message.scanner import scan
 from tests import (BILINGUAL, BZ2_ATTACHMENT, ENCLOSED, TORTURE, TORTURE_PART,
                    ENCLOSED_BROKEN_ENCODING, EIGHT_BIT, QUOTED_PRINTABLE,
@@ -40,7 +40,7 @@ def readonly_immutability_test():
 
     # we can also read the body without changing anything
     pbody = pmessage.get_payload()[1].get_payload()[0].get_payload()[0].get_payload(decode=True)
-    pbody = unicode(pbody, 'utf-8')
+    pbody = pbody.decode('utf-8')
     eq_(pbody, message.parts[1].enclosed.parts[0].body)
     assert_false(message.was_changed())
     eq_(ENCLOSED, message.to_string())
@@ -279,7 +279,7 @@ def set_message_id_test():
 
 
 # Make sure that ascii uprades to quoted-printable if it has long lines.
-def ascii_to_quoted_printable_test():
+def ascii_to_quoted_printable_test_2():
     # contains unicode chars
     message = scan(TEXT_ONLY)
     value = u'Hello, how is it going?' * 100
@@ -363,8 +363,8 @@ def broken_ctype_test():
 
 def read_attach_test():
     message = scan(MAILGUN_PIC)
-    p = (p for p in message.walk() if p.content_type.main == 'image').next()
-    eq_(p.body, MAILGUN_PNG)
+    image_parts = [p for p in message.walk() if p.content_type.main == 'image']
+    eq_(image_parts[0].body, MAILGUN_PNG)
 
 
 def from_python_message_test():
@@ -374,14 +374,20 @@ def from_python_message_test():
     eq_(python_message['Subject'], message.headers['Subject'])
 
     ctypes = [p.get_content_type() for p in python_message.walk()]
-    ctypes2 = [p.headers['Content-Type'][0] \
-                  for p in message.walk(with_self=True)]
+    ctypes2 = [p.headers['Content-Type'][0]
+               for p in message.walk(with_self=True)]
     eq_(ctypes, ctypes2)
 
-    payloads = [p.get_payload(decode=True) for p in python_message.walk()][1:]
+    payloads = []
+    for p in python_message.walk():
+        payload = p.get_payload(decode=True)
+        if payload:
+            payload = payload.decode('utf-8')
+        payloads.append(payload)
+
     payloads2 = [p.body for p in message.walk()]
 
-    eq_(payloads, payloads2)
+    eq_(payloads[1:], payloads2)
 
 
 def iphone_test():
@@ -544,12 +550,15 @@ def message_convert_to_python_test():
     b = message.to_python_message()
 
     payloads = [p.body for p in message.walk()]
-    payloads1 = list(p.get_payload(decode=True) \
-                         for p in a.walk() if not p.is_multipart())
-    payloads2 = list(p.get_payload(decode=True) \
-                         for p in b.walk() if not p.is_multipart())
+    payloads1 = [p.get_payload(decode=True)
+                 for p in a.walk() if not p.is_multipart()]
+    payloads2 = [p.get_payload(decode=True)
+                 for p in b.walk() if not p.is_multipart()]
 
-    eq_(payloads, payloads2)
+    eq_(3, len(payloads))
+    eq_(payloads[0], payloads2[0].decode('utf-8'))
+    eq_(payloads[1], payloads2[1])
+    eq_(payloads[2], payloads2[2].decode('utf-8'))
     eq_(payloads1, payloads2)
 
 
@@ -612,17 +621,20 @@ def read_body_test():
 
 def test_encode_transfer_encoding():
     body = "long line " * 100
-    encoded_body = encode_transfer_encoding('base64', body)
+    encoded_body = _encode_transfer_encoding('base64', body)
     # according to  RFC 5322 line "SHOULD be no more than 78 characters"
     assert_less(max([len(l) for l in encoded_body.splitlines()]), 79)
 
 
 # Test base64 decoder.
-def test__base64_decode():
-    eq_("hello", _base64_decode("aGVs\r\nbG8="))  # valid base64
-    eq_("hello!", _base64_decode("a\x00GVsbG8\t*hx"))  # trim last character
-    eq_("hello", _base64_decode("aGVsb\r\nG8"))  # recover single byte padding
-    eq_("hello!!", _base64_decode("aGVs\rbG8h\nIQ")) # recover 2 bytes padding
+def test_base64_decode():
+    eq_(b"hello", _base64_decode("aGVs\r\nbG8="))  # valid base64
+    eq_(b"hello!", _base64_decode("a\x00GVsbG8\t*hx"))  # trim last character
+    eq_(b"hello", _base64_decode("aGVsb\r\nG8"))  # recover single byte padding
+    eq_(b"hello!!", _base64_decode("aGVs\rbG8h\nIQ")) # recover 2 bytes padding
+    eq_(b"hello!!", _base64_decode("aGЫVs\rЫЫbG8hЫЫ\nЫЫIQ"))
+    eq_(b"hello!!", _base64_decode("ЫaGVsbG8h\nIQЫ"))
+    eq_(b"hello!!", _base64_decode("ЫЫЫЫaGVsЫЫЫЫ\rbG8h\nIQЫЫЫЫ"))
 
 
 # Make sure broken base64 part gets recovered.

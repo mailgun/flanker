@@ -1,10 +1,9 @@
 # coding:utf-8
 from nose.tools import *
-from mock import *
-from flanker.mime.message.scanner import scan, ContentType, Boundary
-from flanker.mime.message.errors import DecodingError
-from email import message_from_string
 
+from flanker import _email
+from flanker.mime.message.errors import DecodingError
+from flanker.mime.message.scanner import scan, ContentType, Boundary
 from ... import *
 
 C = ContentType
@@ -15,7 +14,7 @@ def no_ctype_headers_and_and_boundaries_test():
     """We are ok, when there is no content type and boundaries"""
     message = scan(NO_CTYPE)
     eq_(C('text', 'plain', dict(charset='ascii')), message.content_type)
-    pmessage = message_from_string(NO_CTYPE)
+    pmessage = _email.message_from_string(NO_CTYPE)
     eq_(message.body, pmessage.get_payload(decode=True))
     for a, b in zip(NO_CTYPE_HEADERS, message.headers.iteritems()):
         eq_(a, b)
@@ -23,7 +22,7 @@ def no_ctype_headers_and_and_boundaries_test():
 
 def multipart_message_test():
     message = scan(EIGHT_BIT)
-    pmessage = message_from_string(EIGHT_BIT)
+    pmessage = _email.message_from_string(EIGHT_BIT)
 
     eq_(C('multipart', 'alternative', dict(boundary='=-omjqkVTVbwdgCWFRgIkx')),
         message.content_type)
@@ -37,7 +36,7 @@ def multipart_message_test():
 
 def enclosed_message_test():
     message = scan(ENCLOSED)
-    pmessage = message_from_string(ENCLOSED)
+    pmessage = _email.message_from_string(ENCLOSED)
 
     eq_(C('multipart', 'mixed',
           dict(boundary='===============6195527458677812340==')),

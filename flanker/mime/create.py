@@ -1,12 +1,15 @@
-""" This package is a set of utilities and methods for building mime messages """
+"""
+This package is a set of utilities and methods for building mime messages.
+"""
 
 import uuid
+
+from flanker import _email
 from flanker.mime import DecodingError
-from flanker.mime.message import ContentType, utils
-from flanker.mime.message.part import MimePart, Body, Part, adjust_content_type
-from flanker.mime.message import scanner
-from flanker.mime.message.headers.parametrized import fix_content_type
+from flanker.mime.message import ContentType, scanner
 from flanker.mime.message.headers import WithParams
+from flanker.mime.message.headers.parametrized import fix_content_type
+from flanker.mime.message.part import MimePart, Body, Part, adjust_content_type
 
 
 def multipart(subtype):
@@ -84,8 +87,7 @@ def from_string(string):
 
 
 def from_python(message):
-    return from_string(
-        utils.python_message_to_string(message))
+    return from_string(_email.message_to_string(message))
 
 
 def from_message(message):

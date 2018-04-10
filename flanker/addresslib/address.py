@@ -34,7 +34,6 @@ EmailAddress or UrlAddress in flanker.addresslib.address.
 See the parser.py module for implementation details of the parser.
 """
 from logging import getLogger
-from time import time
 
 import idna
 import six
@@ -42,8 +41,10 @@ from idna import IDNAError
 from ply.lex import LexError
 from ply.yacc import YaccError
 from six.moves.urllib_parse import urlparse
+from time import time
 from tld import get_tld
 
+from flanker import _email
 from flanker.addresslib._parser.lexer import lexer
 from flanker.addresslib._parser.parser import (Mailbox, Url, mailbox_parser,
                                                mailbox_or_url_parser,
@@ -53,7 +54,6 @@ from flanker.addresslib.quote import smart_unquote, smart_quote
 from flanker.addresslib.validate import (mail_exchanger_lookup,
                                          plugin_for_esp)
 from flanker.mime.message.headers.encodedword import mime_to_unicode
-from flanker.mime.message.headers.encoding import encode_string
 from flanker.utils import is_pure_ascii, metrics_wrapper
 
 _log = getLogger(__name__)
@@ -503,8 +503,10 @@ class EmailAddress(Address):
 
     @property
     def ace_display_name(self):
-        return _to_str(encode_string(None, smart_quote(self._display_name),
-                                     maxlinelen=MAX_ADDRESS_LENGTH))
+        quoted_display_name = smart_quote(self._display_name)
+        encoded_display_name = _email.encode_header(None, quoted_display_name,
+                                                    'ascii', MAX_ADDRESS_LENGTH)
+        return _to_str(encoded_display_name)
 
     @property
     def mailbox(self):

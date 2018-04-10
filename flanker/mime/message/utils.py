@@ -1,6 +1,3 @@
-from contextlib import closing
-from email.generator import Generator
-
 import chardet as fallback_detector
 import six
 
@@ -11,16 +8,6 @@ except ImportError:
     primary_detector = fallback_detector
 
 from flanker.mime.message import errors
-
-
-def python_message_to_string(msg):
-    """
-    Converts python message to string in a proper way.
-    """
-    with closing(six.StringIO()) as fp:
-        g = Generator(fp, mangle_from_=False)
-        g.flatten(msg, unixfrom=False)
-        return fp.getvalue()
 
 
 def _guess_and_convert_with(value, detector=primary_detector):

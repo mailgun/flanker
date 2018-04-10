@@ -1,14 +1,15 @@
 import logging
-import email
 
 import six
 from webob.multidict import MultiDict
+
+from flanker import _email
+from flanker.mime.message import headers
 from flanker.mime.message.charsets import convert_to_unicode
+from flanker.mime.message.headers import parametrized, normalize
 from flanker.mime.message.headers.headers import remove_newlines, MimeHeaders
 from flanker.mime.message.part import RichPartMixin
 from flanker.mime.message.scanner import ContentType
-from flanker.mime.message import utils, headers
-from flanker.mime.message.headers import parametrized, normalize
 
 log = logging.getLogger(__name__)
 
@@ -85,7 +86,7 @@ class FallbackMimePart(RichPartMixin):
         pass  # FIXME Not implement
 
     def to_string(self):
-        return utils.python_message_to_string(self._m)
+        return _email.message_to_string(self._m)
 
     def to_stream(self, out):
         out.write(self.to_string())
@@ -98,7 +99,7 @@ class FallbackMimePart(RichPartMixin):
 
     def append(self, *messages):
         for m in messages:
-            part = FallbackMimePart(email.message_from_string(m.to_string()))
+            part = FallbackMimePart(_email.message_from_string(m.to_string()))
             self._m.attach(part)
 
     @property

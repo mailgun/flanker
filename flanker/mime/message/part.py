@@ -1,16 +1,14 @@
 import base64
-import email.encoders
 import imghdr
 import logging
 import mimetypes
 import quopri
 from contextlib import closing
-from email.mime import audio
 from os import path
 
 import six
 
-from flanker import metrics
+from flanker import metrics, _email
 from flanker.mime import bounce
 from flanker.mime.message import headers, charsets
 from flanker.mime.message.errors import EncodingError, DecodingError
@@ -114,7 +112,7 @@ def adjust_content_type(content_type, body=None, filename=None):
             content_type = ContentType('image', sub)
 
     elif content_type.main == 'audio' and body:
-        sub = audio._whatsnd(body)
+        sub = _email.detect_audio_type(body)
         if sub:
             content_type = ContentType('audio', sub)
 
@@ -509,7 +507,7 @@ class MimePart(RichPartMixin):
             return self.enclosed.was_changed()
 
     def to_python_message(self):
-        return email.message_from_string(self.to_string())
+        return _email.message_from_string(self.to_string())
 
     def append(self, *messages):
         for m in messages:
@@ -628,7 +626,7 @@ def encode_transfer_encoding(encoding, body):
     if encoding == 'quoted-printable':
         return quopri.encodestring(body, quotetabs=False)
     elif encoding == 'base64':
-        return email.encoders._bencode(body)
+        return _email.encode_base64(body)
     else:
         return body
 

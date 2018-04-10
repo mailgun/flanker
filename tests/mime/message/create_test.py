@@ -1,18 +1,14 @@
 # coding:utf-8
 
-from nose.tools import *
-from mock import *
-
-import email
 import json
+from email.parser import Parser
 
-from base64 import b64decode
+from nose.tools import *
 
+from flanker import _email
 from flanker.mime import create
 from flanker.mime.message import errors
 from flanker.mime.message.part import MimePart
-from email.parser import Parser
-
 from ... import *
 
 
@@ -36,7 +32,7 @@ def from_string_message_test():
     message = create.from_string(IPHONE)
     parts = list(message.walk())
     eq_(3, len(parts))
-    eq_(u'\n\n\n~Danielle', parts[2].body)
+    eq_(u'\r\n\r\n\r\n~Danielle', parts[2].body)
 
 
 def from_part_message_simple_test():
@@ -44,7 +40,7 @@ def from_part_message_simple_test():
     parts = list(message.walk())
 
     message = create.from_message(parts[2])
-    eq_(u'\n\n\n~Danielle', message.body)
+    eq_(u'\r\n\r\n\r\n~Danielle', message.body)
 
 
 def message_from_garbage_test():
@@ -75,7 +71,7 @@ def create_singlepart_ascii_long_lines_test():
     eq_("quoted-printable", message2.content_encoding.value)
     eq_(very_long, message2.body)
 
-    message2 = email.message_from_string(message.to_string())
+    message2 = _email.message_from_string(message.to_string())
     eq_(very_long, message2.get_payload(decode=True))
 
 
@@ -95,7 +91,7 @@ def create_multipart_simple_test():
     eq_("Hello", message.parts[0].body)
     eq_("<html>Hello</html>", message.parts[1].body)
 
-    message2 = email.message_from_string(message.to_string())
+    message2 = _email.message_from_string(message.to_string())
     eq_("multipart/mixed", message2.get_content_type())
     eq_("Hello", message2.get_payload()[0].get_payload(decode=False))
     eq_("<html>Hello</html>",
@@ -121,7 +117,7 @@ def create_multipart_with_attachment_test():
     eq_(filename, message2.parts[2].content_type.params['name'])
     ok_(message2.parts[2].is_attachment())
 
-    message2 = email.message_from_string(message.to_string())
+    message2 = _email.message_from_string(message.to_string())
     eq_(3, len(message2.get_payload()))
     eq_(MAILGUN_PNG, message2.get_payload()[2].get_payload(decode=True))
 

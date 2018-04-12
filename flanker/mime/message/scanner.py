@@ -3,10 +3,12 @@ from logging import getLogger
 
 import regex as re
 import six
+from six.moves import StringIO
 
 from flanker.mime.message.errors import DecodingError
 from flanker.mime.message.headers import parsing, is_empty, ContentType
 from flanker.mime.message.part import MimePart, Stream
+from flanker.mime.message.utils import to_unicode
 
 log = getLogger(__name__)
 
@@ -20,7 +22,10 @@ def scan(string):
             raise DecodingError('Scanner works with binary only')
     else:
         if isinstance(string, six.binary_type):
-            string = string.decode('utf-8')
+            string = to_unicode(string)
+
+        if not isinstance(string, six.text_type):
+            raise DecodingError('Cannot scan type %s' % type(string))
 
     tokens = tokenize(string)
     if not tokens:
@@ -250,7 +255,7 @@ class TokensIterator(object):
         self.position = -1
         self.tokens = tokens
         self.string = string
-        self.stream = six.StringIO(string)
+        self.stream = StringIO(string)
         self.opcount = 0
 
     def next(self):

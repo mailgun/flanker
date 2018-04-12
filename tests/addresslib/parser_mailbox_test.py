@@ -118,7 +118,7 @@ def test_display_name():
 
         # FIXME: In Python 3 subgroup of separator symbols is treated as
         # FIXME: allowed. We need to figure out why.
-        if  six.PY3 and ord(cc) in [0x1c, 0x1d, 0x1e, 0x1f]:
+        if six.PY3 and ord(cc) in [0x1c, 0x1d, 0x1e, 0x1f]:
             continue
 
         run_mailbox_test(u'"{0}" <a@b>'.format(cc), None)

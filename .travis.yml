@@ -5,6 +5,6 @@ python:
 install:
   - pip install -e .[cchardet,validator]
   - pip install nose mock coverage coveralls
-script: ./build.sh
+script: nosetests --with-coverage --cover-package=flanker
 after_success:
   - coveralls

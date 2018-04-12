@@ -7,6 +7,7 @@ from contextlib import closing
 from os import path
 
 import six
+from six.moves import StringIO
 
 from flanker import metrics, _email
 from flanker.mime import bounce
@@ -20,6 +21,7 @@ from flanker.utils import is_pure_ascii
 log = logging.getLogger(__name__)
 
 CTE = WithParams('7bit', {})
+
 
 class Stream(object):
 
@@ -69,7 +71,7 @@ class Stream(object):
         if self._body is None:
             self._load_headers()
             self.stream.seek(self._body_start)
-            self._body = decode_body(
+            self._body = _decode_body(
                 self.content_type,
                 self.headers.get('Content-Transfer-Encoding', CTE).value,
                 self.stream.read(self.end - self._body_start + 1))
@@ -107,7 +109,11 @@ def adjust_content_type(content_type, body=None, filename=None):
             content_type = ContentType(main, sub)
 
     if content_type.main == 'image' and body:
-        sub = imghdr.what(None, body)
+        image_preamble = body[:32]
+        if six.PY3 and isinstance(body, six.text_type):
+            image_preamble = image_preamble.encode('utf-8', 'ignore')
+
+        sub = imghdr.what(None, image_preamble)
         if sub:
             content_type = ContentType('image', sub)
 
@@ -125,11 +131,11 @@ def _guess_type(filename):
     that heuristic content type checker get wrong.
     """
 
-    if filename.endswith(".bz2"):
-        return ContentType("application", "x-bzip2")
+    if filename.endswith('.bz2'):
+        return ContentType('application', 'x-bzip2')
 
-    if filename.endswith(".gz"):
-        return ContentType("application", "x-gzip")
+    if filename.endswith('.gz'):
+        return ContentType('application', 'x-gzip')
 
     return None
 
@@ -152,7 +158,7 @@ class Body(object):
         if content_type.main == 'text':
             # the text should have a charset
             if not charset:
-                charset = "utf-8"
+                charset = 'utf-8'
 
             # it should be stored as unicode. period
             if isinstance(body, six.binary_type):
@@ -223,8 +229,8 @@ class RichPartMixin(object):
     @message_id.setter
     def message_id(self, value):
         if not MessageId.is_valid(value):
-            raise ValueError("invalid message id format")
-        self.headers['Message-Id'] = "<{0}>".format(value)
+            raise ValueError('invalid message id format')
+        self.headers['Message-Id'] = '<{0}>'.format(value)
 
     @property
     def subject(self):
@@ -351,7 +357,7 @@ class RichPartMixin(object):
                     for p in part.walk():
                         return p
         except Exception:
-            log.exception("Failed to get attached message")
+            log.exception('Failed to get attached message')
             return None
 
     def remove_headers(self, *header_names):
@@ -378,7 +384,7 @@ class RichPartMixin(object):
         return self.bounce.is_bounce(probability)
 
     def __str__(self):
-        return "({0})".format(self.content_type)
+        return '({0})'.format(self.content_type)
 
 
 class MimePart(RichPartMixin):
@@ -407,7 +413,7 @@ class MimePart(RichPartMixin):
     def headers(self):
         """Returns multi dictionary with headers converted to unicode,
         headers like Content-Type, Content-Disposition are tuples
-        ("value", {"param": "val"})"""
+        ('value', {'param': 'val'})"""
         return self._container.headers
 
     @property
@@ -468,11 +474,11 @@ class MimePart(RichPartMixin):
         # we submit the original string,
         # no copying, no alternation, yeah!
         if self.is_root() and not self.was_changed(ignore_prepends=True):
-            with closing(six.StringIO()) as out:
+            with closing(StringIO()) as out:
                 self._container._stream_prepended_headers(out)
                 return out.getvalue() + self._container.string
         else:
-            with closing(six.StringIO()) as out:
+            with closing(StringIO()) as out:
                 self.to_stream(out)
                 return out.getvalue()
 
@@ -518,7 +524,6 @@ class MimePart(RichPartMixin):
         self.enclosed = message
         message.set_root(False)
 
-
     def _to_stream_when_changed(self, out):
 
         ctype = self.content_type
@@ -526,7 +531,7 @@ class MimePart(RichPartMixin):
         if ctype.is_singlepart():
 
             if self._container.body_changed():
-                charset, encoding, body = encode_body(self)
+                charset, encoding, body = _encode_body(self)
                 if charset:
                     self.charset = charset
                 self.content_encoding = WithParams(encoding)
@@ -537,35 +542,35 @@ class MimePart(RichPartMixin):
             if self.headers:
                 self.headers.to_stream(out)
             elif self.is_root():
-                raise EncodingError("Root message should have headers")
+                raise EncodingError('Root message should have headers')
 
-            out.write(CRLF)
+            out.write(_CRLF)
             out.write(body)
         else:
             self.headers.to_stream(out)
-            out.write(CRLF)
+            out.write(_CRLF)
 
             if ctype.is_multipart():
                 boundary = ctype.get_boundary_line()
                 for index, part in enumerate(self.parts):
                     out.write(
-                        (CRLF if index != 0 else "") + boundary + CRLF)
+                        (_CRLF if index != 0 else '') + boundary + _CRLF)
                     part.to_stream(out)
-                out.write(CRLF + ctype.get_boundary_line(final=True) + CRLF)
+                out.write(_CRLF + ctype.get_boundary_line(final=True) + _CRLF)
 
             elif ctype.is_message_container():
                 self.enclosed.to_stream(out)
 
 
-def decode_body(content_type, content_encoding, body):
+def _decode_body(content_type, content_encoding, body):
     # decode the transfer encoding
-    body = decode_transfer_encoding(content_encoding, body)
+    body = _decode_transfer_encoding(content_encoding, body)
 
     # decode the charset next
-    return decode_charset(content_type, body)
+    return _decode_charset(content_type, body)
 
 
-def decode_transfer_encoding(encoding, body):
+def _decode_transfer_encoding(encoding, body):
     if encoding == 'base64':
         return _base64_decode(body)
     elif encoding == 'quoted-printable':
@@ -573,7 +578,8 @@ def decode_transfer_encoding(encoding, body):
     else:
         return body
 
-def decode_charset(ctype, body):
+
+def _decode_charset(ctype, body):
     if ctype.main != 'text':
         return body
 
@@ -583,24 +589,24 @@ def decode_charset(ctype, body):
     # for text/html unicode bodies make sure to replace
     # the whitespace (0xA0) with &nbsp; Outlook is reported to
     # have a bug there
-    if ctype.sub =='html' and charset == 'utf-8':
+    if ctype.sub == 'html' and charset == 'utf-8':
         # Outlook bug
         body = body.replace(u'\xa0', u'&nbsp;')
 
     return body
 
 
-def encode_body(part):
+def _encode_body(part):
     content_type = part.content_type
     content_encoding = part.content_encoding.value
     body = part._container.body
 
     charset = content_type.get_charset()
     if content_type.main == 'text':
-        charset, body = encode_charset(charset, body)
+        charset, body = _encode_charset(charset, body)
         if not part.is_attachment():
-            content_encoding = choose_text_encoding(charset, content_encoding,
-                                                    body)
+            content_encoding = _choose_text_encoding(charset, content_encoding,
+                                                     body)
             # report which text encoding is chosen
             metrics.incr('encoding.' + content_encoding)
         else:
@@ -608,11 +614,11 @@ def encode_body(part):
     else:
         content_encoding = 'base64'
 
-    body = encode_transfer_encoding(content_encoding, body)
+    body = _encode_transfer_encoding(content_encoding, body)
     return charset, content_encoding, body
 
 
-def encode_charset(preferred_charset, text):
+def _encode_charset(preferred_charset, text):
     try:
         charset = preferred_charset or 'ascii'
         text = text.encode(preferred_charset)
@@ -622,7 +628,24 @@ def encode_charset(preferred_charset, text):
     return charset, text
 
 
-def encode_transfer_encoding(encoding, body):
+def _encode_transfer_encoding(encoding, body):
+    if six.PY3:
+        if encoding == 'quoted-printable':
+            body = quopri.encodestring(body, quotetabs=False)
+            return body.decode('utf-8')
+
+        if encoding == 'base64':
+            if isinstance(body, six.text_type):
+                body = body.encode('utf-8')
+
+            body = _email.encode_base64(body)
+            return body.decode('utf-8')
+
+        if six.PY3 and isinstance(body, six.binary_type):
+            return body.decode('utf-8')
+
+        return body
+
     if encoding == 'quoted-printable':
         return quopri.encodestring(body, quotetabs=False)
     elif encoding == 'base64':
@@ -631,18 +654,18 @@ def encode_transfer_encoding(encoding, body):
         return body
 
 
-def choose_text_encoding(charset, preferred_encoding, body):
+def _choose_text_encoding(charset, preferred_encoding, body):
     if charset in ('ascii', 'iso-8859-1', 'us-ascii'):
         if has_long_lines(body):
-            return stronger_encoding(preferred_encoding, 'quoted-printable')
+            return _stronger_encoding(preferred_encoding, 'quoted-printable')
         else:
             return preferred_encoding
     else:
-        encoding = stronger_encoding(preferred_encoding, 'quoted-printable')
+        encoding = _stronger_encoding(preferred_encoding, 'quoted-printable')
         return encoding
 
 
-def stronger_encoding(a, b):
+def _stronger_encoding(a, b):
     weights = {'7bit': 0, 'quoted-printable': 1, 'base64': 1, '8bit': 3}
     if weights.get(a, -1) >= weights[b]:
         return a
@@ -652,7 +675,7 @@ def stronger_encoding(a, b):
 def has_long_lines(text, max_line_len=599):
     """
     Returns True if text contains lines longer than a certain length.
-    Some SMTP servers (Exchange) refuse to accept messages "wider" than
+    Some SMTP servers (Exchange) refuse to accept messages 'wider' than
     certain length.
     """
     if not text:
@@ -668,38 +691,65 @@ def _base64_decode(s):
     try:
         return base64.b64decode(s)
 
-    except TypeError:
-        s = s.translate(None, _b64_invalid_chars)
+    except (TypeError, ValueError):
+        s = _recover_base64(s)
         tail_size = len(s) & 3
         if tail_size == 1:
             # crop last character as adding padding does not help
             return base64.b64decode(s[:-1])
 
         # add padding
-        return base64.b64decode(s + "=" * (4 - tail_size))
+        return base64.b64decode(s + '=' * (4 - tail_size))
 
 
 class _CounterIO(object):
+
     def __init__(self):
         self.length = 0
+
     def tell(self):
         return self.length
+
     def write(self, s):
         self.length += len(s)
+
     def seek(self, p):
         self.length = p
+
     def getvalue(self):
         return self.length
+
     def close(self):
         pass
 
 
-CRLF = "\r\n"
+_CRLF = '\r\n'
 
 
 # To recover base64 we need to translate the part to the base64 alphabet.
-_b64_alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
-_b64_invalid_chars = ""
+_b64_alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'
+_b64_invalid_chars = ''
 for ch in range(256):
     if chr(ch) not in _b64_alphabet:
         _b64_invalid_chars += chr(ch)
+
+
+def _recover_base64(s):
+    if six.PY2:
+        return s.translate(None, _b64_invalid_chars)
+
+    buf = StringIO()
+    chunk_start = 0
+    for i, c in enumerate(s):
+        if (('A' <= c <= 'Z') or
+            ('a' <= c <= 'z') or
+            ('0' <= c <= '9') or
+            c == '+' or c == '/'
+        ):
+            continue
+
+        buf.write(s[chunk_start:i])
+        chunk_start = i + 1
+
+    buf.write(s[chunk_start:len(s)])
+    return buf.getvalue()

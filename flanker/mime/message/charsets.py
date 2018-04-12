@@ -13,10 +13,7 @@ _ALIASES = {
 
 def convert_to_unicode(charset, value):
     if isinstance(value, six.text_type):
-        if six.PY2:
-            return value
-
-        value = value.encode('ascii')
+        return value
 
     charset = _ensure_charset(charset)
     value = to_unicode(value, charset)

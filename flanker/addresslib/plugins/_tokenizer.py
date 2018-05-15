@@ -8,71 +8,8 @@ compiled regular expressions or strings.
 """
 
 import re
-
 import six
 
-LBRACKET   = '<'
-AT_SYMBOL  = '@'
-RBRACKET   = '>'
-DQUOTE     = '"'
-
-BAD_DOMAIN = re.compile(r'''                                    # start or end
-                        ^-|-$                                   # with -
-                        ''', re.MULTILINE | re.VERBOSE)
-
-DELIMITER  = re.compile(r'''
-                        [,;][,;\s]*                             # delimiter
-                        ''', re.MULTILINE | re.VERBOSE)
-
-WHITESPACE = re.compile(r'''
-                        (\ |\t)+                                # whitespace
-                        ''', re.MULTILINE | re.VERBOSE)
-
-UNI_WHITE  = re.compile(u'''
-                        [
-                            \u0020\u00a0\u1680\u180e
-                            \u2000-\u200a
-                            \u2028\u202f\u205f\u3000
-                        ]*
-                        ''', re.MULTILINE | re.VERBOSE | re.UNICODE)
-
-RELAX_ATOM = re.compile(r'''
-                        ([^\s<>;,"]+)
-                        ''', re.MULTILINE | re.VERBOSE)
-
-ATOM       = re.compile(r'''
-                        [A-Za-z0-9!#$%&'*+\-/=?^_`{|}~]+        # atext
-                        ''', re.MULTILINE | re.VERBOSE)
-
-DOT_ATOM   = re.compile(r'''
-                        [A-Za-z0-9!#$%&'*+\-/=?^_`{|}~]+        # atext
-                        (\.[A-Za-z0-9!#$%&'*+\-/=?^_`{|}~]+)*   # (dot atext)*
-                        ''', re.MULTILINE | re.VERBOSE)
-
-UNI_ATOM = re.compile(r'''
-                        ([^\s<>;,"]+)
-                        ''', re.MULTILINE | re.VERBOSE | re.UNICODE)
-
-UNI_QSTR   = re.compile(r'''
-                        "
-                        (?P<qstr>([^"]+))
-                        "
-                        ''', re.MULTILINE | re.VERBOSE | re.UNICODE)
-
-QSTRING    = re.compile(r'''
-                        "                                       # dquote
-                        (\s*                                    # whitespace
-                        ([\x21\x23-\x5b\x5d-\x7e]               # qtext
-                        |                                       # or
-                        \\[\x21-\x7e\t\ ]))*                    # quoted-pair
-                        \s*                                     # whitespace
-                        "                                       # dquote
-                        ''', re.MULTILINE | re.VERBOSE)
-
-URL        = re.compile(r'''
-                        (?:http|https)://
-                        [^\s<>{}|\^~\[\]`;,]+
-                        ''', re.MULTILINE | re.VERBOSE | re.UNICODE)
 
 class TokenStream(object):
     """
@@ -121,27 +58,6 @@ class TokenStream(object):
         if self.position >= len(self.stream):
             return True
         return False
-
-    def synchronize(self):
-        """
-        Advances the stream to synchronizes to the delimiter token. Used primarily
-        in relaxed mode parsing.
-        """
-        start_pos = self.position
-        end_pos = len(self.stream)
-
-        match = DELIMITER.search(self.stream, self.position)
-        if match:
-            self.position = match.start()
-            end_pos = match.start()
-        else:
-            self.position = end_pos
-
-        skip = self.stream[start_pos:end_pos]
-        if skip.strip() == '':
-            return None
-
-        return skip
 
     def peek(self, token=None):
         """

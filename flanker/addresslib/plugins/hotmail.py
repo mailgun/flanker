@@ -31,26 +31,30 @@
 '''
 import re
 from flanker.addresslib.plugins._tokenizer import TokenStream
+from flanker.addresslib._parser.lexer import _UNICODE_CHAR
 
 HOTMAIL_PREFIX  = re.compile(r'''
-                            [A-Za-z0-9]+
-                            ''', re.MULTILINE | re.VERBOSE)
+                            ( [A-Za-z0-9]
+                            | {unicode_char}
+                            )+
+                            '''.format(unicode_char=_UNICODE_CHAR),
+                            re.MULTILINE | re.VERBOSE)
 
 HOTMAIL_BASE    = re.compile(r'''
-                            [A-Za-z0-9\.\-\_]+
-                            ''', re.MULTILINE | re.VERBOSE)
+                            ( [A-Za-z0-9\.\-\_]
+                            | {unicode_char}
+                            )+
+                            '''.format(unicode_char=_UNICODE_CHAR),
+                            re.MULTILINE | re.VERBOSE)
 
 HOTMAIL_SUFFIX  = re.compile(r'''
-                            [A-Za-z0-9\-\_]+
-                            ''', re.MULTILINE | re.VERBOSE)
+                            ( [A-Za-z0-9\-\_]
+                            | {unicode_char}
+                            )+
+                            '''.format(unicode_char=_UNICODE_CHAR),
+                            re.MULTILINE | re.VERBOSE)
 
-PLUS            = re.compile(r'''
-                            \+
-                            ''', re.MULTILINE | re.VERBOSE)
-
-PERIODS         = re.compile(r'''
-                            \.{2,}
-                            ''', re.MULTILINE | re.VERBOSE)
+PLUS            = '+'
 
 
 def validate(email_addr):
@@ -80,10 +84,6 @@ def validate(email_addr):
 
     # no more than one plus (+)
     if localpart.count('+') > 1:
-        return False
-
-    # no consecutive periods (..)
-    if PERIODS.search(localpart):
         return False
 
     # grammar check

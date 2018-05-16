@@ -43,30 +43,29 @@
 
 import re
 from flanker.addresslib.plugins._tokenizer import TokenStream
+from flanker.addresslib._parser.lexer import _UNICODE_CHAR
 
 ALPHA      = re.compile(r'''
-                        [A-Za-z]+
+                        ( [A-Za-z]
+                        | {unicode_char}
+                        )+
                         ''', re.MULTILINE | re.VERBOSE)
 
 NUMERIC    = re.compile(r'''
-                        [0-9]+
+                        ( [0-9]
+                        )+
                         ''', re.MULTILINE | re.VERBOSE)
 
 ALPHANUM   = re.compile(r'''
-                        [A-Za-z0-9]+
+                        ( [A-Za-z0-9]
+                        | {unicode_char}
+                        )+
                         ''', re.MULTILINE | re.VERBOSE)
 
-DOT        = re.compile(r'''
-                        \.
-                        ''', re.MULTILINE | re.VERBOSE)
+HYPHEN     = re.compile(r'\-', re.MULTILINE | re.VERBOSE)
 
-UNDERSCORE = re.compile(r'''
-                        \_
-                        ''', re.MULTILINE | re.VERBOSE)
-
-HYPHEN     = re.compile(r'''
-                        \-
-                        ''', re.MULTILINE | re.VERBOSE)
+DOT        = '.'
+UNDERSCORE = '_'
 
 YAHOO_MANAGED = ['yahoo.com', 'ymail.com', 'rocketmail.com']
 

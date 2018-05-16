@@ -29,23 +29,19 @@
 '''
 import re
 from flanker.addresslib.plugins._tokenizer import TokenStream
-from flanker.addresslib.plugins._tokenizer import ATOM
+from flanker.addresslib._parser.lexer import t_ATOM, _UNICODE_CHAR
 
-
-GMAIL_BASE = re.compile(r'''
-                        [A-Za-z0-9\.]+
-                        ''', re.MULTILINE | re.VERBOSE)
+ATOM       = re.compile(t_ATOM, re.MULTILINE | re.VERBOSE)
 
 ALPHANUM   = re.compile(r'''
-                        [A-Za-z0-9]+
-                        ''', re.MULTILINE | re.VERBOSE)
+                        ( [A-Za-z0-9]
+                        | {unicode_char}
+                        )+
+                        '''.format(unicode_char=_UNICODE_CHAR),
+                        re.MULTILINE | re.VERBOSE)
 
-PLUS       = re.compile(r'''
-                        [\+]
-                        ''', re.MULTILINE | re.VERBOSE)
-DOT        = re.compile(r'''
-                        [\.]
-                        ''', re.MULTILINE | re.VERBOSE)
+PLUS       = '+'
+DOT        = '.'
 
 
 def validate(email_addr):

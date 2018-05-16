@@ -14,10 +14,19 @@ well as a MIME parsing library (`flanker.mime`).
 Detailed documentation is provided in the `User Manual <https://github.com/mailgun/flanker/blob/master/docs/User%20Manual.md>`_ as well as the
 `API Reference <https://github.com/mailgun/flanker/blob/master/docs/API%20Reference.md>`_. A Quickstart Guide is provided below.
 
+Python Versions
+---------------
+
+Flanker is heavily used by `Mailgun <www.mailgun.com>`_ in production with
+Python 2.7. The current production version is v0.8.5.
+
+Support for Python 3 was added in v0.9.0 by popular demand from the community.
+We are not using Flanker with Python 3 in the house. All we know is that tests
+pass with Python 3.6, so use at your own risk. Feel free to report Python 3
+specific issues if you see any.
+
 Installing
 ----------
-
-**Flanker was built and tested with Python 2.7.2.**
 
 You can install flanker via `pip` or clone the repo from GitHub.
 

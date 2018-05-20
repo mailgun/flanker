@@ -8,14 +8,14 @@ from flanker import _email
 from flanker.mime import recover
 from flanker.mime.create import multipart, text
 from flanker.mime.message.errors import EncodingError
-from flanker.mime.message.part import _encode_transfer_encoding, _base64_decode
+from flanker.mime.message.part import _encode_transfer_encoding, _base64_decode, _encode_body
 from flanker.mime.message.scanner import scan
 from tests import (BILINGUAL, BZ2_ATTACHMENT, ENCLOSED, TORTURE, TORTURE_PART,
                    ENCLOSED_BROKEN_ENCODING, EIGHT_BIT, QUOTED_PRINTABLE,
                    TEXT_ONLY, ENCLOSED_BROKEN_BODY, RUSSIAN_ATTACH_YAHOO,
                    MAILGUN_PIC, MAILGUN_PNG, MULTIPART, IPHONE,
                    SPAM_BROKEN_CTYPE, BOUNCE, NDN, NO_CTYPE, RELATIVE,
-                   MULTI_RECEIVED_HEADERS, OUTLOOK_EXPRESS)
+                   MULTI_RECEIVED_HEADERS, OUTLOOK_EXPRESS, TEXT_LONG_LINE_NO_LINE_BREAKS)
 from tests.mime.message.scanner_test import TORTURE_PARTS, tree_to_string
 
 
@@ -247,7 +247,7 @@ def parse_then_serialize_malformed_message_test():
 def ascii_to_quoted_printable_test():
     # contains unicode chars
     message = scan(TEXT_ONLY)
-    unicode_value = u'☯Привет! Как дела? Что делаешь?,\n Что новенького?☯'
+    unicode_value = u'☯Привет! Как дела? Что делаешь?,\r\n Что новенького?☯'
     message.body = unicode_value
     message = scan(message.to_string())
     eq_('quoted-printable', message.content_encoding.value)
@@ -291,6 +291,14 @@ def ascii_to_quoted_printable_test_2():
     eq_(value, message.body)
 
 
+def long_line_no_line_break_quoted_printable_test():
+    message = scan(TEXT_LONG_LINE_NO_LINE_BREAKS)
+    message._container._body_changed = True
+    assert message.was_changed(ignore_prepends=True)
+    charset, encoding, body = _encode_body(message)
+    eq_(len(body.split(b'\r\n')), 23)
+
+
 # Make sure we can't create a message without headers.
 def create_message_without_headers_test():
     message = scan(TEXT_ONLY)
@@ -312,7 +320,7 @@ def create_message_without_body_test():
 # Alter the complex message, make sure that the structure remained the same.
 def torture_alter_test():
     message = scan(TORTURE)
-    unicode_value = u'☯Привет! Как дела? Что делаешь?,\n Что новенького?☯'
+    unicode_value = u'☯Привет! Как дела? Что делаешь?,\r\n Что новенького?☯'
     message.parts[5].enclosed.parts[0].parts[0].body = unicode_value
     for p in message.walk():
         if str(p.content_type) == 'text/plain':
@@ -505,11 +513,11 @@ def message_alter_body_and_serialize_test():
 
     parts = list(message1.walk())
     eq_(3, len(parts))
-    eq_(u'Привет, Danielle!\n\n', parts[2].body)
+    eq_(u'Привет, Danielle!\r\n\r\n', parts[2].body)
 
     parts = list(message2.walk())
     eq_(3, len(parts))
-    eq_(u'Привет, Danielle!\n\n', parts[2].body)
+    eq_(u'Привет, Danielle!\r\n\r\n', parts[2].body)
 
 
 def alter_message_test_size():

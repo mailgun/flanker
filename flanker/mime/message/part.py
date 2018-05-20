@@ -631,7 +631,9 @@ def _encode_charset(preferred_charset, text):
 def _encode_transfer_encoding(encoding, body):
     if six.PY3:
         if encoding == 'quoted-printable':
+            body = b''.join([b'\r\n', body])
             body = quopri.encodestring(body, quotetabs=False)
+            body = body[2:]
             return body.decode('utf-8')
 
         if encoding == 'base64':
@@ -647,7 +649,9 @@ def _encode_transfer_encoding(encoding, body):
         return body
 
     if encoding == 'quoted-printable':
-        return quopri.encodestring(body, quotetabs=False)
+        body = '\r\n{}'.format(body)
+        result = quopri.encodestring(body, quotetabs=False)
+        return result[2:]
     elif encoding == 'base64':
         return _email.encode_base64(body)
     else:

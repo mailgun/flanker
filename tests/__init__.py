@@ -76,6 +76,7 @@ RUSSIAN_ATTACH_YAHOO = read_fixture(
     'messages/russian-attachment-yahoo.eml', binary=True)
 QUOTED_PRINTABLE = read_fixture('messages/quoted-printable.eml')
 TEXT_ONLY = read_fixture('messages/text-only.eml')
+TEXT_LONG_LINE_NO_LINE_BREAKS = read_fixture("messages/text-long-line-no-line-breaks.eml")
 MAILGUN_PIC = read_fixture('messages/mailgun-pic.eml')
 BZ2_ATTACHMENT  = read_fixture('messages/bz2-attachment.eml')
 OUTLOOK_EXPRESS = read_fixture('messages/outlook-express.eml')

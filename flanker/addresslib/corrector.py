@@ -131,7 +131,6 @@ MOST_COMMON_DOMAINS = [
     'mindspring.com',
     'msn.com',
     'naver.com',
-    'nc.rr.com',
     'netscape.net',
     'netspace.net.au',
     'netzero.com',

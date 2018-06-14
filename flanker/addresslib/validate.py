@@ -205,7 +205,9 @@ def lookup_domain(domain):
     package for more details.
     """
     fqdn = domain if domain[-1] == '.' else ''.join([domain, '.'])
+
     mx_hosts = _get_dns_lookup()[fqdn]
+    mx_hosts = list(mx_hosts)
 
     if len(mx_hosts) == 0:
         return None

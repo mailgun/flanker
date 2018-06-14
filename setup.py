@@ -2,6 +2,13 @@
 
 from setuptools import setup, find_packages
 
+tests_require = [
+    'coverage',
+    'coveralls',
+    'mock',
+    'nose',
+],
+
 setup(name='flanker',
       version='0.9.2',
       description='Mailgun Parsing Tools',
@@ -24,10 +31,7 @@ setup(name='flanker',
       packages=find_packages(exclude=['tests']),
       include_package_data=True,
       zip_safe=True,
-      tests_require=[
-          'nose',
-          'mock'
-      ],
+      tests_require=tests_require,
       install_requires=[
           'attrs',
           'chardet>=1.0.1',
@@ -45,5 +49,6 @@ setup(name='flanker',
           ],
           'cchardet': [
               'cchardet>=0.3.5',
-          ]
+          ],
+          'tests': tests_require,
       })

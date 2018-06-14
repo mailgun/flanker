@@ -4,6 +4,7 @@ import re
 
 from .. import *
 
+import six
 from nose.tools import assert_equal, assert_not_equal
 from nose.tools import nottest
 from mock import patch
@@ -34,6 +35,7 @@ def valid_localparts(strip_delimiters=False):
 
         yield line
 
+
 @nottest
 def invalid_localparts(strip_delimiters=False):
     for line in ABRIDGED_LOCALPART_INVALID_TESTS.split('\n'):
@@ -54,6 +56,7 @@ def invalid_localparts(strip_delimiters=False):
 
         yield line
 
+
 @nottest
 def mock_exchanger_lookup(arg, metrics=False):
     mtimes = {'mx_lookup': 10, 'dns_lookup': 20, 'mx_conn': 30}
@@ -67,6 +70,19 @@ def mock_exchanger_lookup(arg, metrics=False):
             return ''
         else:
             return None
+
+
+@nottest
+def fake_dns_lookup(domain_name, lookup_results):
+    if six.PY3:
+        # This is how `dnsq` actually returns mx_records. Emulating it in tests
+        lookup_results = filter(lambda x: True, lookup_results)
+
+    fqdn = '%s.' % domain_name
+    return {
+        fqdn: lookup_results,
+    }
+
 
 def test_abridged_mailbox_valid_set():
     for line in ABRIDGED_LOCALPART_VALID_TESTS.split('\n'):
@@ -184,34 +200,63 @@ def test_parse_syntax_only_false():
 
 
 @patch('flanker.addresslib.validate.connect_to_mail_exchanger')
-@patch('flanker.addresslib.validate.lookup_domain')
-def test_mx_lookup(ld, cmx):
-    # has MX, has MX server
-    ld.return_value = ['mx1.fake.mailgun.com', 'mx2.fake.mailgun.com']
+@patch('flanker.addresslib.validate._get_dns_lookup')
+def test_mx_lookup(dns, cmx):
+    domain_name = 'mailgun.com'
+    mx_records = ['mx1.fake.mailgun.com', 'mx2.fake.mailgun.com']
+    email_address = 'username@%s' % domain_name
+    expected_address = email_address
+
+    dns.return_value = fake_dns_lookup(domain_name, mx_records)
     cmx.return_value = 'mx1.fake.mailgun.com'
 
-    addr = address.validate_address('username@mailgun.com')
-    assert_not_equal(addr, None)
+    validated_address = address.validate_address(email_address)
+    assert_not_equal(validated_address, None)
+    assert_equal(validated_address, expected_address)
 
+
+@patch('flanker.addresslib.validate.connect_to_mail_exchanger')
+@patch('flanker.addresslib.validate._get_dns_lookup')
+def test_mx_lookup_has_mx_has_fallback(dns, cmx):
     # has fallback A, has MX server
-    ld.return_value = ['domain.com']
+    domain_name = 'domain.com'
+    mx_records = ['domain.com']
+    email_address = 'username@%s' % domain_name
+    expected_address = email_address
+
+    dns.return_value = fake_dns_lookup(domain_name, mx_records)
     cmx.return_value = 'domain.com'
 
-    addr = address.validate_address('username@domain.com')
+    addr = address.validate_address(email_address)
     assert_not_equal(addr, None)
+    assert_equal(addr, expected_address)
 
+
+@patch('flanker.addresslib.validate.connect_to_mail_exchanger')
+@patch('flanker.addresslib.validate._get_dns_lookup')
+def test_mx_lookup_has_mx_no_server_answer(dns, cmx):
     # has MX, no server answers
-    ld.return_value = ['mx.example.com']
+    domain_name = 'example.com'
+    mx_records = ['mx.example.com']
+    email_address = 'username@%s' % domain_name
+
+    dns.return_value = fake_dns_lookup(domain_name, mx_records)
     cmx.return_value = None
 
-    addr = address.validate_address('username@example.com')
+    addr = address.validate_address(email_address)
     assert_equal(addr, None)
 
+
+@patch('flanker.addresslib.validate.connect_to_mail_exchanger')
+@patch('flanker.addresslib.validate._get_dns_lookup')
+def test_mx_lookup_has_no_mx(dns, cmx):
     # no MX
-    ld.return_value = []
+    domain_name = 'example.com'
+    email_address = 'username@%s' % domain_name
+    dns.return_value = fake_dns_lookup(domain_name, [])
     cmx.return_value = None
 
-    addr = address.validate_address('username@no-dns-records-for-domain.com')
+    addr = address.validate_address(email_address)
     assert_equal(addr, None)
 
 
@@ -227,6 +272,7 @@ def test_mx_lookup_metrics():
         # ensure values are unpacked correctly
         a = validate.mail_exchanger_lookup('example.com', metrics=False)
         a = validate.mail_exchanger_lookup('example.com', metrics=False)
+
 
 def test_validate_address_metrics():
     with patch.object(address, 'mail_exchanger_lookup') as mock_method:
@@ -252,6 +298,7 @@ def test_validate_address_metrics():
 #     assert_equal(addr.full_spec(), 'foo@[1.2.3.4]')
 #     mock_lookup_domain.assert_not_called()
 #     mock_connect_to_mail_exchanger.assert_called_once_with(['1.2.3.4'])
+
 
 @patch('flanker.addresslib.validate.connect_to_mail_exchanger')
 @patch('flanker.addresslib.validate.lookup_domain')
@@ -334,15 +381,20 @@ def test_mx_aol_manage_flag_toggle():
     unmanaged = validate.aol.unmanaged_email(addr_obj.hostname)
     assert_equal(unmanaged, True)
 
+
 def test_bad_tld():
     # con is not a valid TLD
     addr_spec = 'test@example.con'
-    addr_obj, metrics = address.validate_address(addr_spec, skip_remote_checks=True, metrics=True)
+    addr_obj, metrics = address.validate_address(
+        addr_spec, skip_remote_checks=True, metrics=True
+    )
     assert_equal(addr_obj, None)
     assert_not_equal(metrics['tld_lookup'], 0)
 
     # example is not a valid TLD
     addr_spec = 'test@example'
-    addr_obj, metrics = address.validate_address(addr_spec, skip_remote_checks=True, metrics=True)
+    addr_obj, metrics = address.validate_address(
+        addr_spec, skip_remote_checks=True, metrics=True
+    )
     assert_equal(addr_obj, None)
     assert_not_equal(metrics['tld_lookup'], 0)

@@ -63,23 +63,26 @@ def mime_to_unicode(header):
             match = _RE_ENCODED_WORD.search(header)
             if not match:
                 # Append the remainder of the string to the list of chunks.
-                decoded.append(charsets.convert_to_unicode('ascii', header))
+                decoded.append((header, 'ascii'))
                 break
 
             start = match.start()
             if start != 0:
                 # decodes unencoded ascii part to unicode
-                value = charsets.convert_to_unicode('ascii', header[0:start])
+                value = header[0:start]
                 if value.strip():
-                    decoded.append(value)
+                    decoded.append((value, 'ascii'))
             # decode a header =?...?= of encoding
             charset, value = _decode_part(match.group('charset').lower(),
                                           match.group('encoding').lower(),
                                           match.group('encoded'))
-            decoded.append(charsets.convert_to_unicode(charset, value))
+            if decoded and decoded[-1][1] == charset:
+                decoded[-1] = (decoded[-1][0]+value, charset)
+            else:
+                decoded.append((value, charset))
             header = header[match.end():]
 
-        return u"".join(decoded)
+        return u"".join(charsets.convert_to_unicode(c, v) for v, c in decoded)
     except Exception:
         try:
             logged_header = header

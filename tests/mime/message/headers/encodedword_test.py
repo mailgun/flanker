@@ -1,10 +1,11 @@
 # coding:utf-8
 
-from nose.tools import *
+from nose.tools import eq_
 from mock import *
 from flanker.mime.message.headers import encodedword
 from flanker.mime.message import utils
 from flanker.mime.message import errors, charsets
+from flanker.addresslib.address import parse
 
 def encoded_word_test():
     def t(value):
@@ -136,6 +137,9 @@ def various_encodings_test():
 
     v = u'=?gb18030?Q?Hey_There=D7=B2=D8=B0?='
     eq_(u'Hey There撞匕', encodedword.mime_to_unicode(v))
+
+    v = parse(u'Тест длинного дисплей нейма <test@example.com>')
+    eq_(v.display_name, encodedword.mime_to_unicode(v.ace_display_name))
 
 
 @patch.object(utils, '_guess_and_convert', Mock(side_effect=errors.EncodingError()))

@@ -1,14 +1,15 @@
 # coding:utf-8
 
-from nose.tools import *
+from nose.tools import eq_
 from mock import *
 from flanker.mime.message.headers import encodedword
-from flanker import utils
+from flanker.mime.message import utils
 from flanker.mime.message import errors, charsets
+from flanker.addresslib.address import parse
 
 def encoded_word_test():
     def t(value):
-        m  = encodedword.encodedWord.match(value)
+        m  = encodedword._RE_ENCODED_WORD.match(value)
         return (m.group('charset'), m.group('encoding'), m.group('encoded'))
 
     r = t('=?utf-8?B?U2ltcGxlIHRleHQuIEhvdyBhcmUgeW91PyDQmtCw0Log0YLRiyDQv9C+0LY=?=')
@@ -128,17 +129,30 @@ def various_encodings_test():
     v = '=?UTF-8?B?0J/RgNC+0LLQtdGA0Y/QtdC8INGA0YPRgdGB0LrQuNC1INGB0LDQsdC2?=\r\n =?UTF-8?B?0LXQutGC0Ysg0Lgg0Y7QvdC40LrQvtC0IOKYoA==?='
     eq_(u'Проверяем русские сабжекты и юникод ☠', encodedword.mime_to_unicode(v))
 
-    v = u'=?utf-8?Q?Evaneos-Concepci=C3=B3n.pdf?='
+    v = '=?utf-8?Q?Evaneos-Concepci=C3=B3n.pdf?='
     eq_(u'Evaneos-Concepción.pdf', encodedword.mime_to_unicode(v))
+
+    v = u'=?gb2312?Q?Hey_There=D7=B2=D8=B0?='
+    eq_(u'Hey There撞匕', encodedword.mime_to_unicode(v))
+
+    v = u'=?gb18030?Q?Hey_There=D7=B2=D8=B0?='
+    eq_(u'Hey There撞匕', encodedword.mime_to_unicode(v))
+
+    v = parse(u'Тест длинного дисплей нейма <test@example.com>')
+    eq_(v.display_name, encodedword.mime_to_unicode(v.ace_display_name))
 
 
 @patch.object(utils, '_guess_and_convert', Mock(side_effect=errors.EncodingError()))
 def test_convert_to_utf8_unknown_encoding():
-    v = "abc\x80def"
-    eq_(u"abc\u20acdef", charsets.convert_to_unicode("windows-874", v))
-    eq_(u"qwe", charsets.convert_to_unicode('X-UNKNOWN', u"qwe"))
-    eq_(u"qwe", charsets.convert_to_unicode('ru_RU.KOI8-R', 'qwe'))
-    eq_(u"qwe", charsets.convert_to_unicode('"utf-8"; format="flowed"', 'qwe'))
+    eq_(u"abc\u20acdef",
+        charsets.convert_to_unicode("windows-874", b"abc\x80def"))
+    eq_(u"qwe",
+        charsets.convert_to_unicode('X-UNKNOWN', u'qwe'))
+    eq_(u"qwe",
+        charsets.convert_to_unicode('ru_RU.KOI8-R', 'qwe'))
+    eq_(u"qwe",
+        charsets.convert_to_unicode('"utf-8"; format="flowed"', 'qwe'))
+
 
 @patch.object(encodedword, 'unfold', Mock(side_effect=Exception))
 def test_error_reporting():

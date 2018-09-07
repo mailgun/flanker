@@ -1,3 +1,4 @@
+import six
 from webob.multidict import MultiDict
 
 from flanker.mime.message.headers import encodedword
@@ -70,16 +71,15 @@ class MimeHeaders(object):
         a new pair of key, val and applies the function to all
         header, value pairs in the message.
         """
-
         changed = [False]
 
-        def tracking_fn(key, val):
+        def wrapper(key, val):
             new_key, new_val = fn(key, val)
             if new_val != val or new_key != key:
                 changed[0] = True
             return new_key, new_val
 
-        v = MultiDict(tracking_fn(key, val) for key, val in self.iteritems(raw=not decode))
+        v = MultiDict(wrapper(k, v) for k, v in self.iteritems(raw=not decode))
         if changed[0]:
             self._v = v
             self.changed = True
@@ -149,7 +149,7 @@ class MimeHeaders(object):
                 break
             i += 1
             try:
-                h = h.encode('ascii')
+                h.encode('ascii')
             except UnicodeDecodeError:
                 raise EncodingError("Non-ascii header name")
             stream.write("{0}: {1}\r\n".format(h, to_mime(h, v)))
@@ -158,7 +158,7 @@ class MimeHeaders(object):
 def remove_newlines(value):
     if not value:
         return ''
-    elif isinstance(value, (str, unicode)):
+    elif isinstance(value, six.string_types):
         return value.replace('\r', '').replace('\n', '')
     else:
         return value

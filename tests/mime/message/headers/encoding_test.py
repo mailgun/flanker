@@ -1,15 +1,11 @@
 # coding:utf-8
 
-from email.header import Header
-
-from nose.tools import eq_, ok_
 from mock import patch, Mock
+from nose.tools import eq_, ok_
 
-from flanker.mime.message import headers
-from flanker.mime.message.headers.encoding import (encode_unstructured,
-                                                   encode_string)
-from flanker.mime.message import part
 from flanker.mime import create
+from flanker.mime.message import headers, part
+from flanker.mime.message.headers.encoding import _encode_unstructured
 from tests import LONG_HEADER, ENCODED_HEADER
 
 
@@ -27,21 +23,15 @@ def encodings_test():
     s = ("This is a long subject with commas, bob, Jay, suzy, tom, over"
          " 75,250,234 times!")
     folded_s = ("This is a long subject with commas, bob, Jay, suzy, tom, over"
-                "\n 75,250,234 times!")
+                "\r\n 75,250,234 times!")
     eq_(folded_s, headers.to_mime('Subject', s))
 
 
-def string_maxlinelen_test():
-    """
-    If the encoded string is longer then the maximum line length, which is 76,
-    by default then it is broken down into lines. But a maximum line length
-    value can be provided in the `maxlinelen` parameter.
-    """
-    eq_("very\n loooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooong",
-        encode_string(None, "very loooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooong"))
-
-    eq_("very loooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooong",
-        encode_string(None, "very loooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooong", maxlinelen=78))
+def encode_address_test():
+    eq_('john.smith@example.com', headers.to_mime('To', 'john.smith@example.com'))
+    eq_('"John Smith" <john.smith@example.com>', headers.to_mime('To', '"John Smith" <john.smith@example.com>'))
+    eq_('Федот <стрелец@письмо.рф>', headers.to_mime('To', 'Федот <стрелец@письмо.рф>'))
+    eq_('=?utf-8?b?0KTQtdC00L7Rgg==?= <foo@xn--h1aigbl0e.xn--p1ai>', headers.to_mime('To', 'Федот <foo@письмо.рф>'))
 
 
 @patch.object(part.MimePart, 'was_changed', Mock(return_value=True))        
@@ -49,31 +39,20 @@ def max_header_length_test():
     message = create.from_string(LONG_HEADER)
 
     # this used to fail because exceeded max depth recursion
-    ok_(message.headers.getraw('subject').encode("utf-8") in message.to_string())
+    message.to_string()
 
-    unicode_subject = (u"Это сообщение с длинным сабжектом "
-                       u"специально чтобы проверить кодировки")
-    ascii_subject = "This is simple ascii subject"
+    ascii_subject = 'This is simple ascii subject'
+    eq_('This is simple ascii subject',
+        _encode_unstructured('Subject', ascii_subject))
 
-    with patch.object(
-        headers.encoding, 'MAX_HEADER_LENGTH', len(ascii_subject) + 1):
+    unicode_subject = (u'Это сообщение с длинным сабжектом '
+                       u'специально чтобы проверить кодировки')
+    eq_('=?utf-8?b?0K3RgtC+INGB0L7QvtCx0YnQtdC90LjQtSDRgSDQtNC70LjQvdC9?=\r\n'
+        ' =?utf-8?b?0YvQvCDRgdCw0LHQttC10LrRgtC+0Lwg0YHQv9C10YbQuNCw0LvRjNC90L4g?=\r\n'
+        ' =?utf-8?b?0YfRgtC+0LHRiyDQv9GA0L7QstC10YDQuNGC0Ywg0LrQvtC00LjRgNC+0LI=?=\r\n'
+        ' =?utf-8?b?0LrQuA==?=',
+        _encode_unstructured('Subject', unicode_subject))
 
-        eq_(Header(ascii_subject.encode("ascii"), "ascii", header_name="Subject"),
-            encode_unstructured("Subject", ascii_subject))
-
-    with patch.object(
-        headers.encoding, 'MAX_HEADER_LENGTH', len(unicode_subject) + 1):
-
-        eq_(Header(unicode_subject.encode("utf-8"), "utf-8", header_name="Subject"),
-            encode_unstructured("Subject", unicode_subject))
-
-    with patch.object(headers.encoding, 'MAX_HEADER_LENGTH', 1):
-
-        eq_(ascii_subject.encode("utf-8"),
-            encode_unstructured("Subject", ascii_subject))
-
-        eq_(unicode_subject.encode("utf-8"),
-            encode_unstructured("Subject", unicode_subject))
 
 def add_header_preserve_original_encoding_test():
     message = create.from_string(ENCODED_HEADER)

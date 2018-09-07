@@ -1,11 +1,11 @@
 """ Useful wrappers for headers with parameters,
 provide some convenience access methods
 """
-
 import regex as re
-import flanker.addresslib.address
+import six
 
-from email.utils import make_msgid
+import flanker.addresslib.address
+from flanker import _email
 
 
 class WithParams(tuple):
@@ -119,7 +119,7 @@ class ContentType(tuple):
                 and self.params == other.params
         elif isinstance(other, tuple):
             return tuple.__eq__(self, other)
-        elif isinstance(other, (unicode, str)):
+        elif isinstance(other, six.string_types):
             return str(self) == other
         else:
             return False
@@ -155,14 +155,14 @@ class MessageId(str):
 
     @classmethod
     def from_string(cls, string):
-        if not isinstance(string, (str, unicode)):
+        if not isinstance(string, six.string_types):
             return None
         for message_id in cls.scan(string):
             return message_id
 
     @classmethod
     def generate(cls, domain=None):
-        message_id = make_msgid().strip("<>")
+        message_id = _email.make_message_id().strip("<>")
         if domain:
             local = message_id.split('@')[0]
             message_id = "{0}@{1}".format(local, domain)
@@ -181,11 +181,11 @@ class MessageId(str):
                 yield cls(message_id)
 
 
-class Subject(unicode):
+class Subject(six.text_type):
     RE_RE = re.compile("((RE|FW|FWD|HA)([[]\d])*:\s*)*", re.I)
 
     def __new__(cls, *args, **kw):
-        return unicode.__new__(cls, *args, **kw)
+        return six.text_type.__new__(cls, *args, **kw)
 
     def strip_replies(self):
         return self.RE_RE.sub('', self)

@@ -1,11 +1,11 @@
-from StringIO import StringIO
-import re
-from flanker.addresslib.tokenizer import ATOM, WHITESPACE
+import regex as re
+import six
+from six.moves import StringIO
 
+from flanker.addresslib._parser.lexer import t_ATOM, t_FWSP
 
 _RE_ATOM_PHRASE = re.compile(
-    r'({atom}({whitespace}{atom})*)|^$'
-    .format(atom=ATOM.pattern, whitespace=WHITESPACE.pattern),
+    r'(({atom}|\.)+({fwsp}({atom}|\.)+)*)?'.format(atom=t_ATOM, fwsp=t_FWSP),
     re.MULTILINE | re.VERBOSE)
 
 
@@ -52,5 +52,7 @@ def smart_unquote(s):
 
 
 def _contains_atoms_only(s):
+    if six.PY2 and isinstance(s, six.text_type):
+        s = s.encode('utf-8')
     match_result = _RE_ATOM_PHRASE.match(s)
     return match_result and match_result.end(0) == len(s)

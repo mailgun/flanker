@@ -1,12 +1,9 @@
 # coding:utf-8
 
-import email.header
+from nose.tools import assert_equal, assert_true, assert_false
 
 from flanker.addresslib.address import is_email
 from flanker.mime.message.headers.encodedword import mime_to_unicode
-from mock import patch, Mock
-from nose.tools import assert_equal, assert_not_equal
-from nose.tools import assert_true, assert_false
 
 
 def test_is_email():

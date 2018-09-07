@@ -1,13 +1,13 @@
 # coding:utf-8
 
-import email
-from cStringIO import StringIO
 from contextlib import closing
-from email import message_from_string
 
+import six
 from nose.tools import ok_, eq_, assert_false
-from flanker.mime.message import ContentType
+from six.moves import StringIO
 
+from flanker import _email
+from flanker.mime.message import ContentType
 from flanker.mime.message.fallback import create
 from flanker.mime.message.scanner import scan
 from tests import (IPHONE, ENCLOSED, TORTURE, TEXT_ONLY, MAILFORMED_HEADERS,
@@ -16,7 +16,7 @@ from tests import (IPHONE, ENCLOSED, TORTURE, TEXT_ONLY, MAILFORMED_HEADERS,
 
 
 def bad_string_test():
-    mime = "Content-Type: multipart/broken\n\n"
+    mime = "Content-Type: multipart/broken\r\n\r\n"
     message = create.from_string("Content-Type:multipart/broken")
     eq_(mime, message.to_string())
     with closing(StringIO()) as out:
@@ -42,7 +42,7 @@ def bad_string_test_2():
 
 def bad_python_test():
     message = create.from_python(
-        message_from_string("Content-Type:multipart/broken"))
+        _email.message_from_string("Content-Type:multipart/broken"))
     ok_(message.to_string())
     with closing(StringIO()) as out:
         message.to_stream(out)
@@ -63,12 +63,12 @@ def message_alter_body_and_serialize_test():
 
     parts = list(message.walk())
     eq_(3, len(parts))
-    eq_(u'\n\n\n~Danielle', parts[2].body)
+    eq_(u'\r\n\r\n\r\n~Danielle', parts[2].body)
     eq_((None, {}), parts[2].content_disposition)
     eq_(('inline', {'filename': 'photo.JPG'}), parts[1].content_disposition)
 
     part = list(message.walk())[2]
-    part.body = u'Привет, Danielle!\n\n'
+    part.body = u'Привет, Danielle!\r\n\r\n'
 
     with closing(StringIO()) as out:
         message.to_stream(out)
@@ -77,11 +77,11 @@ def message_alter_body_and_serialize_test():
 
     parts = list(message1.walk())
     eq_(3, len(parts))
-    eq_(u'Привет, Danielle!\n\n', parts[2].body)
+    eq_(u'Привет, Danielle!\r\n\r\n', parts[2].body)
 
     parts = list(message2.walk())
     eq_(3, len(parts))
-    eq_(u'Привет, Danielle!\n\n', parts[2].body)
+    eq_(u'Привет, Danielle!\r\n\r\n', parts[2].body)
 
 
 def message_content_dispositions_test():
@@ -93,7 +93,11 @@ def message_content_dispositions_test():
 
     message = create.from_string("Content-Disposition: Нельзя распарсить")
     parts = list(message.walk(with_self=True))
-    eq_((None, {}), parts[0].content_disposition)
+    # content disposition value is anything (including unicode chars) up to the first space, tab or semicolon
+    # but non-ascii value will raise DecodeError
+    # FIXME: In python 2 the returned value is binary, should it be unicode?
+    expected_cd = u'нельзя' if six.PY3 else 'Нельзя'
+    eq_((expected_cd, {}), parts[0].content_disposition)
 
 
 def message_from_python_test():
@@ -140,7 +144,7 @@ def clean_subject_test():
 def references_test():
     # Given
     message = create.from_python(
-        email.message_from_string(MULTI_RECEIVED_HEADERS))
+        _email.message_from_string(MULTI_RECEIVED_HEADERS))
 
     # When/Then
     eq_({'AANLkTi=1ANR2FzeeQ-vK3-_ty0gUrOsAxMRYkob6CL-c@mail.gmail.com',
@@ -167,13 +171,20 @@ def bounce_test():
     # Then
     ok_(message.is_bounce())
     eq_('5.1.1', message.bounce.status)
-    eq_('smtp; 550-5.1.1 The email account that you tried to reach does '
-        'not exist. Please try 550-5.1.1 double-checking the recipient\'s email '
-        'address for typos or 550-5.1.1 unnecessary spaces. Learn more at '
-        '550 5.1.1 http://mail.google.com/support/bin/answer.py?answer=6596 '
-        '17si20661415yxe.22',
-        message.bounce.diagnostic_code)
 
+    expected_code = (
+        'smtp; 550-5.1.1 The email account that you tried to reach does    '
+        'not exist. Please try 550-5.1.1 double-checking the recipient\'s email    '
+        'address for typos or 550-5.1.1 unnecessary spaces. Learn more at    '
+        '550 5.1.1 http://mail.google.com/support/bin/answer.py?answer=6596    '
+        '17si20661415yxe.22')
+
+    # In Python 2 email.message.Message used to truncate leading spaces, but
+    # in Python 3 leading spaces are preserved.
+    if six.PY2:
+        expected_code = expected_code.replace('  ', ' ').replace('  ', ' ')
+
+    eq_(expected_code, message.bounce.diagnostic_code)
 
 def torture_test():
     message = create.from_string(TORTURE)
@@ -184,7 +195,7 @@ def torture_test():
 
 def text_only_test():
     message = create.from_string(TEXT_ONLY)
-    eq_(u"Hello,\nI'm just testing message parsing\n\nBR,\nBob",
+    eq_(u"Hello,\r\nI'm just testing message parsing\r\n\r\nBR,\r\nBob",
         message.body)
     ok_(not message.is_bounce())
     eq_(None, message.get_attached_message())
@@ -294,18 +305,26 @@ def bilingual_test():
 
 
 def broken_headers_test():
-    message = create.from_string(MAILFORMED_HEADERS)
+    if six.PY2:
+        message = create.from_string(MAILFORMED_HEADERS)
+    else:
+        message = create.from_string(MAILFORMED_HEADERS.decode('utf-8', 'replace'))
+
     ok_(message.headers['Subject'])
-    eq_(unicode, type(message.headers['Subject']))
+    eq_(six.text_type, type(message.headers['Subject']))
 
 
 def broken_headers_test_2():
-    message = create.from_string(SPAM_BROKEN_HEADERS)
+    if six.PY2:
+        message = create.from_string(SPAM_BROKEN_HEADERS)
+    else:
+        message = create.from_string(SPAM_BROKEN_HEADERS.decode('utf-8', 'replace'))
+
     ok_(message.headers['Subject'])
-    eq_(unicode, type(message.headers['Subject']))
+    eq_(six.text_type, type(message.headers['Subject']))
     eq_(('text/plain', {'charset': 'iso-8859-1'}),
         message.headers['Content-Type'])
-    eq_(unicode, type(message.body))
+    eq_(six.text_type, type(message.body))
 
 
 def test_walk():
@@ -337,9 +356,9 @@ def test_binary_attachment():
 
     # Then
     def part_spec(p):
-        return str(p.content_type), str(type(p.body))
+        return str(p.content_type), type(p.body)
 
-    eq_(('multipart/mixed', "<type 'NoneType'>"), part_spec(parts[0]))
-    eq_(('multipart/alternative', "<type 'NoneType'>"), part_spec(parts[1]))
-    eq_(('text/plain', "<type 'unicode'>"), part_spec(parts[2]))
-    eq_(('application/pdf', "<type 'str'>"), part_spec(parts[3]))
+    eq_(('multipart/mixed', type(None)), part_spec(parts[0]))
+    eq_(('multipart/alternative', type(None)), part_spec(parts[1]))
+    eq_(('text/plain', six.text_type), part_spec(parts[2]))
+    eq_(('application/pdf', six.binary_type), part_spec(parts[3]))

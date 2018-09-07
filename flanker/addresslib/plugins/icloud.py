@@ -33,35 +33,39 @@
 
 '''
 import re
-from flanker.addresslib.tokenizer import TokenStream
+from flanker.addresslib.plugins._tokenizer import TokenStream
+from flanker.addresslib._parser.lexer import _UNICODE_CHAR
 
-ALPHA          = re.compile(r'''
-                            [A-Za-z]+
-                            ''', re.MULTILINE | re.VERBOSE)
+ALPHA         = re.compile(r'''
+                           ( [A-Za-z]
+                           | {unicode_char}
+                           )+
+                           '''.format(unicode_char=_UNICODE_CHAR),
+                           re.MULTILINE | re.VERBOSE)
 
 ALPHANUM      = re.compile(r'''
-                           [A-Za-z0-9]+
-                           ''', re.MULTILINE | re.VERBOSE)
+                           ( [A-Za-z0-9]
+                           | {unicode_char}
+                           )+
+                           '''.format(unicode_char=_UNICODE_CHAR),
+                           re.MULTILINE | re.VERBOSE)
 
-
-ICLOUD_PREFIX = re.compile(r'''
-                           [A-Za-z]+
-                           ''', re.MULTILINE | re.VERBOSE)
 
 ICLOUD_BASE   = re.compile(r'''
-                           [A-Za-z0-9\+]+
-                           ''', re.MULTILINE | re.VERBOSE)
+                           ( [A-Za-z0-9\+]
+                           | {unicode_char}
+                           )+
+                           '''.format(unicode_char=_UNICODE_CHAR),
+                           re.MULTILINE | re.VERBOSE)
 
-DOT           = re.compile(r'''
-                           \.
-                           ''', re.MULTILINE | re.VERBOSE)
-
-UNDERSCORE    = re.compile(r'''
-                           \_
-                           ''', re.MULTILINE | re.VERBOSE)
+DOT           = '.'
+UNDERSCORE    = '_'
 
 
-def validate(localpart):
+def validate(email_addr):
+    # Setup for handling EmailAddress type instead of literal string
+    localpart = email_addr.mailbox
+
     # check string exists and not empty
     if not localpart:
         return False
@@ -94,7 +98,7 @@ def _validate(localpart):
     stream = TokenStream(localpart)
 
     # localpart must start with alpha
-    alpa = stream.get_token(ICLOUD_PREFIX)
+    alpa = stream.get_token(ALPHA)
     if alpa is None:
         return False
 

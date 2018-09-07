@@ -1,18 +1,27 @@
 # coding:utf-8
 import logging
-import regex as re
-
-import email.quoprimime
-import email.base64mime
-
 from base64 import b64encode
 
+import regex as re
+import six
+
+from flanker import _email
 from flanker.mime.message import charsets, errors
 
-log = logging.getLogger(__name__)
+_log = logging.getLogger(__name__)
 
-#deal with unfolding
-foldingWhiteSpace = re.compile(r"(\n\r?|\r\n?)(\s*)")
+_RE_FOLDING_WHITE_SPACES = re.compile(r"(\n\r?|\r\n?)(\s*)")
+
+# This spec refers to http://tools.ietf.org/html/rfc2047
+_RE_ENCODED_WORD = re.compile(r'''(?P<encodedWord>
+  =\?                  # literal =?
+  (?P<charset>[^?]*?)  # non-greedy up to the next ? is the charset
+  \?                   # literal ?
+  (?P<encoding>[qb])   # either a "q" or a "b", case insensitive
+  \?                   # literal ?
+  (?P<encoded>.*?)     # non-greedy up to the next ?= is the encoded string
+  \?=                  # literal ?=
+)''', re.VERBOSE | re.IGNORECASE | re.MULTILINE)
 
 
 def unfold(value):
@@ -22,7 +31,7 @@ def unfold(value):
     treated in its unfolded form for further syntactic and semantic
     evaluation.
     """
-    return re.sub(foldingWhiteSpace, r"\2", value)
+    return re.sub(_RE_FOLDING_WHITE_SPACES, r'\2', value)
 
 
 def decode(header):
@@ -43,7 +52,7 @@ def mime_to_unicode(header):
         u"Hello"
     """
     # Only string header values need to be converted.
-    if not isinstance(header, basestring):
+    if not isinstance(header, six.string_types):
         return header
 
     try:
@@ -51,53 +60,45 @@ def mime_to_unicode(header):
         decoded = []  # decoded parts
 
         while header:
-            match = encodedWord.search(header)
-            if match:
-                start = match.start()
-                if start != 0:
-                    # decodes unencoded ascii part to unicode
-                    value = charsets.convert_to_unicode(ascii, header[0:start])
-                    if value.strip():
-                        decoded.append(value)
-                # decode a header =?...?= of encoding
-                charset, value = decode_part(
-                    match.group('charset').lower(),
-                    match.group('encoding').lower(),
-                    match.group('encoded'))
-                decoded.append(charsets.convert_to_unicode(charset, value))
-                header = header[match.end():]
-            else:
-                # no match? append the remainder
-                # of the string to the list of chunks
-                decoded.append(charsets.convert_to_unicode(ascii, header))
+            match = _RE_ENCODED_WORD.search(header)
+            if not match:
+                # Append the remainder of the string to the list of chunks.
+                decoded.append((header, 'ascii'))
                 break
-        return u"".join(decoded)
+
+            start = match.start()
+            if start != 0:
+                # decodes unencoded ascii part to unicode
+                value = header[0:start]
+                if value.strip():
+                    decoded.append((value, 'ascii'))
+            # decode a header =?...?= of encoding
+            charset, value = _decode_part(match.group('charset').lower(),
+                                          match.group('encoding').lower(),
+                                          match.group('encoded'))
+            if decoded and decoded[-1][1] == charset:
+                decoded[-1] = (decoded[-1][0]+value, charset)
+            else:
+                decoded.append((value, charset))
+            header = header[match.end():]
+
+        return u"".join(charsets.convert_to_unicode(c, v) for v, c in decoded)
     except Exception:
         try:
-            log.warning(
+            logged_header = header
+            if isinstance(logged_header, six.text_type):
+                logged_header = logged_header.encode('utf-8')
+                # encode header as utf-8 so all characters can be base64 encoded
+            logged_header = b64encode(logged_header)
+            _log.warning(
                 u"HEADER-DECODE-FAIL: ({0}) - b64encoded".format(
-                    b64encode(header)))
+                    logged_header))
         except Exception:
-            log.exception("Failed to log exception")
+            _log.exception("Failed to log exception")
         return header
 
 
-ascii = 'ascii'
-
-#this spec refers to
-#http://tools.ietf.org/html/rfc2047
-encodedWord = re.compile(r'''(?P<encodedWord>
-  =\?                  # literal =?
-  (?P<charset>[^?]*?)  # non-greedy up to the next ? is the charset
-  \?                   # literal ?
-  (?P<encoding>[qb])   # either a "q" or a "b", case insensitive
-  \?                   # literal ?
-  (?P<encoded>.*?)     # non-greedy up to the next ?= is the encoded string
-  \?=                  # literal ?=
-)''', re.VERBOSE | re.IGNORECASE | re.MULTILINE)
-
-
-def decode_part(charset, encoding, value):
+def _decode_part(charset, encoding, value):
     """
     Attempts to decode part, understands
     'q' - quoted encoding
@@ -106,18 +107,52 @@ def decode_part(charset, encoding, value):
     Returns (charset, decoded-string)
     """
     if encoding == 'q':
-        return (charset, email.quoprimime.header_decode(str(value)))
+        return charset, _decode_quoted_printable(value)
 
-    elif encoding == 'b':
+    if encoding == 'b':
         # Postel's law: add missing padding
         paderr = len(value) % 4
         if paderr:
             value += '==='[:4 - paderr]
-        return (charset, email.base64mime.decode(value))
 
-    elif not encoding:
-        return (charset, value)
+        return charset, _email.decode_base64(value)
 
-    else:
-        raise errors.DecodingError(
-            "Unknown encoding: {0}".format(encoding))
+    if not encoding:
+        return charset, value
+
+    raise errors.DecodingError('Unknown encoding: %s' % encoding)
+
+
+def _decode_quoted_printable(qp):
+    if six.PY2:
+        return _email.decode_quoted_printable(str(qp))
+
+    buf = bytearray()
+    size = len(qp)
+    i = 0
+    while i < size:
+        ch = qp[i]
+        i += 1
+        if ch == '_':
+            buf.append(ord(' '))
+            continue
+
+        if ch != '=':
+            buf.append(ord(ch))
+            continue
+
+        # If there is no enough characters left, then treat them as is.
+        if size - i < 2:
+            buf.append(ord(ch))
+            continue
+
+        try:
+            codepoint = int(qp[i:i + 2], 16)
+        except ValueError:
+            buf.append(ord(ch))
+            continue
+
+        buf.append(codepoint)
+        i += 2
+
+    return six.binary_type(buf)

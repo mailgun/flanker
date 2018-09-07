@@ -1,12 +1,15 @@
 import logging
-import email
+
+import six
 from webob.multidict import MultiDict
+
+from flanker import _email
+from flanker.mime.message import headers
 from flanker.mime.message.charsets import convert_to_unicode
+from flanker.mime.message.headers import parametrized, normalize
 from flanker.mime.message.headers.headers import remove_newlines, MimeHeaders
 from flanker.mime.message.part import RichPartMixin
 from flanker.mime.message.scanner import ContentType
-from flanker.mime.message import utils, headers
-from flanker.mime.message.headers import parametrized, normalize
 
 log = logging.getLogger(__name__)
 
@@ -83,7 +86,7 @@ class FallbackMimePart(RichPartMixin):
         pass  # FIXME Not implement
 
     def to_string(self):
-        return utils.python_message_to_string(self._m)
+        return _email.message_to_string(self._m)
 
     def to_stream(self, out):
         out.write(self.to_string())
@@ -96,7 +99,7 @@ class FallbackMimePart(RichPartMixin):
 
     def append(self, *messages):
         for m in messages:
-            part = FallbackMimePart(email.message_from_string(m.to_string()))
+            part = FallbackMimePart(_email.message_from_string(m.to_string()))
             self._m.attach(part)
 
     @property
@@ -139,16 +142,16 @@ class FallbackHeaders(MimeHeaders):
         MimeHeaders.add(self, key, value)
         self._m[key] = headers.to_mime(normalize(key), remove_newlines(value))
 
-    def transform(self, func):
+    def transform(self, fn, decode=False):
         changed = [False]
 
-        def wrapped_func(key, value):
-            new_key, new_value = func(key, value)
-            if new_value != value or new_key != key:
+        def wrapper(key, val):
+            new_key, new_value = fn(key, val)
+            if new_value != val or new_key != key:
                 changed[0] = True
             return new_key, new_value
 
-        transformed_headers = [wrapped_func(k, v) for k, v in self._m.items()]
+        transformed_headers = [wrapper(k, v) for k, v in self._m.items()]
         if changed[0]:
             self._m._headers = transformed_headers
             self._v = MultiDict([(normalize(k), remove_newlines(v))
@@ -159,14 +162,22 @@ class FallbackHeaders(MimeHeaders):
 def _try_decode(key, value):
     if isinstance(value, (tuple, list)):
         return value
-    elif isinstance(value, str):
+
+    if six.PY3:
+        assert (isinstance(key, six.text_type) and
+                isinstance(value, six.text_type))
         try:
             return headers.parse_header_value(key, value)
         except Exception:
-            return unicode(value, 'utf-8', 'ignore')
-    elif isinstance(value, unicode):
+            return value
+
+    if isinstance(value, six.binary_type):
+        try:
+            return headers.parse_header_value(key, value)
+        except Exception:
+            return value.decode('utf-8', 'ignore')
+
+    if isinstance(value, six.text_type):
         return value
-    else:
-        return ""
 
-
+    raise TypeError('%s is not allowed type of header %s' % (type(value), key))

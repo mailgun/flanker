@@ -4,7 +4,6 @@ import random
 import string
 
 from flanker.addresslib import address
-from flanker.addresslib import validate
 
 from mock import patch
 from nose.tools import assert_equal, assert_not_equal
@@ -38,7 +37,7 @@ def test_exchanger_lookup():
 
 
 def test_google_pass():
-    with patch.object(validate, 'mail_exchanger_lookup') as mock_method:
+    with patch.object(address, 'mail_exchanger_lookup') as mock_method:
         mock_method.side_effect = mock_exchanger_lookup
 
         # if single character, must be alphanum, underscore, or apostrophe
@@ -78,7 +77,7 @@ def test_google_pass():
 
 
 def test_google_fail():
-    with patch.object(validate, 'mail_exchanger_lookup') as mock_method:
+    with patch.object(address, 'mail_exchanger_lookup') as mock_method:
         mock_method.side_effect = mock_exchanger_lookup
 
         # invalid single character (must be alphanum, underscore, or apostrophe)
@@ -91,7 +90,7 @@ def test_google_fail():
             assert_equal(addr, None)
 
         # invalid length range
-        for i in range(0) + range(65, 80):
+        for i in list(range(0)) + list(range(65, 80)):
             localpart = ''.join(random.choice(string.ascii_letters) for x in range(i))
             addr = address.validate_address(localpart + DOMAIN)
             assert_equal(addr, None)

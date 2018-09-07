@@ -1,13 +1,10 @@
 language: python
-python: 2.7
-
-env:
-    - TOX_ENV=py26
-    - TOX_ENV=py27
-    - TOX_ENV=pypy
-
+python:
+  - 2.7
+  - 3.6
 install:
-    - pip install tox
-
-script:
-    - tox -e $TOX_ENV
+  - pip install -e .[cchardet,validator]
+  - pip install nose mock coverage coveralls
+script: nosetests --with-coverage --cover-package=flanker
+after_success:
+  - coveralls

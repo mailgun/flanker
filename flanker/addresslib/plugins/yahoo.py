@@ -42,40 +42,45 @@
 '''
 
 import re
-from flanker.addresslib.tokenizer import TokenStream
+from flanker.addresslib.plugins._tokenizer import TokenStream
+from flanker.addresslib._parser.lexer import _UNICODE_CHAR
 
 ALPHA      = re.compile(r'''
-                        [A-Za-z]+
+                        ( [A-Za-z]
+                        | {unicode_char}
+                        )+
                         ''', re.MULTILINE | re.VERBOSE)
 
 NUMERIC    = re.compile(r'''
-                        [0-9]+
+                        ( [0-9]
+                        )+
                         ''', re.MULTILINE | re.VERBOSE)
 
 ALPHANUM   = re.compile(r'''
-                        [A-Za-z0-9]+
+                        ( [A-Za-z0-9]
+                        | {unicode_char}
+                        )+
                         ''', re.MULTILINE | re.VERBOSE)
 
-DOT        = re.compile(r'''
-                        \.
-                        ''', re.MULTILINE | re.VERBOSE)
+HYPHEN     = re.compile(r'\-', re.MULTILINE | re.VERBOSE)
 
-UNDERSCORE = re.compile(r'''
-                        \_
-                        ''', re.MULTILINE | re.VERBOSE)
+DOT        = '.'
+UNDERSCORE = '_'
 
-HYPHEN     = re.compile(r'''
-                        \-
-                        ''', re.MULTILINE | re.VERBOSE)
+YAHOO_MANAGED = ['yahoo.com', 'ymail.com', 'rocketmail.com']
 
 
-def validate(localpart):
+def validate(email_addr):
+    # Setup for handling EmailAddress type instead of literal string
+    localpart = email_addr.mailbox
+    managed = managed_email(email_addr.hostname)
+
     # check string exists and not empty
     if not localpart:
         return False
 
     # must start with letter
-    if len(localpart) < 1 or ALPHA.match(localpart[0]) is None:
+    if len(localpart) < 1 or (ALPHA.match(localpart[0]) is None and managed):
         return False
 
     # must end with letter or digit
@@ -84,13 +89,17 @@ def validate(localpart):
 
     # only disposable addresses may contain hyphens
     if HYPHEN.search(localpart):
-        return _validate_disposable(localpart)
+        return _validate_disposable(email_addr)
 
     # otherwise, normal validation
-    return _validate_primary(localpart)
+    return _validate_primary(email_addr)
 
 
-def _validate_primary(localpart):
+def _validate_primary(email_addr):
+    # Setup for handling EmailAddress type instead of literal string
+    localpart = email_addr.mailbox
+    managed = managed_email(email_addr.hostname)
+
     # length check
     l = len(localpart)
     if l < 4 or l > 32:
@@ -105,7 +114,7 @@ def _validate_primary(localpart):
 
     # local-part must being with alpha
     alpa = stream.get_token(ALPHA)
-    if alpa is None:
+    if alpa is None and managed:
         return False
 
     while True:
@@ -123,7 +132,11 @@ def _validate_primary(localpart):
 
     return True
 
-def _validate_disposable(localpart):
+def _validate_disposable(email_addr):
+    # Setup for handling EmailAddress type instead of literal string
+    localpart = email_addr.mailbox
+    managed = managed_email(email_addr.hostname)
+
     # length check (base + hyphen + keyword)
     l = len(localpart)
     if l < 3 or l > 65:
@@ -145,7 +158,7 @@ def _validate_disposable(localpart):
 
     # must being with alpha
     begin = stream.get_token(ALPHA)
-    if begin is None:
+    if begin is None and managed:
         return False
 
     while True:
@@ -167,3 +180,7 @@ def _validate_disposable(localpart):
         return False
 
     return True
+
+
+def managed_email(hostname):
+    return hostname in YAHOO_MANAGED

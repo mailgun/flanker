@@ -19,33 +19,48 @@
 
 '''
 import re
-from flanker.addresslib.tokenizer import TokenStream
+from flanker.addresslib.plugins._tokenizer import TokenStream
+from flanker.addresslib._parser.lexer import _UNICODE_CHAR
 
 ALPHA      = re.compile(r'''
-                        [A-Za-z]+
-                        ''', re.MULTILINE | re.VERBOSE)
+                        ( [A-Za-z]
+                        | {unicode_char}
+                        )+
+                        '''.format(unicode_char=_UNICODE_CHAR),
+                        re.MULTILINE | re.VERBOSE)
 
 NUMERIC    = re.compile(r'''
-                        [0-9]+
-                        ''', re.MULTILINE | re.VERBOSE)
+                        ( [0-9]
+                        )+
+                        ''',
+                        re.MULTILINE | re.VERBOSE)
 
 ALPHANUM   = re.compile(r'''
-                        [A-Za-z0-9]+
-                        ''', re.MULTILINE | re.VERBOSE)
+                        ( [A-Za-z0-9]
+                        | {unicode_char}
+                        )+
+                        '''.format(unicode_char=_UNICODE_CHAR),
+                        re.MULTILINE | re.VERBOSE)
 
-DOT        = re.compile(r'''
-                        \.
-                        ''', re.MULTILINE | re.VERBOSE)
+DOT        = '.'
+UNDERSCORE = '_'
 
-UNDERSCORE = re.compile(r'''
-                        \_
-                        ''', re.MULTILINE | re.VERBOSE)
+AOL_UNMANAGED = ['verizon.net']
 
 
-def validate(localpart):
+def validate(email_addr):
+    # Setup for handling EmailAddress type instead of literal string
+    localpart = email_addr.mailbox
+    unmanaged = unmanaged_email(email_addr.hostname)
+
     # check string exists and not empty
     if not localpart:
         return False
+
+    # Unmanaged is now a list of providers whom patterns/rules are unknown
+    # thus any hostname part matching will return without rule adherence.
+    if unmanaged:
+        return True
 
     # length check
     l = len(localpart)
@@ -87,3 +102,7 @@ def _validate(localpart):
         return False
 
     return True
+
+
+def unmanaged_email(hostname):
+    return hostname in AOL_UNMANAGED

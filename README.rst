@@ -1,8 +1,11 @@
-.. image:: https://drone.io/github.com/mailgun/flanker/status.png
+Flanker - email address and MIME parsing for Python
+===================================================
 
-*******
-Flanker
-*******
+.. image:: https://travis-ci.org/mailgun/flanker.svg?branch=master
+    :target: https://travis-ci.org/mailgun/flanker
+
+.. image:: https://coveralls.io/repos/github/mailgun/flanker/badge.svg?branch=master
+    :target: https://coveralls.io/github/mailgun/flanker?branch=master
 
 Flanker is an open source parsing library written in Python by the Mailgun Team.
 Flanker currently consists of an address parsing library (`flanker.addresslib`) as
@@ -11,13 +14,19 @@ well as a MIME parsing library (`flanker.mime`).
 Detailed documentation is provided in the `User Manual <https://github.com/mailgun/flanker/blob/master/docs/User%20Manual.md>`_ as well as the
 `API Reference <https://github.com/mailgun/flanker/blob/master/docs/API%20Reference.md>`_. A Quickstart Guide is provided below.
 
-Quickstart Guide
-################
+Python Versions
+---------------
+
+Flanker is heavily used by `Mailgun <www.mailgun.com>`_ in production with
+Python 2.7. The current production version is v0.8.5.
+
+Support for Python 3 was added in v0.9.0 by popular demand from the community.
+We are not using Flanker with Python 3 in the house. All we know is that tests
+pass with Python 3.6, so use at your own risk. Feel free to report Python 3
+specific issues if you see any.
 
 Installing
-**********
-
-**Flanker was built and tested with Python 2.7.2.**
+----------
 
 You can install flanker via `pip` or clone the repo from GitHub.
 
@@ -32,17 +41,9 @@ You'll need Python headers files before you start working with flanker, so insta
 
 If you are using `pip`, simply type:
 
-
 .. code-block:: bash
 
    pip install flanker
-
-*Note about installing from PyPi. Installing without specifying a version number will
-install the latest version from PyPi that does not pin version dependences. This version
-of Flanker will most likely work, but is not guaranteed. If you want to run a guaranteed
-to work version of Flanker, run the version where we pin dependences, which is one lower
-major version number. For example, if the current release is `0.4.4` then the stabled
-pinned dependency version is `0.3.4`.*
 
 If you are cloning from GitHub, you can type:
 
@@ -50,10 +51,10 @@ If you are cloning from GitHub, you can type:
 
    git clone git@github.com:mailgun/flanker.git
    cd flanker
-   python setup.py install
+   pip install -e .
 
 Address Parsing
-***************
+---------------
 
 To parse a single mailbox (display name as well as email address):
 
@@ -129,7 +130,7 @@ To validate an address list:
    ([foo@mailgun.com, bar@mailgun.com], ['@mailgun.com'])
 
 MIME Parsing
-************
+------------
 
 For the following examples, `message_string` will be set to the following MIME message:
 

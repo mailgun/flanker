@@ -1,7 +1,9 @@
 """
 Implements message threading
 """
-from email.utils import make_msgid
+import six
+
+from flanker import _email
 
 
 def build_thread(messages):
@@ -24,7 +26,7 @@ def build_table(messages):
 
 def build_root_set(table):
     root = Container()
-    for container in table.itervalues():
+    for container in six.itervalues(table):
         if not container.parent:
             root.add_child(container)
     return root
@@ -43,7 +45,7 @@ def map_message(message, table):
     # our current message to another container
     # otherwise the message would be lost
     if this.message:
-        fake_id = make_msgid()
+        fake_id = _email.make_message_id()
         this = container(fake_id)
     this.message = w
 
@@ -198,7 +200,5 @@ class Container(object):
 class Wrapper(object):
     def __init__(self, message):
         self.message = message
-        self.message_id = message.message_id or make_msgid()
+        self.message_id = message.message_id or _email.make_message_id()
         self.references = message.references
-        #self.subject = message.subject
-        #self.clean_subject = message.clean_subject

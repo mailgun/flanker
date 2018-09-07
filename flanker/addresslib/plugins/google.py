@@ -28,40 +28,41 @@
 
 '''
 import re
-from flanker.addresslib.tokenizer import TokenStream
-from flanker.addresslib.tokenizer import ATOM
+from flanker.addresslib.plugins._tokenizer import TokenStream
+from flanker.addresslib._parser.lexer import t_ATOM, _UNICODE_CHAR
 
+ATOM        = re.compile(t_ATOM, re.MULTILINE | re.VERBOSE)
 
-GOOGLE_BASE  = re.compile(r'''
-                        [A-Za-z0-9_\-'\.]+
-                        ''', re.MULTILINE | re.VERBOSE)
+GOOGLE_BASE = re.compile(r'''
+                         ( [A-Za-z0-9_\-'\.]
+                         | {unicode_char}
+                         )+
+                         '''.format(unicode_char=_UNICODE_CHAR),
+                         re.MULTILINE | re.VERBOSE)
 
 ALPHANUM    = re.compile(r'''
-                        [A-Za-z0-9]+
-                        ''', re.MULTILINE | re.VERBOSE)
+                         ( [A-Za-z0-9]
+                         | {unicode_char}
+                         )+
+                         '''.format(unicode_char=_UNICODE_CHAR),
+                         re.MULTILINE | re.VERBOSE)
 
-UNDERSCORE  = re.compile(r'''
-                        [_]+
-                        ''', re.MULTILINE | re.VERBOSE)
+APOSTROPHE  = re.compile(r'''
+                         \'
+                         ''',
+                         re.MULTILINE | re.VERBOSE)
 
-APOSTROPHES = re.compile(r'''
-                        [']+
-                        ''', re.MULTILINE | re.VERBOSE)
+UNDERSCORE  = re.compile(r'\_', re.MULTILINE | re.VERBOSE)
+DASH        = re.compile(r'\-', re.MULTILINE | re.VERBOSE)
 
-DASH        = re.compile(r'''
-                        [-]+
-                        ''', re.MULTILINE | re.VERBOSE)
-
-DOTS        = re.compile(r'''
-                        [.]+
-                        ''', re.MULTILINE | re.VERBOSE)
-
-PLUS        = re.compile(r'''
-                         [\+]+
-                         ''', re.MULTILINE | re.VERBOSE)
+DOTS        = '.'
+PLUS        = '+'
 
 
-def validate(localpart):
+def validate(email_addr):
+    # Setup for handling EmailAddress type instead of literal string
+    localpart = email_addr.mailbox
+
     # check string exists and not empty
     if not localpart:
         return False
@@ -77,21 +78,21 @@ def validate(localpart):
     # if only one character, must be alphanum, underscore (_), or apostrophe (')
     if len(localpart) == 1 or l == 1:
         if ALPHANUM.match(localpart) or UNDERSCORE.match(localpart) or \
-            APOSTROPHES.match(localpart):
+            APOSTROPHE.match(localpart):
             return True
         return False
 
-    # must start with: alphanum, underscore (_), dash (-), or apostrophes(')
+    # must start with: alphanum, underscore (_), dash (-), or apostrophe(')
     if len(real_localpart) > 0:
         if not ALPHANUM.match(real_localpart[0]) and not UNDERSCORE.match(real_localpart[0]) \
-            and not DASH.match(real_localpart[0]) and not APOSTROPHES.match(real_localpart[0]):
+            and not DASH.match(real_localpart[0]) and not APOSTROPHE.match(real_localpart[0]):
             return False
     else:
         return False
 
-    # must end with: alphanum, underscore(_), dash(-), or apostrophes(')
+    # must end with: alphanum, underscore(_), dash(-), or apostrophe(')
     if not ALPHANUM.match(real_localpart[-1]) and not UNDERSCORE.match(real_localpart[-1]) \
-        and not DASH.match(real_localpart[-1]) and not APOSTROPHES.match(real_localpart[-1]):
+        and not DASH.match(real_localpart[-1]) and not APOSTROPHE.match(real_localpart[-1]):
         return False
 
     # grammar check

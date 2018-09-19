@@ -182,7 +182,7 @@ class MessageId(str):
 
 
 class Subject(six.text_type):
-    RE_RE = re.compile("((RE|FW|FWD|HA)([[]\d])*:\s*)*", re.I)
+    RE_RE = re.compile("((RE|FW|FWD|HA)([\[\]\d])*:\s*)*", re.I)
 
     def __new__(cls, *args, **kw):
         return six.text_type.__new__(cls, *args, **kw)

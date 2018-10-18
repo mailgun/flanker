@@ -349,13 +349,13 @@ def test_mx_aol_dual_lookup(ld, cmx):
 
     # Invalidate managed email response out of pattern
     mailbox = '1testuser@aol.com'
-    addr = address.validate_address(mailbox)
-    assert_equal(type(addr), type(None))
+    addr = str(address.validate_address(mailbox))
+    assert_equal(addr, mailbox)
 
     # Same test but with validate_list
     addr = address.validate_list([mailbox])
     expected = 'flanker.addresslib.address:'
-    assert_equal(addr, [])
+    assert_equal(addr, [mailbox])
 
     # Allow AOL MX unmanaged mailboxes to pass remaining patterns
     mailbox = '8testuser@verizon.net'

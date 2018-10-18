@@ -348,6 +348,7 @@ def test_mx_aol_dual_lookup(ld, cmx):
     cmx.return_value = 'mailin-03.mx.aol.com'
 
     # Invalidate managed email response out of pattern
+    # this test needs to be fully mocked out so upstream doesn't interfere
     mailbox = '1testuser@aol.com'
     addr = address.validate_address(mailbox)
     assert_equal(type(addr), type(None))

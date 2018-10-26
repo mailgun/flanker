@@ -2079,6 +2079,7 @@ MOST_COMMON_DOMAINS = [
     'biztwmi.rr.com',
     'bizma.rr.com',
     'hawaiibiz.rr.com',
+    'outlook.com'
     'outlook.com.cn',
     'outlook.com.au',
     'outlook.jp',

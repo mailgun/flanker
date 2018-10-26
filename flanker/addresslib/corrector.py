@@ -33,7 +33,7 @@ def suggest(word, cutoff=0.77):
 MOST_COMMON_DOMAINS = [
     # mailgun :)
     'mailgun.net',
-    # The Top 2000 domains from 30mm open events gathered during the
+    # The Top ~200 domains from 30mm open events gathered during the
     # last 30 days prior to 10/16/2018
     '163.com',
     'abv.bg',

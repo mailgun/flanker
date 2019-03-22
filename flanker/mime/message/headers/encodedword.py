@@ -10,7 +10,7 @@ from flanker.mime.message import charsets, errors
 
 _log = logging.getLogger(__name__)
 
-_RE_FOLDING_WHITE_SPACES = re.compile(r"(\n\r?|\r\n?)(\s*)")
+_RE_FOLDING_WHITE_SPACES = re.compile(r"(?:\n\r?|\r\n?)")
 
 # This spec refers to http://tools.ietf.org/html/rfc2047
 _RE_ENCODED_WORD = re.compile(r'''(?P<encodedWord>
@@ -31,7 +31,7 @@ def unfold(value):
     treated in its unfolded form for further syntactic and semantic
     evaluation.
     """
-    return re.sub(_RE_FOLDING_WHITE_SPACES, r'\2', value)
+    return _RE_FOLDING_WHITE_SPACES.sub('', value)
 
 
 def decode(header):

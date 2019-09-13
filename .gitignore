@@ -41,3 +41,9 @@ nosetests.xml
 
 # PLY
 parser.out
+
+# OSX
+.DS_Store
+
+# Goland
+.idea/

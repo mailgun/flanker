@@ -631,7 +631,7 @@ def _encode_charset(preferred_charset, text):
 def _encode_transfer_encoding(encoding, body):
     if six.PY3:
         if encoding == 'quoted-printable':
-            body = quopri.encodestring(body, quotetabs=False)
+            body = fix_leading_dot(quopri.encodestring(body, quotetabs=False))
             return body.decode('utf-8')
 
         if encoding == 'base64':
@@ -647,11 +647,97 @@ def _encode_transfer_encoding(encoding, body):
         return body
 
     if encoding == 'quoted-printable':
-        return quopri.encodestring(body, quotetabs=False)
+        return fix_leading_dot(quopri.encodestring(body, quotetabs=False))
     elif encoding == 'base64':
         return _email.encode_base64(body)
     else:
         return body
+
+
+def fix_leading_dot(s):
+    """
+    From SMTP RFC: https://tools.ietf.org/html/rfc5321#section-4.5.2
+
+    -----
+    When a line of mail text is received by the SMTP server, it checks
+    the line.  If the line is composed of a single period, it is
+    treated as the end of mail indicator.  If the first character is a
+    period and there are other characters on the line, the first
+    character is deleted.
+    -----
+
+    We have observed some remote SMTP servers have an intermittent obscure bug
+    where the leading '.' is removed according to the above spec. Even when the '.'
+    is obviously within the bounds of a mime part. To combat this we convert any
+    leading '.' to a '=2E'
+    """
+    infp = StringIO(s)
+    outfp = StringIO()
+
+    # TODO(thrawn01): We could scan the entire string looking for leading '.'
+    #  If none found return the original string. This would save memory at the
+    #  expense of some additional processing
+
+    while 1:
+        line = infp.readline()
+        if not line:
+            break
+
+        if line[0] == '.':
+            line = _quote_and_cut(line)
+
+        outfp.write(line)
+
+    return outfp.getvalue()
+
+
+def _quote_and_cut(ln):
+    """
+    Quotes the leading '.', if the resulting line is longer than 76 characters
+    cut the line in half without dividing any quoted characters and
+    conforming to the quoted-printable RFC in regards to ending characters.
+    """
+    q = quopri.quote(ln[0])
+    ln = q + ln[1:]
+
+    # If the line is under the 76 + '\n' character limit
+    if len(ln) <= 77:
+        return ln
+
+    # Find a suitable cut point that doesn't divide a quoted character
+    in_quote, pos = 0, -1
+    for pos, c in enumerate(ln):
+
+        # Skip quoted (=XX) characters
+        if in_quote != 0:
+            in_quote += 1
+            if in_quote <= 3:
+                continue
+            in_quote = 0
+
+        # If we are past the half way mark, make our cut here
+        if pos > len(ln)/2:
+            break
+
+        # Should be a quoted character
+        if c == '=':
+            # Peak ahead, do the next 2 chars appear to be a hex values?
+            if quopri.ishex(ln[pos+1]) and quopri.ishex(ln[pos+2]):
+                in_quote = 1
+            continue
+
+    new_line = ln[:pos]
+    next_line = ln[pos:]
+
+    # If new line ends with a :space or :tab
+    if new_line[-1:] in ' \t':
+        new_line = new_line[:-1] + quopri.quote(new_line[-1:])
+
+    # If the next line starts with a '.'
+    if next_line[0] == '.':
+        next_line = quopri.quote(next_line[0]) + next_line[1:]
+
+    return new_line + "=\n" + next_line
 
 
 def _choose_text_encoding(charset, preferred_encoding, body):

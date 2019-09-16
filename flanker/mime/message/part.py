@@ -631,7 +631,8 @@ def _encode_charset(preferred_charset, text):
 def _encode_transfer_encoding(encoding, body):
     if six.PY3:
         if encoding == 'quoted-printable':
-            body = fix_leading_dot(quopri.encodestring(body, quotetabs=False))
+            body = quopri.encodestring(body, quotetabs=False)
+            body = fix_leading_dot(body)
             return body.decode('utf-8')
 
         if encoding == 'base64':
@@ -647,7 +648,8 @@ def _encode_transfer_encoding(encoding, body):
         return body
 
     if encoding == 'quoted-printable':
-        return fix_leading_dot(quopri.encodestring(body, quotetabs=False))
+        body = quopri.encodestring(body, quotetabs=False)
+        return fix_leading_dot(body)
     elif encoding == 'base64':
         return _email.encode_base64(body)
     else:
@@ -668,22 +670,27 @@ def fix_leading_dot(s):
 
     We have observed some remote SMTP servers have an intermittent obscure bug
     where the leading '.' is removed according to the above spec. Even when the '.'
-    is obviously within the bounds of a mime part. To combat this we convert any
-    leading '.' to a '=2E'
+    is obviously within the bounds of a mime part, and with our sending SMTP
+    clients dot stuffing the line. To combat this we convert any leading '.'
+    to a '=2E'.
     """
-    infp = StringIO(s)
-    outfp = StringIO()
+    infp = six.BytesIO(s)
+    outfp = six.BytesIO()
 
     # TODO(thrawn01): We could scan the entire string looking for leading '.'
     #  If none found return the original string. This would save memory at the
     #  expense of some additional processing
+
+    dot = b"."
+    if six.PY3:
+        dot = ord('.')
 
     while 1:
         line = infp.readline()
         if not line:
             break
 
-        if line[0] == '.':
+        if line[0] == dot:
             line = _quote_and_cut(line)
 
         outfp.write(line)
@@ -697,8 +704,7 @@ def _quote_and_cut(ln):
     cut the line in half without dividing any quoted characters and
     conforming to the quoted-printable RFC in regards to ending characters.
     """
-    q = quopri.quote(ln[0])
-    ln = q + ln[1:]
+    ln = quopri.quote(ln[0:1]) + ln[1:]
 
     # If the line is under the 76 + '\n' character limit
     if len(ln) <= 77:
@@ -719,10 +725,13 @@ def _quote_and_cut(ln):
         if pos > len(ln)/2:
             break
 
+        if six.PY3:
+            c = bytes((c,))
+
         # Should be a quoted character
-        if c == '=':
+        if c == b'=':
             # Peak ahead, do the next 2 chars appear to be a hex values?
-            if quopri.ishex(ln[pos+1]) and quopri.ishex(ln[pos+2]):
+            if quopri.ishex(ln[pos+1:pos+3]):
                 in_quote = 1
             continue
 
@@ -730,14 +739,18 @@ def _quote_and_cut(ln):
     next_line = ln[pos:]
 
     # If new line ends with a :space or :tab
-    if new_line[-1:] in ' \t':
+    if new_line[-1:] in b' \t':
         new_line = new_line[:-1] + quopri.quote(new_line[-1:])
 
-    # If the next line starts with a '.'
-    if next_line[0] == '.':
-        next_line = quopri.quote(next_line[0]) + next_line[1:]
+    dot = b'.'
+    if six.PY3:
+        dot = ord('.')
 
-    return new_line + "=\n" + next_line
+    # If the next line starts with a '.'
+    if next_line[0] == dot:
+        next_line = quopri.quote(next_line[0:1]) + next_line[1:]
+
+    return new_line + b"=\n" + next_line
 
 
 def _choose_text_encoding(charset, preferred_encoding, body):

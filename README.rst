@@ -89,7 +89,7 @@ To parse an address list:
 
    >>> from flanker.addresslib import address
    >>>
-   >>> address.parse_list('foo@example.com, bar@example.com, @example.com')
+   >>> address.parse_list(['foo@example.com, bar@example.com, @example.com'])
    [foo@example.com, bar@example.com]
 
 To parse an address list as well as return a tuple containing the parsed 
@@ -99,7 +99,7 @@ addresses and the unparsable portions
 
    >>> from flanker.addresslib import address
    >>>
-   >>> address.parse_list('foo@example.com, bar@example.com, @example.com', as_tuple=True)
+   >>> address.parse_list(['foo@example.com, bar@example.com, @example.com'], as_tuple=True)
    [foo@example.com, bar@example.com], ['@example.com']
 
 To parse an address list in strict mode:
@@ -108,7 +108,7 @@ To parse an address list in strict mode:
 
    >>> from flanker.addresslib import address
    >>>
-   >>> address.parse_list('foo@example.com, bar@example.com, @example.com', strict=True)
+   >>> address.parse_list(['foo@example.com, bar@example.com, @example.com'], strict=True)
    [foo@example.com, bar@example.com]
 
 To validate an email address (parse as well as DNS, MX existence, and ESP grammar checks):
@@ -126,7 +126,7 @@ To validate an address list:
 
    >>> from flanker.addresslib import address
    >>>
-   >>> address.validate_list('foo@mailgun.com, bar@mailgun.com, @mailgun.com', as_tuple=True)
+   >>> address.validate_list(['foo@mailgun.com, bar@mailgun.com, @mailgun.com'], as_tuple=True)
    ([foo@mailgun.com, bar@mailgun.com], ['@mailgun.com'])
 
 MIME Parsing

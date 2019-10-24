@@ -730,8 +730,8 @@ def _quote_and_cut(ln):
 
         # Should be a quoted character
         if c == b'=':
-            # Peak ahead, do the next 2 chars appear to be a hex values?
-            if quopri.ishex(ln[pos+1:pos+3]):
+            # Peak ahead, does the next char appear to be a hex value?
+            if quopri.ishex(ln[pos+1:pos+2]):
                 in_quote = 1
             continue
 

@@ -136,6 +136,14 @@ zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz''')
      '=2Equick brown fox, quick brown cat    =09=\n' +
      '                 quick read dog, quic=\n' +
      'k white bird'),
+    # Should avoid cutting in the middle of multiple quoted characters near the cut point
+    (b'zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz' +
+     b'.foo. \xF0\x9F\x99\x82 also there is \xF0\x9F\x99\x82 more in \xF0\x9F\x99\x82 ' +
+     b'this \xF0\x9F\x99\x82 message</body></html>',
+     'zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz=\n' +
+     '=2Efoo. =F0=9F=99=82 also there is =F0=9F=\n' +
+     '=99=82 more in =F0=9F=99=82 this =F0=\n'
+     '=9F=99=82 message</body></html>'),
 )
 
 

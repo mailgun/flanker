@@ -40,7 +40,7 @@ setup(name='flanker',
           'ply>=3.10',
           'regex>=0.1.20110315',
           'six',
-          'tld',
+          'tld==0.10',
           'WebOb>=0.9.8'],
       extras_require={
           'validator': [

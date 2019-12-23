@@ -62,7 +62,7 @@ def _read_header_lines(fp):
             break
 
         # tricky case if it's not a header and not an empty line
-        # ususally means that user forgot to separate the body and newlines
+        # usually means that user forgot to separate the body and newlines
         # so "unread" this line here, what means to treat it like a body
         if not _RE_HEADER.match(line):
             fp.seek(fp.tell() - len(line))

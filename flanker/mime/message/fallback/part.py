@@ -111,7 +111,7 @@ class FallbackMimePart(RichPartMixin):
 
     @property
     def enclosed(self):
-        if self.content_type == 'message/rfc822':
+        if self.content_type == 'message/rfc822' or self.content_type == 'message/global':
             return FallbackMimePart(self._m.get_payload()[0])
 
     def enclose(self, message):

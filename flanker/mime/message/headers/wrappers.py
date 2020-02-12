@@ -78,7 +78,7 @@ class ContentType(tuple):
         return self == 'message/external-body'
 
     def is_message_container(self):
-        return self == 'message/rfc822' or self == 'message/news'
+        return self == 'message/rfc822' or self == 'message/global' or self == 'message/news'
 
     def is_disposition_notification(self):
         return self == 'message/disposition-notification'

@@ -65,6 +65,33 @@ def enclosed_message_test():
     pbody = pbody.decode('utf-8')
     eq_(pbody, body)
 
+def enclosed_global_message_test():
+    message = scan(ENCLOSED_GLOBAL)
+    pmessage = _email.message_from_string(ENCLOSED_GLOBAL)
+
+    eq_(C('multipart', 'mixed',
+          dict(boundary='===============6195527458677812340==')),
+        message.content_type)
+    eq_(u'"Александр Клижентас☯" <bob@example.com>',
+        message.headers['To'])
+
+    eq_(pmessage.get_payload()[0].get_payload(), message.parts[0].body)
+
+    enclosed = message.parts[1]
+    penclosed = pmessage.get_payload(1)
+
+    eq_(('message/global', {'name': u'thanks.eml'},),
+        enclosed.headers['Content-Type'])
+
+    pbody = penclosed.get_payload()[0].get_payload()[0].get_payload(decode=True)
+    pbody = pbody.decode('utf-8')
+    body = enclosed.enclosed.parts[0].body
+    eq_(pbody, body)
+
+    body = enclosed.enclosed.parts[1].body
+    pbody = penclosed.get_payload()[0].get_payload()[1].get_payload(decode=True)
+    pbody = pbody.decode('utf-8')
+    eq_(pbody, body)
 
 def torture_message_test():
     message = scan(TORTURE)

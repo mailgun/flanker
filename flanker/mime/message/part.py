@@ -353,7 +353,7 @@ class RichPartMixin(object):
         """
         try:
             for part in self.walk(with_self=True):
-                if part.content_type == 'message/rfc822':
+                if part.content_type == 'message/rfc822' or part.content_type == 'message/global':
                     for p in part.walk():
                         return p
         except Exception:

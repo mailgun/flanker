@@ -66,6 +66,7 @@ ENCLOSED_ENDLESS = read_fixture('messages/enclosed-endless.eml')
 ENCLOSED_BROKEN_BODY = read_fixture('messages/enclosed-broken-body.eml')
 ENCLOSED_BROKEN_ENCODING = read_fixture(
     'messages/enclosed-bad-encoding.eml', binary=True)
+ENCLOSED_GLOBAL = read_fixture('messages/enclosed-global.eml') 
 FALSE_MULTIPART = read_fixture('messages/false-multipart.eml')
 ENCODED_HEADER = read_fixture('messages/encoded-header.eml')
 MESSAGE_EXTERNAL_BODY= read_fixture(

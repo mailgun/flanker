@@ -15,7 +15,7 @@ class RedisCache(collections.MutableMapping):
         host = host or os.environ.get('REDIS_HOST', 'localhost')
         port = port or os.environ.get('REDIS_PORT', 6379)
         db = os.environ.get('REDIS_DB', 0)
-        self.r = redis.StrictRedis(host=host, port=port, db=db)
+        self.r = redis.StrictRedis(host=host, port=port, db=db, decode_responses=True)
 
     def __getitem__(self, key):
         try:

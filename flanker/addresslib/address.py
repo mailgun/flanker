@@ -310,6 +310,8 @@ def validate_address(addr_spec, metrics=False, skip_remote_checks=False):
 
     # lookup if this domain has a mail exchanger
     exchanger, mx_metrics = mail_exchanger_lookup(paddr.hostname, metrics=True)
+    if isinstance(exchanger, bytes):
+        exchanger = exchanger.decode()
     mtimes['mx_lookup'] = mx_metrics['mx_lookup']
     mtimes['dns_lookup'] = mx_metrics['dns_lookup']
     mtimes['mx_conn'] = mx_metrics['mx_conn']

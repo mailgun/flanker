@@ -88,11 +88,11 @@ class DomainKeySigner(object):
 
     def sign(self, message):
         canonicalization = NoFWSCanonicalization()
-        signer = self._key.signer(padding.PKCS1v15(), hashes.SHA1())
 
         if six.PY3 and isinstance(message, six.text_type):
             message = message.encode('utf-8')
 
+        raw_message = b""
         headers, body = _rfc822_parse(message)
 
         h_field = []
@@ -102,20 +102,22 @@ class DomainKeySigner(object):
 
                 header, value = canonicalization.canonicalize_header(
                     header, value)
-                signer.update(header)
-                signer.update(b":")
-                signer.update(value)
+                raw_message += header
+                raw_message += b":"
+                raw_message += value
         body = canonicalization.canonicalize_body(body)
         if body:
-            signer.update(b"\r\n")
-            signer.update(body)
+            raw_message += b"\r\n"
+            raw_message += body
+
+        signed_message = self._key.sign(raw_message, padding.PKCS1v15(), hashes.SHA1())
 
         return _fold(b"DomainKey-Signature: a=rsa-sha1; c=nofws; d=%s; s=%s;"
                      b" q=dns; h=%s; b=%s"
                      % (self._domain,
                         self._selector,
                         b": ".join(h_field),
-                        base64.b64encode(signer.finalize()))) + b"\r\n"
+                        base64.b64encode(signed_message))) + b"\r\n"
 
 
 class DKIMSigner(object):
@@ -141,7 +143,7 @@ class DKIMSigner(object):
         if current_time is None:
             current_time = int(time.time())
 
-        signer = self._key.signer(padding.PKCS1v15(), hashes.SHA256())
+        raw_message = b""
 
         headers, body = _rfc822_parse(message)
         h_field = []
@@ -151,9 +153,9 @@ class DKIMSigner(object):
 
                 h, v = self._header_canonicalization.canonicalize_header(
                     header, value)
-                signer.update(h)
-                signer.update(b":")
-                signer.update(v)
+                raw_message += h
+                raw_message += b":"
+                raw_message += v
 
         h = hashes.Hash(hashes.SHA256(), backend=default_backend())
         h.update(self._body_canonicalization.canonicalize_body(body))
@@ -169,11 +171,13 @@ class DKIMSigner(object):
 
         h, v = self._header_canonicalization.canonicalize_header(
             b"DKIM-Signature", dkim_header_value)
-        signer.update(h)
-        signer.update(b":")
-        signer.update(v)
+        raw_message += h
+        raw_message += b":"
+        raw_message += v
+
+        signed_message = self._key.sign(raw_message, padding.PKCS1v15(), hashes.SHA256())
         return b"DKIM-Signature:%s%s\r\n" % (
-            v, _fold(base64.b64encode(signer.finalize())))
+            v, _fold(base64.b64encode(signed_message)))
 
 _RFC822_NEWLINE_RE = re.compile(br"\r?\n")
 _RFC822_WS_RE = re.compile(br"[\t ]")

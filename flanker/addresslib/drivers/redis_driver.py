@@ -1,9 +1,13 @@
-import collections
 import os
 import redis
 
+try:
+    import collections.abc as c
+except ImportError:
+    import collections as c
 
-class RedisCache(collections.MutableMapping):
+
+class RedisCache(c.MutableMapping):
     """
     RedisCache has the same interface as a dict, but talks to a redis server.
     """

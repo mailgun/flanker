@@ -10,7 +10,7 @@ from flanker.mime.message.utils import to_utf8
 
 _log = logging.getLogger(__name__)
 
-_ADDRESS_HEADERS = ('From', 'To', 'Delivered-To', 'Cc', 'Bcc', 'Reply-To')
+_ADDRESS_HEADERS = ('From', 'To', 'Delivered-To', 'Cc', 'Bcc', 'Reply-To', 'Sender')
 
 
 def to_mime(key, value):

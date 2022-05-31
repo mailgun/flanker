@@ -1,9 +1,13 @@
-import collections
 import os
 import redis
+import sys
 
+if sys.version_info.major == 3 and sys.version_info.minor >= 10:
+    from collections.abc import MutableMapping
+else:
+    from collections import MutableMapping
 
-class RedisCache(collections.MutableMapping):
+class RedisCache(MutableMapping):
     """
     RedisCache has the same interface as a dict, but talks to a redis server.
     """

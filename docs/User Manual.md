@@ -274,7 +274,7 @@ can loose some information because of broken or unknown encodings.
 #### Parsing MIME messages
 
 For the following examples, the below MIME messages will be used as examples, they will be
-refered to as `message_singlepart` and `message_multipart` respectivly.
+referred to as `message_singlepart` and `message_multipart` respectivly.
 
 **message_singlepart**:
 ```

@@ -72,7 +72,7 @@ class ContentType(tuple):
             self.is_disposition_notification()
 
     def is_rfc_headers(self):
-        return self == 'text/rfc822-headers'
+        return self == 'text/rfc822-headers' or self == 'message/rfc822-headers'
 
     def is_message_external_body(self):
         return self == 'message/external-body'

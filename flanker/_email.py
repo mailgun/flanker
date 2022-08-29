@@ -33,6 +33,11 @@ else:
     feedparser.NL = _CRLF
 
 
+def set_header_fold_chars(split_chars):
+    global _SPLIT_CHARS
+    _SPLIT_CHARS = split_chars
+
+
 def message_from_string(string):
     if six.PY3:
         if isinstance(string, six.binary_type):

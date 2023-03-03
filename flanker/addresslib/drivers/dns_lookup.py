@@ -1,8 +1,12 @@
-import collections
 import dnsq
+import sys
+if sys.version_info.major == 3 and sys.version_info.minor >= 10:
+    from collections.abc import MutableMapping
+else:
+    from collections import MutableMapping
 
 
-class DNSLookup(collections.MutableMapping):
+class DNSLookup(MutableMapping):
     """
     DNSLookup has the same interface as a dict, but talks to a DNS server
     """

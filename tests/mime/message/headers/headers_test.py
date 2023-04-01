@@ -57,7 +57,7 @@ def headers_multiple_values_test():
     h.add('Received', '1')
     eq_(['1', '2', '4'], h.getall('Received'))
 
-    # use prepend to insert header in the begining of the list
+    # use prepend to insert header in the beginning of the list
     h.prepend('Received', '0')
     eq_(['0', '1', '2', '4'], h.getall('Received'))
 

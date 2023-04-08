@@ -64,5 +64,10 @@ def content_types_test():
     eq_(('multipart/mixed', {'boundary': 'Alternative_Boundary_8dJn:mu0M2Yt5KaFZ8AdJn:mu0M2=Yt1KaFdA'}), parametrized.decode(''' multipart/mixed; \n\tboundary="Alternative_Boundary_8dJn:mu0M2Yt5KaFZ8AdJn:mu0M2=Yt1KaFdA"'''))
     eq_(('multipart/mixed', {'boundary': '16819560-2078917053-688350843:#11603'}), parametrized.decode('''MULTIPART/MIXED;BOUNDARY="16819560-2078917053-688350843:#11603"'''))
 
+
 def content_type_param_with_spaces_test():
-    eq_(('multipart/alternative',{'boundary':'nextPart'}), parametrized.decode("multipart/alternative; boundary = nextPart"))
+    eq_(('multipart/alternative', {'boundary': 'nextPart'}), parametrized.decode("multipart/alternative; boundary = nextPart"))
+
+
+def content_type_same_param_name_encoded_unencoded_test():
+    eq_(('application/pdf', {'name': '30676_2015.pdf'}), parametrized.decode("application/pdf; name=30676_2015.pdf;name*=iso-8859-1''%33%30%36%37%36%5F%32%30%31%35%2E%70%64%66"))

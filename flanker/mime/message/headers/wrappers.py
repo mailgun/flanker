@@ -100,7 +100,7 @@ class ContentType(tuple):
             self.get_boundary(), "--" if final else "")
 
     def get_charset(self):
-        default = 'ascii' if self.main == 'text' else None
+        default = 'utf-8' if self.main == 'text' else None
         c = self.params.get("charset", default)
         if c:
             c = c.lower()

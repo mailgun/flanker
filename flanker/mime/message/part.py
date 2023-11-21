@@ -1,10 +1,11 @@
 import base64
-import imghdr
 import logging
 import mimetypes
 import quopri
 from contextlib import closing
 from os import path
+from email.mime.image import MIMEImage
+from email.mime.audio import MIMEAudio
 
 import six
 from six.moves import StringIO
@@ -113,14 +114,20 @@ def adjust_content_type(content_type, body=None, filename=None):
         if six.PY3 and isinstance(body, six.text_type):
             image_preamble = image_preamble.encode('utf-8', 'ignore')
 
-        sub = imghdr.what(None, image_preamble)
-        if sub:
-            content_type = ContentType('image', sub)
+        try:
+            mime = MIMEImage(image_preamble)
+        except TypeError:
+            pass
+        else:
+            content_type = ContentType(*mime.get_content_type().split('/'))
 
     elif content_type.main == 'audio' and body:
-        sub = _email.detect_audio_type(body)
-        if sub:
-            content_type = ContentType('audio', sub)
+        try:
+            mime = MIMEAudio(body)
+        except TypeError:
+            pass
+        else:
+            content_type = ContentType(*mime.get_content_type().split('/'))
 
     return content_type
 

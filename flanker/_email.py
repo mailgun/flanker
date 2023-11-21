@@ -82,10 +82,6 @@ def decode_quoted_printable(val):
     return email.quoprimime.header_decode(val)
 
 
-def detect_audio_type(val):
-    return audio._whatsnd(val)
-
-
 def make_message_id():
     return make_msgid()
 

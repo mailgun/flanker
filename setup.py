@@ -10,7 +10,7 @@ tests_require = [
 ],
 
 setup(name='flanker',
-      version='0.9.11',
+      version='0.9.16',
       description='Mailgun Parsing Tools',
       long_description=open('README.rst').read(),
       classifiers=[
@@ -28,7 +28,6 @@ setup(name='flanker',
       author_email='admin@mailgunhq.com',
       url='https://www.mailgun.com/',
       license='Apache 2',
-      packages=find_packages(exclude=['tests']),
       include_package_data=True,
       zip_safe=True,
       tests_require=tests_require,

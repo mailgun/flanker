@@ -1,6 +1,6 @@
 import base64
-import imghdr
 import logging
+import sys
 import mimetypes
 import quopri
 from contextlib import closing
@@ -8,6 +8,11 @@ from os import path
 
 import six
 from six.moves import StringIO
+
+if sys.version_info[0] >= 3:
+    import filetype as _filetype
+else:
+    import imghdr as _imghdr
 
 from flanker import metrics, _email
 from flanker.mime import bounce
@@ -113,9 +118,16 @@ def adjust_content_type(content_type, body=None, filename=None):
         if six.PY3 and isinstance(body, six.text_type):
             image_preamble = image_preamble.encode('utf-8', 'ignore')
 
-        sub = imghdr.what(None, image_preamble)
-        if sub:
-            content_type = ContentType('image', sub)
+        if sys.version_info[0] >= 3:
+            kind = _filetype.guess(image_preamble)
+            if kind and kind.mime.startswith('image/'):
+                sub = kind.extension
+                sub = {'jpg': 'jpeg', 'tif': 'tiff'}.get(sub, sub)
+                content_type = ContentType('image', sub)
+        else:
+            sub = _imghdr.what(None, image_preamble)
+            if sub:
+                content_type = ContentType('image', sub)
 
     elif content_type.main == 'audio' and body:
         sub = _email.detect_audio_type(body)

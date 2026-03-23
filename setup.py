@@ -41,7 +41,8 @@ setup(name='flanker',
           'regex>=0.1.20110315',
           'six',
           'tld',
-          'WebOb>=0.9.8'],
+          'WebOb>=0.9.8',
+          'filetype; python_version >= "3"'],
       extras_require={
           'validator': [
               'dnsq>=1.1.6',

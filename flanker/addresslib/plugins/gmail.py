@@ -1,6 +1,6 @@
 # coding:utf-8
 
-'''
+r'''
     Email address validation plugin for gmail.com email addresses.
 
     Notes:

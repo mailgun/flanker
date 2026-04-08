@@ -40,6 +40,7 @@ setup(name='flanker',
           'ply>=3.10',
           'regex>=0.1.20110315',
           'six',
+          'standard-imghdr==3.13.0',
           'tld',
           'WebOb>=0.9.8'],
       extras_require={

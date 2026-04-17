@@ -42,7 +42,8 @@ setup(name='flanker',
           'six',
           'standard-imghdr==3.13.0',
           'tld',
-          'WebOb>=0.9.8'],
+          'WebOb>=0.9.8',
+          'filetype; python_version >= "3"'],
       extras_require={
           'validator': [
               'dnsq>=1.1.6',

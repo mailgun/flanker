@@ -107,8 +107,10 @@ def concatenate(parts):
     if is_old_style(part):
         # old-style parameters do not support any continuations
         return encodedword.mime_to_unicode(get_value(part))
-
-    return ''.join(decode_new_style(p) for p in partition(parts))
+    elif is_single_part(part):
+        return decode_new_style(part)
+    else:
+        return ''.join(decode_new_style(p) for p in partition(parts))
 
 
 def match_parameter(rest):
@@ -232,6 +234,10 @@ def is_old_style(parameter):
 
 def is_encoded(part):
     return part[1][2] == '*'
+
+
+def is_single_part(part):
+    return part[1][1] is None
 
 
 def get_key(parameter):

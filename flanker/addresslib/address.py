@@ -77,7 +77,7 @@ def parse(address, addr_spec_only=False, strict=False, metrics=False):
     time if requested.
 
     Examples:
-        >>> address.parse('John Smith <john@smith.com')
+        >>> address.parse('John Smith <john@smith.com>')
         John Smith <john@smith.com>
 
         >>> print address.parse('John <john@smith.com>', addr_spec_only=True)

@@ -23,7 +23,7 @@ r'''
         main-part        ->      alphanum { [dot] alphanum }
         tags             ->      { + [ dot-atom ] }
         dot-atom    	 ->      atom { [ dot   atom ] }
-        atom             ->      { A-Za-z0-9!#$%&'*+\-/=?^_`{|}~ }
+        atom             ->      { A-Za-z0-9!#$%&'*+\\-/=?^_`{|}~ }
         alphanum         ->      alpha | num
         dot              ->      .
 '''

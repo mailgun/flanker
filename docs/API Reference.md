@@ -71,7 +71,7 @@ parse_list(address_list, strict=False, as_tuple=False)
 | strict         | Operate parser in strict (stop at any error) or relaxed (attempt to recover and continue). (Default: False) |
 | as_tuple       | Return just the parsed list addresses, or also the unparsed portions. (Default: False)                      |
 
-*Return Value*: If opearting in strict mode, returns a list of parsed EmailAddress objects. If operating
+*Return Value*: If operating in strict mode, returns a list of parsed EmailAddress objects. If operating
 in relaxed mode, can return a tuple that contains the parsed addresses and unparsable portions or just
 the parsed addresses in a list.
 
@@ -106,7 +106,7 @@ validate_list(addr_list, as_tuple=True)
 | address_list   | A delimiter (either `,` or `;`) separated list of addresses. (Maximum: 524288 characters) |
 | as_tuple       | Return just the parsed list addresses, or also the unparsed portions. (Default: False)    |
 
-*Return Value*: If opearting in strict mode, returns a list of parsed EmailAddress objects. If operating
+*Return Value*: If operating in strict mode, returns a list of parsed EmailAddress objects. If operating
 in relaxed mode, can return a tuple that contains the parsed addresses and unparsable portions or just
 the parsed addresses in a list.
 

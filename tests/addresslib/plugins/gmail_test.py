@@ -23,7 +23,7 @@ def mock_exchanger_lookup(arg, metrics=False):
 
 def test_exchanger_lookup():
     '''
-    Test if exchanger lookup is occuring correctly. If this simple test
+    Test if exchanger lookup is occurring correctly. If this simple test
     fails that means custom grammar was hit. Then the rest of the tests
     can be mocked. Should always be run during deployment, can be skipped
     during development.

@@ -227,6 +227,14 @@ def bounce_headers_only_test():
     eq_('multipart/alternative',
         str(message.parts[2].enclosed.content_type))
 
+def bounce_headers_only_spam_test():
+    message = scan(SPAM_BOUNCE)
+    eq_(3, len(message.parts))
+    eq_('multipart/report', str(message.content_type.value))
+    eq_('text/plain', str(message.parts[0].content_type.value))
+    eq_('message/delivery-status', str(message.parts[1].content_type.value))
+    eq_('message/rfc822-headers', str(message.parts[2].content_type.value))
+
 def message_external_body_test():
     message = scan(MESSAGE_EXTERNAL_BODY)
     eq_(2, len(message.parts))

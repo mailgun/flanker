@@ -1,0 +1,84 @@
+Return-Path: <>
+Authentication-Results:  example.com; dkim=none
+Date: Tue, 07 Jun 2022 13:04:20 +0200
+From: "Mail Delivery System" <mailer-daemon@example.com>
+To: user@example.com
+Subject: Mail delivery failed: returning message to sender
+Auto-Submitted: auto-replied
+In-Reply-To: <example.user@example.com>
+References: <example.user@example.com>
+Content-Type: multipart/report;boundary="4zbut9xw88wjbg96ad6j2jsqofz0dm82mspkaumnz24trpanhmdj56iegc03veyln1s";
+ report-type="delivery-status"
+MIME-Version: 1.0
+ ==
+Envelope-To: <user@example.com>
+X-Spam-Flag: NO
+
+--4zbut9xw88wjbg96ad6j2jsqofz0dm82mspkaumnz24trpanhmdj56iegc03veyln1s
+Content-Type: text/plain
+Content-Transfer-Encoding: 8bit
+
+This message was created automatically by mail delivery software.
+
+A message that you sent could not be delivered to one or more of
+its recipients. This is a permanent error.
+
+The following address failed:
+
+    gmail-user@gmail.com:
+        SMTP error from remote server for TEXT command, host: gmail-smtp-in.l.google.com (74.125.206.27) reason: 550-5.7.1 [82.165.159.8      12] Our system has detected that this message
+ is
+550-5.7.1 likely unsolicited mail. To reduce the amount of spam sent to Gm
+ail,
+550-5.7.1 this message has been blocked. Please visit
+550-5.7.1  https://support.google.com/mail/?p=UnsolicitedMessageError
+550 5.7.1  for more information. c6-20020a05600c0a4600b00393fb6c3524si3374
+0377wmq.45 - gsmtp
+
+
+--- The header of the original message is following. ---
+
+To: user@example.com
+Subject: Test email 
+Date: Tue, 7 Jun 2022 11:04:19 +0000
+From: Example User <user-2@example.com>
+Reply-To: example-forum-user@example-forum.com
+Message-ID: <example.user@example.com>
+X-Mailer: PHPMailer 5.2.27 (https://github.com/PHPMailer/PHPMailer)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-Spam-Flag: YES
+X-Spam-Flag: YES
+
+--4zbut9xw88wjbg96ad6j2jsqofz0dm82mspkaumnz24trpanhmdj56iegc03veyln1s
+Content-Type: message/delivery-status
+Content-Transfer-Encoding: 7bit
+
+Reporting-MTA:dns;example.com
+Arrival-Date:Tue, 07 Jun 2022 13:04:19 +0200
+
+Final-Recipient:rfc822;gmail-user@gmail.com
+Action:failed
+Status:5.0.0
+Final-Log-ID:randomlogString
+
+--4zbut9xw88wjbg96ad6j2jsqofz0dm82mspkaumnz24trpanhmdj56iegc03veyln1s
+Content-Type: message/rfc822-headers
+Content-Transfer-Encoding: 7bit
+
+To: user@example.com
+Subject: Test email 
+Date: Tue, 7 Jun 2022 11:04:19 +0000
+From: Example User <user-2@example.com>
+Reply-To: example-forum-user@example-forum.com
+Message-ID: <example.user@example.com>
+X-Mailer: PHPMailer 5.2.27 (https://github.com/PHPMailer/PHPMailer)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-Spam-Flag: YES
+X-Spam-Flag: YES
+
+--4zbut9xw88wjbg96ad6j2jsqofz0dm82mspkaumnz24trpanhmdj56iegc03veyln1s--
+

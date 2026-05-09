@@ -88,6 +88,7 @@ DASHED_BOUNDARIES = read_fixture('messages/dashed-boundaries.eml')
 WEIRD_BOUNCE = read_fixture('messages/bounce/gmail-no-dns.eml')
 WEIRD_BOUNCE_2 = read_fixture(
     'messages/bounce/gmail-invalid-address.eml')
+SPAM_BOUNCE = read_fixture('messages/bounce/gmail-spam-mail.eml')
 
 WEIRD_BOUNCE_3 = read_fixture('messages/bounce/broken-mime.eml')
 MISSING_BOUNDARIES = read_fixture('messages/missing-boundaries.eml')

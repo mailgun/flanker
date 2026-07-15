@@ -622,7 +622,7 @@ def _encode_charset(preferred_charset, text):
     try:
         charset = preferred_charset or 'ascii'
         text = text.encode(preferred_charset)
-    except:
+    except (UnicodeEncodeError, LookupError):
         charset = 'utf-8'
         text = text.encode(charset)
     return charset, text

@@ -1,5 +1,4 @@
 import base64
-import imghdr
 import logging
 import mimetypes
 import quopri
@@ -10,6 +9,7 @@ import six
 from six.moves import StringIO
 
 from flanker import metrics, _email
+from flanker import _imagetype as imghdr
 from flanker.mime import bounce
 from flanker.mime.message import headers, charsets
 from flanker.mime.message.errors import EncodingError, DecodingError
